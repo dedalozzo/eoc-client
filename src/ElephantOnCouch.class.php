@@ -1,6 +1,6 @@
 <?php
 
-//! @file src.class.php
+//! @file ElephantOnCouch.class.php
 //! @brief This file contains the src class.
 //! @details
 //! @author Filippo F. Fadda
