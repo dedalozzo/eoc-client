@@ -1,5 +1,5 @@
 {
-    "name": "3F/ElephantOnCouch",
+    "name": "3f/elephantoncouch",
     "description": "ElephantOnCouch is a PHP Client for CouchDB",
     "keywords": ["couchdb", "client", "nosql"],
     "homepage": "http://github.com/dedalozzo/ElephantOnCouch",
