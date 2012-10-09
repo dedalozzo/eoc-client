@@ -1,0 +1,220 @@
+#! /opt/local/bin/php
+<?php
+
+//! @file eocsvr.php
+//! @author Filippo F. Fadda
+
+
+//! @brief This class represents the implementation of a Query Server.
+//! @details CouchDB delegates computation of Views to external query servers. It communicates with them over standard
+//! input/output, using a very simple, line-based protocol. The default query server is written in JavaScript. You can
+//! use other languages by setting a MIME type in the language property of a design document or the Content-Type header
+//! of a temporary view. Design documents that do not specify a language property are assumed to be of type javascript,
+//! as are ad-hoc queries that are POSTed to _temp_view without a Content-Type header.<br />
+//! CouchDB launches the query server and starts sending commands. The server responds according to its evaluation
+//! of the commands.<br />
+//! To use
+//! @code
+//! [query_servers]
+//! php=/usr/bin/eocsvr.php
+//! @endcode
+//! @warning This class won't work with CGI because uses standard input (STDIN) and standard output (STDOUT).
+//! @see http://wiki.apache.org/couchdb/View_server
+class ViewServer {
+  const TMP_DIR = "/tmp/";
+  const LOG_FILENAME = "viewserver.log";
+
+  private $funcs;
+
+  private $fd;
+
+
+  public final function __construct() {
+    $this->funcs = array();
+  }
+
+
+  public final function run() {
+
+    $this->fd = fopen(self::TMP_DIR.self::LOG_FILENAME, "w");
+
+    $this->log("run");
+
+    while ($line = trim(fgets(STDIN))) {
+      @list($cmd, $arg) = json_decode($line);
+
+      $this->log($cmd);
+
+      switch ($cmd) {
+        case "reset":
+          $this->reset();
+          break;
+
+        case "add_fun":
+          $this->addFun($arg);
+          break;
+
+        case "map_doc":
+          $this->mapDoc($arg);
+          break;
+
+        case "reduce":
+          $this->reduce();
+          break;
+
+        case "rereduce":
+          $this->rereduce();
+          break;
+
+        default:
+          $this->logError("command_not_supported", "'$cmd' command is not supported by this ViewServer implementation");
+          break;
+      }
+    }
+
+    fflush($this->fd);
+    fclose($this->fd);
+  }
+
+
+  //! TODO
+  private final function writeln($str) {
+    // CouchDB's message terminator is: \n.
+    fputs(STDOUT, $str."\n");
+    flush();
+  }
+
+
+  //! @brief Resets the internal state of the view server and makes it forget all previous input.
+  //! @details CouchDB calls this function TODO
+  //! @return NULL
+  private final function reset() {
+    unset($this->funcs);
+    $this->funcs = array();
+    $this->writeln("true");
+  }
+
+
+  //! @brief TODO
+  //! @details When creating a view, the view server gets sent the view function for evaluation. The view server should
+  //! parse/compile/evaluate the function he receives to make it callable later. If this fails, the view server returns
+  //! an error. CouchDB might store several functions before sending in any actual documents.
+  //! @return NULL
+  private final function addFun($fn) {
+    $this->funcs[] = $fn;
+    $this->writeln("true");
+    //$this->logError("eval_failed", "The function you provided is not a closure");
+  }
+
+
+  //! @brief Maps a document for every single View Function stored.
+  //! @details When the view function is stored in the view server, CouchDB starts sending in all the documents in the
+  //! database, one at a time. The view server calls the previously stored functions one after another with the document
+  //! and stores its result. When all functions have been called, the result is returned as a JSON string.
+  //! @return NULL
+  private final function mapDoc($doc) {
+    $doc = array_to_object($doc);
+
+    // Every time we map a document we must reset the map.
+    $map = array();
+
+    // We use a closure here, so we can just expose the emit() function to the closure provided by the user. He will not
+    // be able to call sum() or any other helper function, because they are all available as closures. We have also another
+    // advantage here: the $map variable is defined inside mapDoc(), so we don't need to declare it as class member.
+    $emit = function($key, $value) use (&$map) {
+      $map[] = array($key, $value);
+    };
+
+    // This initialization is made just to prevent a lint error during development.
+    $closure = NULL;
+
+    foreach ($this->funcs as$fn) {
+      $this->log($fn);
+
+      try {
+        // Here we call the closure function stored in the view. The $closure variable contains the function implementation
+        // provided by the user. You can have multiple views in a design document and for every single view you can have
+        // only one map function.
+        // The closure must be declared like:
+        //
+        //     function($doc) use ($emit) { ... };
+        //
+        // This technique let you use the syntax $emit($key, $value) to emit your record. The function doesn't return
+        // any value. You don't need to include any files since the closure's code is executed inside this method.
+        eval("\$closure = ".$fn);
+
+        if (is_callable($closure))
+          call_user_func($closure, $doc);
+        else
+          $this->logError("call_failed", "The function you provided is not callable");
+      }
+      catch (Exception $e) {
+        $this->logError("php_error", $e->getMessage()."\n".$e->getTraceAsString());
+      }
+    }
+
+    $result = json_encode(array($map));
+
+    // Sends mappings to CouchDB.
+    $this->writeln($result);
+
+    $this->log("Result: ".$result);
+  }
+
+
+  //! @return NULL
+  private final function reduce() {
+    //$this->log("sto chiamando la reduce");
+  }
+
+
+  //! @return NULL
+  private final function rereduce() {
+    //$this->log("sto chiamando la rereduce");
+  }
+
+
+  public final function sum() {
+    //$this->log("sto facendo la somma");
+  }
+
+
+  //! @brief Tells CouchDB to append the specified message in the couch.log file.
+  //! @details Any message will appear in the couch.log file, as follows:
+  //! [Tue, 22 May 2012 15:26:03 GMT] [info] [<0.80.0>] This is a log message
+  //! You can't force the message's level. Every message will be marked as [info] even in case of an error, because
+  //! CouchDB doesn't let you specify a different level. In case or error use <i>logError()</i> instead.
+  //! @param[in] string $msg The message to store into the log file.
+  //! @return NULL
+  private final function logMsg($msg) {
+    $this->writeln(json_encode(array("log", $msg)));
+  }
+
+
+  //! @brief In case of error CouchDB doesn't take any action. We simply notify the error, sending a special message to it.
+  private final function logError($error, $reason) {
+    $msg = json_encode(array("error" => $error, "reason" => $reason));
+    $this->writeln($msg);
+  }
+
+
+  private final function log($msg) {
+    if (empty($msg))
+      fputs($this->fd, "\n");
+    else
+      fputs($this->fd, date("Y-m-d H:i:s")." - ".$msg."\n");
+  }
+
+}
+
+
+function array_to_object($array) {
+  return is_array($array) ? (object) array_map(__FUNCTION__, $array) : $array;
+}
+
+
+// Creates and starts the server instance.
+$svr = new ViewServer();
+$svr->run();
+
+?>

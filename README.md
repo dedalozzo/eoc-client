@@ -1,0 +1,1 @@
+ElephantOnCouch is a PHP Client for CouchDB. The library is still a work in progress, use at your own risk.
