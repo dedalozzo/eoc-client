@@ -46,7 +46,7 @@ final class DesignDoc extends ReplicableDoc {
 
 
   // Stores the reserved words used by a Design Document.
-  protected static $reservedWords = array(
+  protected static $reservedWords = [
     self::LANGUAGE_RW => NULL,
     self::VALIDATE_DOC_UPDATE_RW => NULL,
     self::VIEWS_RW => NULL,
@@ -54,17 +54,17 @@ final class DesignDoc extends ReplicableDoc {
     self::UPDATES_RW => NULL,
     self::REWRITES_RW => NULL,
     self::FILTERS_RW => NULL
-  );
+  ];
 
 
   // Stores the reserved words used by a Design Document.
-  protected static $handlers = array(
+  protected static $handlers = [
     self::VIEWS_RW => NULL,
     self::SHOWS_RW => NULL,
     self::UPDATES_RW => NULL,
     self::REWRITES_RW => NULL,
     self::FILTERS_RW => NULL
-  );
+  ];
 
 
   // Stores the special handlers.

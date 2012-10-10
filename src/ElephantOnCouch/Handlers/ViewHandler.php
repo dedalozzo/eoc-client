@@ -6,7 +6,7 @@
 //! @author Filippo F. Fadda
 
 
-namespace ElephantOnCouch;
+namespace ElephantOnCouch\Helpers;
 
 
 //! @brief This handler let you create a CouchDB view.

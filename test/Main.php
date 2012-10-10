@@ -4,65 +4,26 @@
 $start = microtime(true);
 
 
-function includeIfExists($file)
-{
-  if (file_exists($file)) {
-    return include $file;
-  }
-}
+$loader = require_once __DIR__ . "/../vendor/autoload.php";
 
-if ((!$loader = includeIfExists(__DIR__.'/../vendor/autoload.php')) && (!$loader = includeIfExists(__DIR__.'/../../../autoload.php'))) {
-  die('You must set up the project dependencies, run the following commands:'.PHP_EOL.
-    'curl -s http://getcomposer.org/installer | php'.PHP_EOL.
-    'php composer.phar install'.PHP_EOL);
-}
-
-//$loader = require_once __DIR__ . "../../vendor/autoload.php";
-//$loader->add('ElephantOnCouch\\', __DIR__);
-//$loader->add('Rest\\', __DIR__);
-
-//require('../src/ElephantOnCouch/Loader.class.php');
-
-/*function __autoload($className) {
-  $className = ltrim($className, '\\');
-  $fileName  = '';
-
-  if ($lastNsPos = strripos($className, '\\')) {
-      $namespace = substr($className, 0, $lastNsPos);
-      $className = substr($className, $lastNsPos + 1);
-      $fileName  = str_replace('\\', DIRECTORY_SEPARATOR, $namespace) . DIRECTORY_SEPARATOR;
-  }
-
-  $fileName .= str_replace('_', DIRECTORY_SEPARATOR, $className) . '.class.php';
-
-  require(__DIR__."/".$fileName);
-}*/
-
-//use ElephantOnCouch\Loader;
-//use Rest\Request;
 use ElephantOnCouch\ResponseException;
 use ElephantOnCouch\ElephantOnCouch;
 use ElephantOnCouch\DocOpts;
 
-
 //phpinfo(INFO_GENERAL);
 
-//Loader::init();
-
 try {
-  Rest\Request::addCustomMethod("__METHOD TEST");
-  Rest\Request::addCustomHeaderField("__FIELD TEST");
+  Rest\Request::addCustomMethod("__METHOD__TEST");
+  Rest\Request::addCustomHeaderField("__FIELD__TEST");
   $request = new Rest\Request;
   print_r("Nethods: ".count($request->getSupportedMethods())."\n");
-  print_r("Header Fields: ".count($request->getSupportedHeaderFields()));
+  print_r("Header Fields: ".count($request->getSupportedHeaderFields())."\n");
 
-
-  //$couch = new Client();
   $couch = new ElephantOnCouch(ElephantOnCouch::DEFAULT_SERVER, "pippo", "calippo");
-  //$couch = new src(src::DEFAULT_SERVER, "", "");
 
   $couch->useCurl();
   //$couch->useSocket();
+
   $couch->selectDb("programmazione"); // TEST PASSED!
 
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -129,7 +90,7 @@ try {
 
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   // Documents management methods.
-  echo $couch->getDocEtag(46959); // TEST PASSED!
+  echo $couch->getDocEtag(48346); // TEST PASSED!
 
   $opts = new DocOpts();
   $opts->includeMeta();
@@ -138,7 +99,7 @@ try {
   $opts->includeRevsInfo();
   $opts->includeRevs();
   //$opts->includeOpenRevs();
-  var_dump($couch->getDoc(10002, "", "", $opts));
+  var_dump($couch->getDoc(ElephantOnCouch::STD_DOC, 48346, "", $opts));
   //$couch->saveDoc();
   //$couch->deleteDoc("10002", "1-40bc3cbd9c712f88542adc935603a4ad");
   //$couch->copyDoc();
@@ -176,12 +137,6 @@ $stop = microtime(true);
 $time = round($stop - $start, 3);
 
 echo PHP_EOL.PHP_EOL."Elapsed time: $time";
-
-
-echo PHP_EOL.PHP_EOL.json_encode(array("log", "pippo"))."\n";
-
-$line = '["add_fun", "function(doc) { if(doc.score > 50) emit(null, {\'player_name\': doc.name}); }"]';
-echo PHP_EOL.PHP_EOL.var_dump(json_decode($line));
 
 ?>
  
