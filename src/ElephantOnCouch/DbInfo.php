@@ -1,6 +1,6 @@
 <?php
 
-//! @file DbInfo.class.php
+//! @file DbInfo.php
 //! @brief This file contains the DbInfo class.
 //! @details
 //! @author Filippo F. Fadda

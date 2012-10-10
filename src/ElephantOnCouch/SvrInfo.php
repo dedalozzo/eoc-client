@@ -1,6 +1,6 @@
 <?php
 
-//! @file SvrInfo.class.php
+//! @file SvrInfo.php
 //! @brief This file contains the SvrInfo class.
 //! @details
 //! @author Filippo F. Fadda

@@ -1,6 +1,6 @@
 <?php
 
-//! @file UpdateHandler.class.php
+//! @file UpdateHandler.php
 //! @brief This file contains the UpdatesHandler class.
 //! @details
 //! @author Filippo F. Fadda

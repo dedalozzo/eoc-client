@@ -1,6 +1,6 @@
 <?php
 
-//! @file ViewHandler.class.php
+//! @file ViewHandler.php
 //! @brief This file contains the ViewsHandler class.
 //! @details
 //! @author Filippo F. Fadda

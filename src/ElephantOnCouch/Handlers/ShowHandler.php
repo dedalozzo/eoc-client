@@ -1,6 +1,6 @@
 <?php
 
-//! @file ShowHandler.class.php
+//! @file ShowHandler.php
 //! @brief This file contains the ShowsHandler class.
 //! @details
 //! @author Filippo F. Fadda

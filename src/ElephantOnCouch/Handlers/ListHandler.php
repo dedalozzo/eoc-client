@@ -1,6 +1,6 @@
 <?php
 
-//! @file ListHandler.class.php
+//! @file ListHandler.php
 //! @brief This file contains the ListsHandler class.
 //! @details
 //! @author Filippo F. Fadda

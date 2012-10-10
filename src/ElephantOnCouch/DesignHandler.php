@@ -1,6 +1,6 @@
 <?php
 
-//! @file DesignHandler.class.php
+//! @file DesignHandler.php
 //! @brief This file contains the DesignHandler class.
 //! @details
 //! @author Filippo F. Fadda

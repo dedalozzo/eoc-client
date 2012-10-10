@@ -1,6 +1,6 @@
 <?php
 
-//! @file ReplicableDoc.class.php
+//! @file ReplicableDoc.php
 //! @brief This file contains the ReplicableDoc class.
 //! @details
 //! @author Filippo F. Fadda

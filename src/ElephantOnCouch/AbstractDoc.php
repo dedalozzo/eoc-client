@@ -1,6 +1,6 @@
 <?php
 
-//! @file AbstractDoc.class.php
+//! @file AbstractDoc.php
 //! @brief This file contains the AbstractDoc class.
 //! @details
 //! @author Filippo F. Fadda

@@ -1,6 +1,6 @@
 <?php
 
-//! @file DocOpts.class.php
+//! @file DocOpts.php
 //! @brief This file contains the DocOpts class.
 //! @details
 //! @author Filippo F. Fadda

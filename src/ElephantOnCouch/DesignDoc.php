@@ -1,6 +1,6 @@
 <?php
 
-//! @file DesignDoc.class.php
+//! @file DesignDoc.php
 //! @brief This file contains the DesignDoc class.
 //! @details
 //! @author Filippo F. Fadda

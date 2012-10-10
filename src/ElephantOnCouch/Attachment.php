@@ -1,6 +1,6 @@
 <?php
 
-//! @file Attachment.class.php
+//! @file Attachment.php
 //! @brief This file contains the Attachment class.
 //! @details
 //! @author Filippo F. Fadda

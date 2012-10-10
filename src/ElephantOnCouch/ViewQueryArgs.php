@@ -1,6 +1,6 @@
 <?php
 
-//! @file ViewQueryArgs.class.php
+//! @file ViewQueryArgs.php
 //! @brief This file contains the ViewQueryArgs class.
 //! @details
 //! @author Filippo F. Fadda

@@ -1,7 +1,7 @@
 <?php
 
 
-//! @file Stats.class.php
+//! @file Stats.php
 //! @brief This file contains the Stats class.
 //! @details
 //! @author Filippo F. Fadda

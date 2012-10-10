@@ -1,6 +1,6 @@
 <?php
 
-//! @file ResponseException.class.php
+//! @file ResponseException.php
 //! @brief This file contains the ResponseException class.
 //! @details
 //! @author Filippo F. Fadda
