@@ -203,7 +203,6 @@ class ElephantOnCouch extends Rest\Client {
   //! @return An associative array.
   public function getStats() {
     return $this->sendRequest($this->newRequest(Request::GET_METHOD, "/_stats"))->getBodyAsArray();
-
   }
 
 
