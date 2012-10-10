@@ -1,9 +1,13 @@
 <?php
 
+//namespace ElephantOnCouch;
 
 $start = microtime(true);
 
-require('src/Loader.class.php');
+$loader = require_once __DIR__ . "../../vendor/autoload.php";
+$loader->add('src\\', __DIR__);
+
+//require('../src/Loader.class.php');
 
 /*function __autoload($className) {
   $className = ltrim($className, '\\');
@@ -20,14 +24,15 @@ require('src/Loader.class.php');
   require(__DIR__."/".$fileName);
 }*/
 
-use ElephantOnCouch\Loader;
+//use ElephantOnCouch\Loader;
 use ElephantOnCouch\ResponseException;
 use ElephantOnCouch\ElephantOnCouch;
 use ElephantOnCouch\DocOpts;
 
+
 //phpinfo(INFO_GENERAL);
 
-Loader::init();
+//Loader::init();
 
 try {
   Rest\Request::addCustomMethod("__METHOD TEST");
