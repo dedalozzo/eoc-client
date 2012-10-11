@@ -6,7 +6,7 @@
 //! @author Filippo F. Fadda
 
 
-namespace ElephantOnCouch\Helpers;
+namespace ElephantOnCouch;
 
 
 //! @brief TODO

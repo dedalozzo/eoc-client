@@ -6,7 +6,7 @@
 //! @author Filippo F. Fadda
 
 
-namespace ElephantOnCouch\Helpers;
+namespace ElephantOnCouch;
 
 
 //! @brief This handler let you create a CouchDB view.
@@ -23,6 +23,11 @@ final class ViewsHandler extends DesignHandler {
   const OPTIONS_RW = "options";
   const MAP_RW = "map";
   const REDUCE_RW = "reduce";
+
+
+  private $name;
+
+  private $section;
 
   private $options = array();
 
@@ -73,6 +78,16 @@ final class ViewsHandler extends DesignHandler {
 
     $this->mapFn = "";
     $this->reduceFn = "";
+  }
+
+
+  public function getName() {
+    return $this->name;
+  }
+
+
+  public function getSection() {
+    return $this->section;
   }
 
 
