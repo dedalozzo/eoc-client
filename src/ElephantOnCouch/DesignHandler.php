@@ -6,26 +6,30 @@
 //! @author Filippo F. Fadda
 
 
-namespace ElephantOnCouch;
+namespace FFF\ElephantOnCouch;
 
 
-//! @brief TODO
-interface DesignHandler {
+//! @brief This class defines the interface for all the concrete CouchDB's handlers.
+//! @details To create a new handler you must inherit from this class. This is the only extension point for handlers.
+//! In case of CouchDB design documents' structure changes, you just need to create a new handler, starting from here.
+//! @nosubgrouping
+abstract class DesignHandler {
   use Properties;
 
 
-  //! @brief Returns the handler as an array.
-  function asArray();
+  //! @brief Returns the handler's section.
+  //! @return string
+  abstract public static function getSection();
 
 
-  function setName();
+  //! @brief You must always check the handler's consistence before every call to <i>getAttributes</i> method.
+  //! @return boolean
+  abstract public function isConsistent();
 
 
-  function getName()
-
-
-
-
+  //! @brief Returns the handler's attributes.
+  //! @return string|array
+  abstract public function getAttributes();
 }
 
 ?>

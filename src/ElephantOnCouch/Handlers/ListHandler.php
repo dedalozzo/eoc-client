@@ -1,15 +1,29 @@
 <?php
 
 //! @file ListHandler.php
-//! @brief This file contains the ListsHandler class.
+//! @brief This file contains the ListHandler class.
 //! @details
 //! @author Filippo F. Fadda
 
 
-namespace ElephantOnCouch;
+namespace FFF\ElephantOnCouch;
 
 
 //! @brief TODO
-class ListsHandler extends DesignHandler {
+class ListHandler extends DesignHandler {
 
+
+  public static function getSection() {
+    // TODO: Implement getSection() method.
+  }
+
+
+  public function isConsistent() {
+    // TODO: Implement isConsistent() method.
+  }
+
+
+  public function getAttributes() {
+    // TODO: Implement getAttributes() method.
+  }
 }

@@ -1,12 +1,16 @@
 <?php
 
 //! @file ViewHandler.php
-//! @brief This file contains the ViewsHandler class.
+//! @brief This file contains the ViewHandler class.
 //! @details
 //! @author Filippo F. Fadda
 
 
-namespace ElephantOnCouch;
+namespace FFF\ElephantOnCouch\Handlers;
+
+
+use Lint\Lint;
+use ElephantOnCouch\DesignHandler;
 
 
 //! @brief This handler let you create a CouchDB view.
@@ -18,18 +22,15 @@ namespace ElephantOnCouch;
 //! you can write these functions directly in PHP.
 //! All the views in one design document are indexed whenever any of them gets queried.
 //! @nosubgrouping
-final class ViewsHandler extends DesignHandler {
-
-  const OPTIONS_RW = "options";
-  const MAP_RW = "map";
-  const REDUCE_RW = "reduce";
-
+final class ViewHandler extends DesignHandler {
+  const VIEWS = "views";
+  const OPTIONS = "options";
+  const MAP = "map";
+  const REDUCE = "reduce";
 
   private $name;
 
-  private $section;
-
-  private $options = array();
+  private $options = [];
 
   //! @name Properties
   //@{
@@ -65,16 +66,17 @@ final class ViewsHandler extends DesignHandler {
   //@}
 
 
+  //! @brief Creates a ViewHandler class instance.
+  //! @param[in] string $name Handler name.
   public function __construct($name) {
-    parent::__construct($name);
-    $this->section = DesignDoc::VIEWS_RW;
+    $this->setName($name);
   }
 
 
   //! @brief Resets the options.
   public function reset() {
     unset($this->options);
-    $this->options = array();
+    $this->options = [];
 
     $this->mapFn = "";
     $this->reduceFn = "";
@@ -86,25 +88,32 @@ final class ViewsHandler extends DesignHandler {
   }
 
 
-  public function getSection() {
-    return $this->section;
+  public function setName($value) {
+    $this->name = (string)$value;
   }
 
 
-  public function asArray() {
-    if (!empty($this->mapFn)) {
-      $view[self::MAP_RW] = $this->mapFn;
+  public static function getSection() {
+    return self::VIEWS;
+  }
 
-      if (!empty($this->reduceFn))
-        $view[self::REDUCE_RW] = $this->reduceFn;
 
-      if (!empty($this->options))
-        $view[self::OPTIONS_RW] = $this->options;
+  public function isConsistent() {
+    return (!empty($this->name) && !empty($this->mapFn)) ? TRUE : FALSE;
+  }
 
-      return $view;
-    }
-    else
-      throw new \Exception("You must specify at least the map function for the view.");
+
+  public function getAttributes() {
+    $view = [];
+    $view[self::MAP] = $this->mapFn;
+
+    if (!empty($this->reduceFn))
+      $view[self::REDUCE] = $this->reduceFn;
+
+    if (!empty($this->options))
+      $view[self::OPTIONS] = $this->options;
+
+    return $view;
   }
 
 
@@ -114,7 +123,7 @@ final class ViewsHandler extends DesignHandler {
 
 
   public function setMapFn($closure) {
-    $this->checkSyntax($closure);
+    Lint::checkSourceCode($closure);
 
     if (preg_match('/function\s*\(\s*\$doc\)\s*use\s*\(\$emit\)\s*\{[\W\w]*\};\z/m', $closure))
       $this->mapFn = $closure;
@@ -129,8 +138,7 @@ final class ViewsHandler extends DesignHandler {
 
 
   public function setReduceFn($closure) {
-    // TODO check the regex and the exception message
-    $this->checkSyntax($closure);
+    Lint::checkSourceCode($closure);
 
     if (preg_match('/function\s*\(\s*\$key\s*,\s*\$value\)\s*\{[\W\w]*\};\z/m', $closure))
       $this->reduceFn = $closure;

@@ -7,19 +7,17 @@
 
 
 //! @brief TODO
-namespace ElephantOnCouch;
+namespace FFF\ElephantOnCouch;
 
 
-use Rest;
-use Rest\Message;
-use Rest\Request;
-use Rest\Response;
+use FFF\Rest\Client;
+use FFF\Rest\Request;
 
 
 //! @brief This class is the main class of src library. You need an instance of this class to interact with
 //! CouchDB.
 //! @nosubgrouping
-class ElephantOnCouch extends Rest\Client {
+class ElephantOnCouch extends Client {
 
   //! @name User Agent
   //! @brief User agent information.
@@ -72,19 +70,41 @@ class ElephantOnCouch extends Rest\Client {
   // Current selected database name.
   private $dbName;
 
+  // Used to know if the constructor has been already called.
+  private static $initialized = FALSE;
+
 
   public function __construct($server = self::DEFAULT_SERVER, $userName = "", $password = "") {
     parent::__construct($server, $userName, $password);
 
     $this->setUserAgent(self::USER_AGENT_NAME." ".self::USER_AGENT_VERSION);
 
-    // CouchDB uses a custom Method.
-    Request::addCustomMethod(self::COPY_METHOD);
+    // We can avoid to call the following code every time a ElephantOnCouch instance is created, testing a static property.
+    // Because the static nature of self::$initialized, this code will be executed only one time, even multiple ElephantOnCouch
+    // instances are created.
+    if (!self::$initialized) {
+      self::$initialized = TRUE;
 
-    // CouchDB uses some custom Header Fields
-    Request::addCustomHeaderField(self::DESTINATION_HF);
-    Request::addCustomHeaderField(self::X_COUCHDB_WWW_AUTHENTICATE_HF);
-    Request::addCustomHeaderField(self::X_COUCHDB_FULL_COMMIT_HF);
+      // CouchDB uses a custom Method.
+      Request::addCustomMethod(self::COPY_METHOD);
+
+      // CouchDB uses some custom Header Fields
+      Request::addCustomHeaderField(self::DESTINATION_HF);
+      Request::addCustomHeaderField(self::X_COUCHDB_WWW_AUTHENTICATE_HF);
+      Request::addCustomHeaderField(self::X_COUCHDB_FULL_COMMIT_HF);
+    }
+  }
+
+
+  private static function getCallerMethod() {
+    $backtrace = debug_backtrace();
+
+    var_dump($backtrace);
+
+    if (array_key_exists("function", $backtrace))
+      return $backtrace["function"];
+    else
+      return NULL;
   }
 
 
@@ -192,7 +212,7 @@ class ElephantOnCouch extends Rest\Client {
   public function getFavicon() {
     $response = $this->sendRequest($this->newRequest(Request::GET_METHOD, "/favicon.ico"));
 
-    if ($response->getHeaderField(Message::CONTENT_TYPE_HF) == "image/x-icon")
+    if ($response->getHeaderField(Request::CONTENT_TYPE_HF) == "image/x-icon")
       return $response->getBody();
     else
       throw new \Exception("Content-Type must be image/x-icon.");
@@ -364,7 +384,6 @@ class ElephantOnCouch extends Rest\Client {
 
   //! @brief Check if a database has been selected. This function is used internally, but you want use it in combination
   //! with exec_request method.
-  //! @return NULL
   //! @exception Exception <c>Message: <i>No database selected.</i></c>
   public function checkForDb() {
     if (empty($this->dbName))
@@ -407,7 +426,6 @@ class ElephantOnCouch extends Rest\Client {
   //! digits (0-9), or any of the _$()+-/ characters and must end with a slash in the URL. The name has to start with a
   //! lowercase letter (a-z).
   //! @param[in] bool $auto_select If <b>TRUE</b> selects the created database.
-  //! @return NULL
   //! @exception Exception <c>Message: <i>You can't create a database with the same name of the selected database.</i></c>
   //! @exception ResponseException
   //! <c>Code: <i>412 Precondition Failed</i></c>\n
@@ -435,7 +453,6 @@ class ElephantOnCouch extends Rest\Client {
   //! @param[in] string $dbName The database name. A database must be named with all lowercase letters (a-z),
   //! digits (0-9), or any of the _$()+-/ characters and must end with a slash in the URL. The name has to start with a
   //! lowercase letter (a-z).
-  //! @return NULL
   //! @exception Exception <c>Message: <i>You can't delete the selected database.</i>
   //! @exception ResponseException
   //! <c>Code: <i>404 Not Found</i></c>\n
@@ -540,7 +557,6 @@ class ElephantOnCouch extends Rest\Client {
   //! database structure will be set to true.
   //! You can also obtain a list of running processes to determine whether compaction is currently running, using the
   //! get_active_tasks() method.
-  //! @return NULL.
   //! @exception Exception <c>Message: <i>No database selected.</i></c>
   //! @exception ResponseException
   //! <c>Code: <i>404 Not Found</i></c>\n
@@ -564,7 +580,6 @@ class ElephantOnCouch extends Rest\Client {
   //! @details If you have very large views or are tight on space, you might consider compaction as well. To run compact
   //! for a particular view on a particular database, use this method.
   //! @param[in] string $designDocName Name of the design document where is stored the view.
-  //! @return NULL
   //! @exception Exception <c>Message: <i>No database selected.</i></c>
   //! @attention Requires admin privileges.
   //! @see http://wiki.apache.org/couchdb/Compaction#View_compaction
@@ -584,7 +599,6 @@ class ElephantOnCouch extends Rest\Client {
 
   //! @brief Removes all outdated view indexes.
   //! @details Old views files remain on disk until you explicitly run cleanup.
-  //! @return NULL
   //! @exception Exception <c>Message: <i>No database selected.</i></c>
   //! @attention Requires admin privileges.
   //! @see http://wiki.apache.org/couchdb/Compaction#View_compaction
@@ -686,7 +700,7 @@ class ElephantOnCouch extends Rest\Client {
       $body["target"] = $targetDbUrl;
     }
     else
-      throw new \Exception("\$source_db_url and \$target_db_url must be strings and can't be empty.");
+      throw new \Exception("\$source_db_url and \$target_db_url must be non-empty strings.");
 
     if (!is_bool($continuous))
       throw new \Exception("\$continuous must be a boolean.");
@@ -698,7 +712,7 @@ class ElephantOnCouch extends Rest\Client {
       $body["proxy"] = $this->proxy;
 
     // Specific parameters depend by caller method.
-    $callerMethod = get_caller_method();
+    $callerMethod = self::getCallerMethod();
 
     if ($callerMethod == "startDbReplication") {
       // create_target option
@@ -1002,7 +1016,6 @@ class ElephantOnCouch extends Rest\Client {
   //! @param[in] string $rev The document's revision number you want delete.
   //! @param[in] string $docType The document type. You need to specify a document type only when you want delete a
   //! document. Allowed values: <i>src::STD_DOC</i>, <i>src::LOCAL_DOC</i>, <i>src::DESIGN_DOC</i>.
-  //! @return NULL
   //! @exception Exception <c>Message: <i>No database selected.</i></c>
   //! @exception Exception <c>Message: <i>You must provide a valid \$docId.</i></c>
   //! @exception Exception <c>Message: <i>\$docType is not a valid document type.</i></c>
@@ -1030,7 +1043,6 @@ class ElephantOnCouch extends Rest\Client {
   //! @param[in] string $targetDocId The destination document id.
   //! @param[in] string $rev Needed when you want override an existent document.
   //! @param[in] string $docType The document type. Allowed values: <i>src::STD_DOC</i>, <i>src::LOCAL_DOC</i>, <i>src::DESIGN_DOC</i>.
-  //! @return NULL
   //! @exception Exception <c>Message: <i>No database selected.</i></c>
   //! @exception Exception <c>Message: <i>You must provide a valid \$docId.</i></c>
   //! @exception Exception <c>Message: <i>\$docType is not a valid document type.</i></c>

@@ -6,26 +6,36 @@
 //! @author Filippo F. Fadda
 
 
-namespace ElephantOnCouch;
+namespace FFF\ElephantOnCouch;
 
 
 //! @brief TODO
 //! @nosubgrouping
 abstract class ReplicableDoc extends AbstractDoc {
 
+  //! @name Replicable Document Properties
+  //@{
+
+  const ATTACHMENTS = "_attachments"; //!< The document attachments.
+  const REVISIONS = "_revisions"; //!< The document revisions.
+  const REVS_INFO = "_revs_info";
+  const CONFLICTS = "_conflicts";
+  const DELETED_CONFLICTS = "_deleted_conflicts";
+
+  //@}
+
   //! If the document has attachments, holds a meta-data structure
-  private $attachments = array(); // array of attachments
+  private $attachments = []; // array of attachments
 
   //! Revision history of the document.
-  private $revisions = array();
+  private $revisions = [];
 
   //! A list of revisions of the document, and their availability.
-  private $revsInfo = array();
+  private $revsInfo = [];
 
+  private $conflicts = [];
 
-  private $conflicts = array();
-
-  private $deletedConflicts = array();
+  private $deletedConflicts = [];
 
 
   public function getAttachments() {

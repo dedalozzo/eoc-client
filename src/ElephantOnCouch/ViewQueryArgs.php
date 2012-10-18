@@ -6,7 +6,7 @@
 //! @author Filippo F. Fadda
 
 
-namespace ElephantOnCouch;
+namespace FFF\ElephantOnCouch;
 
 
 //! @brief TODO
@@ -21,7 +21,7 @@ class ViewQueryArgs {
 
   //! @brief Used to retrieve just the view rows matching that set of keys. Rows are returned in the order of the
   //! specified keys. Combining this feature with include_docs=true results in the so-called multi-document-fetch feature.
-  private $keys = array();
+  private $keys = [];
 
   //! @name Key Range
   //! @brief Those are used to return documents in a key range.
@@ -44,7 +44,7 @@ class ViewQueryArgs {
   //! @brief Reset default options.
   public function reset() {
     unset($this->options);
-    $this->options = array();
+    $this->options = [];
   }
 
 

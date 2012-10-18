@@ -1,15 +1,15 @@
 <?php
 
 //! @file FilterHandler.php
-//! @brief This file contains the FiltersHandler class.
+//! @brief This file contains the FilterHandler class.
 //! @details
 //! @author Filippo F. Fadda
 
 
-namespace ElephantOnCouch;
+namespace FFF\ElephantOnCouch;
 
 
 //! @brief TODO
-class FiltersHandler {
+class FilterHandler {
 
 }

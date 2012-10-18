@@ -6,8 +6,8 @@ $start = microtime(true);
 
 $loader = require_once __DIR__ . "/../vendor/autoload.php";
 
-use ElephantOnCouch\ResponseException;
 use ElephantOnCouch\ElephantOnCouch;
+use ElephantOnCouch\ResponseException;
 use ElephantOnCouch\DocOpts;
 
 //phpinfo(INFO_GENERAL);

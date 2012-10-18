@@ -6,7 +6,7 @@
 //! @author Filippo F. Fadda
 
 
-namespace ElephantOnCouch;
+namespace FFF\ElephantOnCouch;
 
 
 //! @brief The abstract document is the ancestor of the other document classes. This class encapsulates common
@@ -15,47 +15,44 @@ namespace ElephantOnCouch;
 abstract class AbstractDoc {
   use Properties;
 
-  //! @name Reserved Words
-  //! @brief You can't use a reserved word to name a document's attribute.
+  //! @name Properties
+  //! @brief Those are standard document's properties.
   //@{
 
-  const ID_RW = "_id"; //!< Document identifier. Mandatory and immutable.
-  const REV_RW = "_rev"; //!< The current MVCC-token/revision of this document. Mandatory and immutable.
-  const DELETE_RW = "_deleted"; //!< Indicates that this document has been deleted and previous revisions will be removed on next compaction run.
-  const LOCAL_SEQUENCE_RW = "_local_sequence"; //!< TODO I'm not sure this goes here. Probably on ReplicableDoc.
+  const ID = "_id"; //!< Document identifier. Mandatory and immutable.
+  const REV = "_rev"; //!< The current MVCC-token/revision of this document. Mandatory and immutable.
+  const DELETED = "_deleted"; //!< Indicates that this document has been deleted and previous revisions will be removed on next compaction run.
+  const LOCAL_SEQUENCE = "_local_sequence"; //!< TODO I'm not sure this goes here. Probably on ReplicableDoc.
 
   //@}
 
-  // Stores the reserved words used by a Local Document.
-  protected static $reservedWords = array(
-    self::ID_RW => NULL,
-    self::REV_RW => NULL,
-    self::DELETE_RW => NULL,
-    self::LOCAL_SEQUENCE_RW => NULL //!< TODO I'm not sure this goes here. Probably on ReplicableDoc.
-  );
+  // Stores the reserved words.
+  protected static $reservedWords = [
+    self::ID => NULL,
+    self::REV => NULL,
+    self::DELETED => NULL,
+    self::LOCAL_SEQUENCE => NULL //!< TODO I'm not sure this goes here. Probably on ReplicableDoc.
+  ];
 
-  protected $meta = array();
+  protected $meta = [];
 
 
   protected function isMetadataPresent($name) {
-    if (array_key_exists($name, $this->meta))
-      return TRUE;
-    else
-      return FALSE;
+    return (array_key_exists($name, $this->meta)) ? TRUE : FALSE;
   }
 
 
-  //! @brief Reset the metadata.
+  //! @brief Resets the metadata.
   public function resetMetadata() {
     unset($this->meta);
-    $this->meta = array();
+    $this->meta = [];
   }
 
   //! @brief Given an instance of a standard class, this function assigns every single object's property to the <i>$meta</i>
   //! array, the array that stores the document's metadata.
   public function assignObject(\stdClass $object) {
     $this->meta = get_object_vars($object);
-    print "METADATI\n";
+    print "METADATI\n"; // TODO Remove these lines.
     print_r($this->meta);
   }
 
@@ -78,61 +75,62 @@ abstract class AbstractDoc {
   }
 
 
-  //! @brief TODO
+  //! @brief Returns a list of reserved words that cannot be used.
+  //! @return associate array
   public function getReservedWords() {
     return static::$reservedWords;
   }
 
 
   public function getId() {
-    return $this->meta[self::ID_RW];
+    return $this->meta[self::ID];
   }
 
 
   public function issetId() {
-    return $this->isMetadataPresent(self::ID_RW);
+    return $this->isMetadataPresent(self::ID);
   }
 
 
   public function setId($value) {
     if (is_string($value) && !empty($value))
-      $this->meta[self::ID_RW] = $value;
+      $this->meta[self::ID] = $value;
     else
       throw new \Exception("\$id must be a non-empty string.");
   }
 
 
   public function unsetId() {
-    unset($this->meta[self::ID_RW]);
+    unset($this->meta[self::ID]);
   }
 
 
   public function getRev() {
-    return $this->meta[self::REV_RW];
+    return $this->meta[self::REV];
   }
 
 
   public function issetRev() {
-    return $this->isMetadataPresent(self::REV_RW);
+    return $this->isMetadataPresent(self::REV);
   }
 
 
   public function setRev($value) {
     // TODO regex on $value
     if (is_string($value) && !empty($value))
-      $this->meta[self::ID_RW] = $value;
+      $this->meta[self::ID] = $value;
     else
       throw new \Exception("\$id must be a non-empty string.");
   }
 
 
   public function unsetRev() {
-    unset($this->meta[self::REV_RW]);
+    unset($this->meta[self::REV]);
   }
 
 
   public function isDeleted() {
-    if ($this->meta[self::DELETE_RW] == "true")
+    if ($this->meta[self::DELETED] == "true")
       return TRUE;
     else
       return FALSE;
@@ -140,12 +138,12 @@ abstract class AbstractDoc {
 
 
   public function getLocalSequence() {
-    return $this->meta[self::LOCAL_SEQUENCE_RW];
+    return $this->meta[self::LOCAL_SEQUENCE];
   }
 
 
   public function issetLocalSequence() {
-    return $this->isMetadataPresent(self::LOCAL_SEQUENCE_RW);
+    return $this->isMetadataPresent(self::LOCAL_SEQUENCE);
   }
 
 }

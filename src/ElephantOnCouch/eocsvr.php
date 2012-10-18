@@ -30,7 +30,7 @@ class ViewServer {
 
 
   public final function __construct() {
-    $this->funcs = array();
+    $this->funcs = [];
   }
 
 
@@ -87,10 +87,9 @@ class ViewServer {
 
   //! @brief Resets the internal state of the view server and makes it forget all previous input.
   //! @details CouchDB calls this function TODO
-  //! @return NULL
   private final function reset() {
     unset($this->funcs);
-    $this->funcs = array();
+    $this->funcs = [];
     $this->writeln("true");
   }
 
@@ -99,7 +98,6 @@ class ViewServer {
   //! @details When creating a view, the view server gets sent the view function for evaluation. The view server should
   //! parse/compile/evaluate the function he receives to make it callable later. If this fails, the view server returns
   //! an error. CouchDB might store several functions before sending in any actual documents.
-  //! @return NULL
   private final function addFun($fn) {
     $this->funcs[] = $fn;
     $this->writeln("true");
@@ -111,12 +109,11 @@ class ViewServer {
   //! @details When the view function is stored in the view server, CouchDB starts sending in all the documents in the
   //! database, one at a time. The view server calls the previously stored functions one after another with the document
   //! and stores its result. When all functions have been called, the result is returned as a JSON string.
-  //! @return NULL
   private final function mapDoc($doc) {
     $doc = array_to_object($doc);
 
     // Every time we map a document we must reset the map.
-    $map = array();
+    $map = [];
 
     // We use a closure here, so we can just expose the emit() function to the closure provided by the user. He will not
     // be able to call sum() or any other helper function, because they are all available as closures. We have also another
@@ -162,13 +159,11 @@ class ViewServer {
   }
 
 
-  //! @return NULL
   private final function reduce() {
     //$this->log("sto chiamando la reduce");
   }
 
 
-  //! @return NULL
   private final function rereduce() {
     //$this->log("sto chiamando la rereduce");
   }
@@ -185,7 +180,6 @@ class ViewServer {
   //! You can't force the message's level. Every message will be marked as [info] even in case of an error, because
   //! CouchDB doesn't let you specify a different level. In case or error use <i>logError()</i> instead.
   //! @param[in] string $msg The message to store into the log file.
-  //! @return NULL
   private final function logMsg($msg) {
     $this->writeln(json_encode(array("log", $msg)));
   }
