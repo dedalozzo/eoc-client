@@ -6,7 +6,7 @@
 //! @author Filippo F. Fadda
 
 
-namespace ElephantOnCouch;
+namespace ElephantOnCouch\Handlers;
 
 
 //! @brief This class defines the interface for all the concrete CouchDB's handlers.
@@ -14,7 +14,7 @@ namespace ElephantOnCouch;
 //! In case of CouchDB design documents' structure changes, you just need to create a new handler, starting from here.
 //! @nosubgrouping
 abstract class DesignHandler {
-  use Properties;
+  use \ElephantOnCouch\Properties; // This is a trait, not a namespace or a class.
 
 
   //! @brief Returns the handler's section.

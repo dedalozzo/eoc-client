@@ -1,17 +1,18 @@
 <?php
 
-//! @file Doc.php
+//! @file LocalDoc.php
 //! @brief This file contains the Doc class.
 //! @details
 //! @author Filippo F. Fadda
 
 
-namespace ElephantOnCouch;
+namespace ElephantOnCouch\Docs;
 
 
 //! @brief TODO
 //! @nosubgrouping
-class Doc extends ReplicableDoc {
-
+final class LocalDoc extends AbstractDoc {
 
 }
+
+?>

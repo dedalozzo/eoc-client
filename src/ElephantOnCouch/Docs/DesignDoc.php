@@ -6,7 +6,11 @@
 //! @author Filippo F. Fadda
 
 
-namespace ElephantOnCouch;
+namespace ElephantOnCouch\Docs;
+
+
+use ElephantOnCouch\Handlers;
+use ElephantOnCouch\Handlers\DesignHandler;
 
 
 //! @brief A design document is a special CouchDB document where views, updates, rewrites and many others handlers are
@@ -68,21 +72,24 @@ final class DesignDoc extends ReplicableDoc {
   }
 
 
-  //! @brief TODO
+  //! @brief Scans the handlers' directory.
+  //! @details Every CouchDB's handler is stored in a particular design document section. Every class that extends the
+  //! abstract handler DesignHandler, must implement a static method to return his own section. These sections are stored
+  //! in a static class property to be used later.
   private static function scanForHandlers() {
-    foreach (glob(__DIR__."/Handlers/*.php") as $fileName) {
+    foreach (glob(dirname(__DIR__)."/Handlers/*.php") as $fileName) {
       //$className = preg_replace('/\.php\z/i', '', $fileName);
-      $className = basename($fileName, ".php"); // Same like the above regular expression.
+      $className = "ElephantOnCouch\\Handlers\\".basename($fileName, ".php"); // Same like the above regular expression.
 
-      if (class_exists($className) && array_key_exists("DesignHandler", class_parents($className)))
-        self::$sections[] = $className::getSection();
+      if (class_exists($className) && array_key_exists("ElephantOnCouch\\Handlers\\DesignHandler", class_parents($className)))
+        self::$sections[$className::getSection()] = NULL;
     }
   }
 
 
   //! @brief Reset the list of handlers.
   public function resetHandlers() {
-    foreach (self::$sections as $name) {
+    foreach (self::$sections as $name => $value) {
       if (array_key_exists($name, $this->meta))
         unset($this->meta[$name]);
     }

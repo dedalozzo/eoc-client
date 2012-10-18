@@ -6,15 +6,35 @@
 //! @author Filippo F. Fadda
 
 
-namespace ElephantOnCouch;
+namespace ElephantOnCouch\Handlers;
 
 
 //! @brief TODO
-class UpdatesHandler extends DesignHandler {
+final class UpdateHandler extends DesignHandler {
+  const UPDATES = "updates";
+
+  private $name;
+
+
+  //! @brief Creates a UpdateHandler class instance.
+  //! @param[in] string $name Handler name.
+  public function __construct($name) {
+    $this->setName($name);
+  }
+
+
+  public function getName() {
+    return $this->name;
+  }
+
+
+  public function setName($value) {
+    $this->name = (string)$value;
+  }
 
 
   public static function getSection() {
-    // TODO: Implement getSection() method.
+    return self::UPDATES;
   }
 
 
@@ -26,4 +46,5 @@ class UpdatesHandler extends DesignHandler {
   public function getAttributes() {
     // TODO: Implement getAttributes() method.
   }
+
 }

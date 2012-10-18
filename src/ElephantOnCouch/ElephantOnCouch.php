@@ -12,6 +12,7 @@ namespace ElephantOnCouch;
 
 use Rest\Client;
 use Rest\Request;
+use ElephantOnCouch\Docs\AbstractDoc;
 
 
 //! @brief This class is the main class of src library. You need an instance of this class to interact with

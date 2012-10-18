@@ -6,14 +6,14 @@
 //! @author Filippo F. Fadda
 
 
-namespace ElephantOnCouch;
+namespace ElephantOnCouch\Docs;
 
 
 //! @brief The abstract document is the ancestor of the other document classes. This class encapsulates common
 //! properties and methods of every CouchDB document. Since it's an abstract class, you can't create an instance of it.
 //! @nosubgrouping
 abstract class AbstractDoc {
-  use Properties;
+  use \ElephantOnCouch\Properties;
 
   //! @name Properties
   //! @brief Those are standard document's properties.

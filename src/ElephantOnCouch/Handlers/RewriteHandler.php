@@ -6,15 +6,35 @@
 //! @author Filippo F. Fadda
 
 
-namespace ElephantOnCouch;
+namespace ElephantOnCouch\Handlers;
 
 
 //! @brief TODO
-class RewriteHandler extends DesignHandler {
+final class RewriteHandler extends DesignHandler {
+  const REWRITES = "rewrites";
+
+  private $name;
+
+
+  //! @brief Creates a RewriteHandler class instance.
+  //! @param[in] string $name Handler name.
+  public function __construct($name) {
+    $this->setName($name);
+  }
+
+
+  public function getName() {
+    return $this->name;
+  }
+
+
+  public function setName($value) {
+    $this->name = (string)$value;
+  }
 
 
   public static function getSection() {
-    // TODO: Implement getSection() method.
+    return self::REWRITES;
   }
 
 

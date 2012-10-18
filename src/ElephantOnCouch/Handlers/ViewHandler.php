@@ -10,7 +10,6 @@ namespace ElephantOnCouch\Handlers;
 
 
 use Lint\Lint;
-use ElephantOnCouch\DesignHandler;
 
 
 //! @brief This handler let you create a CouchDB view.
@@ -73,16 +72,6 @@ final class ViewHandler extends DesignHandler {
   }
 
 
-  //! @brief Resets the options.
-  public function reset() {
-    unset($this->options);
-    $this->options = [];
-
-    $this->mapFn = "";
-    $this->reduceFn = "";
-  }
-
-
   public function getName() {
     return $this->name;
   }
@@ -90,6 +79,16 @@ final class ViewHandler extends DesignHandler {
 
   public function setName($value) {
     $this->name = (string)$value;
+  }
+
+
+  //! @brief Resets the options.
+  public function reset() {
+    unset($this->options);
+    $this->options = [];
+
+    $this->mapFn = "";
+    $this->reduceFn = "";
   }
 
 

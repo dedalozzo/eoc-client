@@ -6,15 +6,35 @@
 //! @author Filippo F. Fadda
 
 
-namespace ElephantOnCouch;
+namespace ElephantOnCouch\Handlers;
 
 
 //! @brief TODO
-class ListHandler extends DesignHandler {
+final class ListHandler extends DesignHandler {
+  const LISTS = "lists";
+
+  private $name;
+
+
+  //! @brief Creates a ListHandler class instance.
+  //! @param[in] string $name Handler name.
+  public function __construct($name) {
+    $this->setName($name);
+  }
+
+
+  public function getName() {
+    return $this->name;
+  }
+
+
+  public function setName($value) {
+    $this->name = (string)$value;
+  }
 
 
   public static function getSection() {
-    // TODO: Implement getSection() method.
+    return self::LISTS;
   }
 
 
@@ -26,4 +46,5 @@ class ListHandler extends DesignHandler {
   public function getAttributes() {
     // TODO: Implement getAttributes() method.
   }
+
 }
