@@ -56,7 +56,7 @@
 //! @author Fredrik Lindberg
 
 
-namespace FFF\ElephantOnCouch;
+namespace ElephantOnCouch;
 
 
 class UUID {

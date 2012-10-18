@@ -7,11 +7,11 @@
 
 
 //! @brief TODO
-namespace FFF\ElephantOnCouch;
+namespace ElephantOnCouch;
 
 
-use FFF\Rest\Client;
-use FFF\Rest\Request;
+use Rest\Client;
+use Rest\Request;
 
 
 //! @brief This class is the main class of src library. You need an instance of this class to interact with

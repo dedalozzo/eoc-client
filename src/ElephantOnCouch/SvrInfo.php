@@ -6,7 +6,7 @@
 //! @author Filippo F. Fadda
 
 
-namespace FFF\ElephantOnCouch;
+namespace ElephantOnCouch;
 
 
 //! @brief This class contains the CouchDB's version and MOTD. It's used by getSvrInfo() method.

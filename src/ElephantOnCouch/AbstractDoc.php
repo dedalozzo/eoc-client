@@ -6,7 +6,7 @@
 //! @author Filippo F. Fadda
 
 
-namespace FFF\ElephantOnCouch;
+namespace ElephantOnCouch;
 
 
 //! @brief The abstract document is the ancestor of the other document classes. This class encapsulates common

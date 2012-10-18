@@ -6,7 +6,7 @@
 //! @author Filippo F. Fadda
 
 
-namespace FFF\ElephantOnCouch;
+namespace ElephantOnCouch;
 
 
 //! @brief To retrieve additional information about document, you can create a DocOpts instance and pass it as parameter

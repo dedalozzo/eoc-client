@@ -6,7 +6,7 @@
 //! @author Filippo F. Fadda
 
 
-namespace FFF\ElephantOnCouch\Handlers;
+namespace ElephantOnCouch\Handlers;
 
 
 use Lint\Lint;

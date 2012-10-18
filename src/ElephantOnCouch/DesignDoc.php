@@ -6,7 +6,7 @@
 //! @author Filippo F. Fadda
 
 
-namespace FFF\ElephantOnCouch;
+namespace ElephantOnCouch;
 
 
 //! @brief A design document is a special CouchDB document where views, updates, rewrites and many others handlers are
