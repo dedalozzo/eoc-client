@@ -1,6 +1,6 @@
 .idea
 composer.lock
 vendor
-/doc
-/test/Pit.php
-/test/View.php
+doc
+test/Pit.php
+test/View.php
