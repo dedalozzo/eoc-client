@@ -3,4 +3,3 @@ composer.lock
 vendor
 doc
 test/Pit.php
-test/View.php

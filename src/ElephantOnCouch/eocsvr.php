@@ -110,7 +110,6 @@ class ViewServer {
   private final function addFun($fn) {
     $this->funcs[] = $fn;
     $this->writeln("true");
-    $this->logMsg('ho aggiunto una funzione');
     //$this->logError("eval_failed", "The function you provided is not a closure");
   }
 
@@ -122,21 +121,31 @@ class ViewServer {
   private final function mapDoc($doc) {
     $doc = array_to_object($doc);
 
-    // Every time we map a document we must reset the map.
-    $map = [];
-
     // We use a closure here, so we can just expose the emit() function to the closure provided by the user. He will not
     // be able to call sum() or any other helper function, because they are all available as closures. We have also another
     // advantage here: the $map variable is defined inside mapDoc(), so we don't need to declare it as class member.
     $emit = function($key, $value) use (&$map) {
+      $this->log("Key: $key");
+      $this->log("Value: $key");
       $map[] = array($key, $value);
     };
 
     // This initialization is made just to prevent a lint error during development.
-    $closure = NULL;
+    //$closure = NULL;
 
-    foreach ($this->funcs as$fn) {
-      $this->log($fn);
+    $closures = [];
+    $result = [];
+
+    $this->log("====================================================");
+    $this->log("MAP DOC: $doc->title");
+    $this->log("====================================================");
+
+    foreach ($this->funcs as $i => $fn) {
+      // Every time we map a document against a function we must reset the map.
+      $map = [];
+
+      $this->log("Index: $i");
+      $this->log("Closure: $fn");
 
       try {
         // Here we call the closure function stored in the view. The $closure variable contains the function implementation
@@ -148,24 +157,28 @@ class ViewServer {
         //
         // This technique let you use the syntax '$emit($key, $value);' to emit your record. The function doesn't return
         // any value. You don't need to include any files since the closure's code is executed inside this method.
-        eval("\$closure = ".$fn);
+        eval("\$closures[$i] = ".$fn);
 
-        if (is_callable($closure))
-          call_user_func($closure, $doc);
+        if (is_callable($closures[$i])) {
+          call_user_func($closures[$i], $doc);
+          $result[] = $map;
+          $this->log("Map: ".json_encode($map));
+          $this->log("Partial Result: ".json_encode($result));
+        }
         else
           $this->logError("call_failed", "The function you provided is not callable");
       }
       catch (Exception $e) {
         $this->logError("php_error", $e->getMessage()."\n".$e->getTraceAsString());
       }
+
+      $this->log("----------------------------------------------------");
     }
 
-    $result = json_encode(array($map));
+    $this->log("Final Result: ".json_encode($result));
 
     // Sends mappings to CouchDB.
-    $this->writeln($result);
-
-    $this->log("Result: ".$result);
+    $this->writeln(json_encode($result));
   }
 
 
