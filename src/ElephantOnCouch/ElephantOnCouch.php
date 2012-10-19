@@ -986,18 +986,12 @@ class ElephantOnCouch extends Client {
       $doc->setid(UUID::generate(UUID::UUID_RANDOM, UUID::FMT_STRING));
 
     // Sets the path according to the document type.
-    $class = ltrim(get_class($doc), __NAMESPACE__."\\");
-    switch ($class) {
-      case "LocalDoc":
-        $path = "/".$this->dbName."/".self::LOCAL_DOC.$doc->id;
-        break;
-      case "DesignDoc":
-        $path = "/".$this->dbName."/".self::DESIGN_DOC.$doc->id;
-        break;
-      default:
-        $path = "/".$this->dbName."/".$doc->id;
-        break;
-    }
+    if ($doc instanceof Docs\DesignDoc)
+      $path = "/".$this->dbName."/".self::DESIGN_DOC.$doc->getId();
+    elseif ($doc instanceof Docs\LocalDoc)
+      $path = "/".$this->dbName."/".self::LOCAL_DOC.$doc->getId();
+    else
+      $path = "/".$this->dbName."/".$doc->getId();
 
     $request = $this->newRequest($method, $path);
     $request->setHeaderField(Request::CONTENT_TYPE_HF, "application/json");

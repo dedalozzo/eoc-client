@@ -26,7 +26,7 @@ final class DesignDoc extends ReplicableDoc {
   //! @details CouchDB will automatilly use the right interpreter for the various handlers stored into this design document.
   const LANGUAGE = "language";
 
-  //const LIB_RW = "lib"; TODO This must be investigated and added.
+  //const LIB_RW = "lib"; TODO This must be investigated and added or an handler must be created for it.
 
   //@}
 
@@ -46,10 +46,7 @@ final class DesignDoc extends ReplicableDoc {
     $instance = new self();
     $instance->meta = $array;
     $instance->meta[self::ID] = preg_replace('%\A_design/%m', "", $instance->meta[self::ID]);
-    //$instance->initHandlers();
 
-    print("\n\nMETADATI\n\n");
-    print_r($instance->meta);
     return $instance;
   }
 

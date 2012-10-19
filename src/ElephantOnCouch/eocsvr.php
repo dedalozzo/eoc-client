@@ -24,6 +24,9 @@ class ViewServer {
   const TMP_DIR = "/tmp/";
   const LOG_FILENAME = "viewserver.log";
 
+  const EXIT_SUCCESS = 0;
+  const EXIT_FAILURE = 1;
+
   private $funcs;
 
   private $fd;
@@ -31,13 +34,18 @@ class ViewServer {
 
   public final function __construct() {
     $this->funcs = [];
+
+    $this->fd = fopen(self::TMP_DIR.self::LOG_FILENAME, "w");
+  }
+
+
+  public final function __destruct() {
+    fflush($this->fd);
+    fclose($this->fd);
   }
 
 
   public final function run() {
-
-    $this->fd = fopen(self::TMP_DIR.self::LOG_FILENAME, "w");
-
     $this->log("run");
 
     while ($line = trim(fgets(STDIN))) {
@@ -68,12 +76,13 @@ class ViewServer {
 
         default:
           $this->logError("command_not_supported", "'$cmd' command is not supported by this ViewServer implementation");
+          exit(self::EXIT_FAILURE);
           break;
       }
+
+      fflush($this->fd);
     }
 
-    fflush($this->fd);
-    fclose($this->fd);
   }
 
 
@@ -101,6 +110,7 @@ class ViewServer {
   private final function addFun($fn) {
     $this->funcs[] = $fn;
     $this->writeln("true");
+    $this->logMsg('ho aggiunto una funzione');
     //$this->logError("eval_failed", "The function you provided is not a closure");
   }
 
@@ -136,7 +146,7 @@ class ViewServer {
         //
         //     function($doc) use ($emit) { ... };
         //
-        // This technique let you use the syntax $emit($key, $value) to emit your record. The function doesn't return
+        // This technique let you use the syntax '$emit($key, $value);' to emit your record. The function doesn't return
         // any value. You don't need to include any files since the closure's code is executed inside this method.
         eval("\$closure = ".$fn);
 
@@ -174,6 +184,17 @@ class ViewServer {
   }
 
 
+  /*public final function count() {
+    //$this->log("sto facendo la somma");
+  }*/
+
+
+  /*public final function stats() {
+    //$this->log("sto facendo la somma");
+  }*/
+
+
+
   //! @brief Tells CouchDB to append the specified message in the couch.log file.
   //! @details Any message will appear in the couch.log file, as follows:
   //! [Tue, 22 May 2012 15:26:03 GMT] [info] [<0.80.0>] This is a log message
@@ -181,7 +202,11 @@ class ViewServer {
   //! CouchDB doesn't let you specify a different level. In case or error use <i>logError()</i> instead.
   //! @param[in] string $msg The message to store into the log file.
   private final function logMsg($msg) {
-    $this->writeln(json_encode(array("log", $msg)));
+
+    $data = explode("\\", json_encode(array("log", $msg)));
+    $cleaned = implode("", $data);
+
+    $this->writeln($cleaned);
   }
 
 
