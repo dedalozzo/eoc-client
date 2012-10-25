@@ -24,8 +24,14 @@ use Lint\Lint;
 final class ViewHandler extends DesignHandler {
   const VIEWS = "views";
   const OPTIONS = "options";
+
   const MAP = "map";
+  const MAP_REGEX = '/function\s*\(\s*\$doc\)\s*use\s*\(\$emit\)\s*\{[\W\w]*\};\z/m';
+  const MAP_DEFINITION = "function(\$doc) use (\$emit) { ... };";
+
   const REDUCE = "reduce";
+  const REDUCE_REGEX = '/function\s*\(\s*\$key\s*,\s*\$value\,\s*\$rereduce\)\s*\{[\W\w]*\};\z/m';
+  const REDUCE_DEFINITION = "function(\$key, \$value, \$rereduce) { ... };";
 
   private $name;
 
@@ -102,6 +108,14 @@ final class ViewHandler extends DesignHandler {
   }
 
 
+  public static function checkFn($fnImpl, $fnDef, $fnRegex) {
+    Lint::checkSourceCode($fnImpl);
+
+    if (preg_match($fnRegex, $fnImpl) === FALSE)
+      throw new \Exception("The \$closure must be defined like: $fnDef");
+  }
+
+
   public function getAttributes() {
     $view = [];
     $view[self::MAP] = $this->mapFn;
@@ -121,13 +135,9 @@ final class ViewHandler extends DesignHandler {
   }
 
 
-  public function setMapFn($closure) {
-    Lint::checkSourceCode($closure);
-
-    if (preg_match('/function\s*\(\s*\$doc\)\s*use\s*\(\$emit\)\s*\{[\W\w]*\};\z/m', $closure))
-      $this->mapFn = $closure;
-    else
-      throw new \Exception("The \$closure must be defined like: function(\$doc) use (\$emit) { ... };");
+  public function setMapFn($value) {
+    self::checkFn($value, self::MAP_DEFINITION, self::MAP_REGEX);
+    $this->mapFn = $value;
   }
 
 
@@ -136,13 +146,9 @@ final class ViewHandler extends DesignHandler {
   }
 
 
-  public function setReduceFn($closure) {
-    Lint::checkSourceCode($closure);
-
-    if (preg_match('/function\s*\(\s*\$key\s*,\s*\$value\)\s*\{[\W\w]*\};\z/m', $closure))
-      $this->reduceFn = $closure;
-    else
-      throw new \Exception("The \$closure must be defined like: function(\$key, \$value) { ... };");
+  public function setReduceFn($value) {
+    self::checkFn($value, self::REDUCE_DEFINITION, self::REDUCE_REGEX);
+    $this->reduceFn = $value;
   }
 
 

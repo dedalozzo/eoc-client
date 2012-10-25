@@ -16,69 +16,37 @@ class ViewQueryArgs {
 
   private $options;
 
-  //! @brief Search for documents with the same emitted key.
+  //! @brief An URL encode JSON value indicating the key at which to start the range.
   private $key = "";
 
   //! @brief Used to retrieve just the view rows matching that set of keys. Rows are returned in the order of the
   //! specified keys. Combining this feature with include_docs=true results in the so-called multi-document-fetch feature.
-  private $keys = [];
+  private $keys = []; // TODO Verify if it still used or not.
 
   //! @name Key Range
   //! @brief Those are used to return documents in a key range.
   //@{
-  private $startKey = "";
-  private $endKey = "";
+  private $startKey = ""; //!< An URL encoded JSON value indicating the the key at which to start the range.
+  private $endKey = ""; //!< An URL encoded JSON value indicating the the key at which to end the range.
   //@}
 
   //! @name First and Last Documents Identifiers
   //! @brief First and last documents to be included in the output.
-  //! @details If you expect to have multiple documents emit identical keys, you'll need to use <b>$startDocId</b> in
-  //! addition to <b>$startKey</b> to paginate correctly. The reason is that <b>$startKey</b> alone will no longer be
-  //! sufficient to uniquely identify a row.
+  //! @details If you expect to have multiple documents emit identical keys, you'll need to use <i>startDocId</i> in
+  //! addition to <i>$startKey</i> to paginate correctly. The reason is that <i>startKey</i> alone will no longer be
+  //! sufficient to uniquely identify a row. Those parameters are useless if you don't provide a <i>startKey</i>. In fact,
+  //! CouchDB will first look at the <i>startKey</i> parameter, then it will use the <i>startDocId</i> parameter to further
+  //! redefine the beginning of the range if multiple potential staring rows have the same key but different document IDs.
+  //! Same thing for the <i>endDocId</i>.
   //@{
-  private $startDocId = "";
-  private $endDocId = "";
+  private $startDocId = ""; //!< The ID of the document with which to start the range.
+  private $endDocId = ""; //!< The ID of the document with which to end the range.
   //@}
 
 
-  //! @brief Reset default options.
-  public function reset() {
-    unset($this->options);
-    $this->options = [];
-  }
-
-
-  public function asArray() {
-    return $this->options;
-  }
-
-
-  public function setStartDocId($startDocId) {
-    $this->startDocId = $startDocId;
-  }
-
-
-  public function setStartKey($startKey) {
-    $this->startKey = $startKey;
-  }
-
-
-  public function setEndDocId($endDocId) {
-    $this->endDocId = $endDocId;
-  }
-
-
-  public function setEndKey($endKey) {
-    $this->endKey = $endKey;
-  }
-
-
-  public function setKey($key) {
-    $this->key = $key;
-  }
-
-
   //! @brief Restricts the number of results.
+  //! @details Allowed values: positive integers.
+  //! @param[in] integer $value The maximum number of rows to include in the output.
   public function setLimit($value) {
     if (is_int($value) && $value > 0)
       $this->options["limit"] = $value;
@@ -89,17 +57,21 @@ class ViewQueryArgs {
 
   //! @brief Results should be grouped.
   //! @details The group option controls whether the reduce function reduces to a set of distinct keys or to a single
-  //! result row. This will run the rereduce procedure.
+  //! result row. This will run the rereduce procedure. This parameter makes sense only if a reduce function is defined
+  //! for the view.
   public function groupResults() {
     $this->options["group"] = "true";
   }
 
 
   //! @brief Level at which documents should be grouped.
-  //! @details Allowed values: positive integers.
+  //! @details If your keys are are JSON arrays, this parameter will specify how many elements in those arrays to use for
+  //! grouping purposes. If your emitted keys are not JSON arrays this parameter's value will effectively be ignored.
+  //! Allowed values: positive integers.
+  //! @param[in] integer $value The number of elements used for grouping purposes.
   public function setGroupLevel($value) {
     if (is_int($value) && $value > 0) {
-      $this->options["group"] = "true"; // This parameter is used only if 'group' is 'true'.
+      $this->groupResults(); // This parameter is used only if 'group' is 'true'.
       $this->options["limit"] = $value;
     }
     else
@@ -118,6 +90,7 @@ class ViewQueryArgs {
   //! @brief Automatically fetches and includes full documents.
   //! @details However, the user should keep in mind that there is a race condition when using this option. It is
   //! possible that between reading the view data and fetching the corresponding document that the document has changed.
+  //! @warning You can call this method only if the view doesn't contain a reduce function.
   public function includeDocs() {
     $this->options["include_docs"] = "true";
   }
@@ -181,17 +154,55 @@ class ViewQueryArgs {
   //! inefficient (it scans the index from the start key and then skips N elements, but still needs to read all the index
   //! values to do that). For efficient paging you'll need to use start key and limit.
   //! Allowed values: positive integers.
+  //! @param[in] integer $number The number of rows to skip.
   public function skipDocs($number) {
     if (is_int($number) && $number > 0)
       $this->options["skip"] = $number;
     else
-      throw new \Exception("\$value must be a positive integer.");
+      throw new \Exception("\$number must be a positive integer.");
   }
 
 
   //! @brief Includes conflict documents.
   public function includeConflicts() {
     $this->options["conflicts"] = "true";
+  }
+
+
+  //! @brief Reset default options.
+  public function reset() {
+    unset($this->options);
+    $this->options = [];
+  }
+
+
+  public function asArray() {
+    return $this->options;
+  }
+
+
+  public function setStartDocId($startDocId) {
+    $this->startDocId = $startDocId;
+  }
+
+
+  public function setStartKey($startKey) {
+    $this->startKey = $startKey;
+  }
+
+
+  public function setEndDocId($endDocId) {
+    $this->endDocId = $endDocId;
+  }
+
+
+  public function setEndKey($endKey) {
+    $this->endKey = $endKey;
+  }
+
+
+  public function setKey($key) {
+    $this->key = $key;
   }
 
 }

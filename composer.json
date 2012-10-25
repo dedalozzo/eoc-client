@@ -1,6 +1,6 @@
 {
     "name": "3f/elephantoncouch",
-    "description": "ElephantOnCouch is a PHP Client for CouchDB",
+    "description": "ElephantOnCouch is a PHP Client for CouchDB.",
     "keywords": ["couchdb", "client", "nosql"],
     "homepage": "http://github.com/dedalozzo/ElephantOnCouch",
     "type": "library",

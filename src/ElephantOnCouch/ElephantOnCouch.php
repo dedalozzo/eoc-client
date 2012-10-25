@@ -13,6 +13,7 @@ namespace ElephantOnCouch;
 use Rest\Client;
 use Rest\Request;
 use ElephantOnCouch\Docs\AbstractDoc;
+use ElephantOnCouch\Handlers\ViewHandler;
 
 
 //! @brief This class is the main class of src library. You need an instance of this class to interact with
@@ -800,42 +801,36 @@ class ElephantOnCouch extends Client {
   }
 
 
-  //! @brief TODO
+  //! @brief Executes the given view and returns the result.
   public function queryView($designDocName, $viewName, ViewQueryArgs $args = NULL) {
     $this->checkForDb();
     $this->checkDocId($designDocName);
-
     if (empty($viewName))
       throw new \Exception("You must provide a valid \$viewName.");
 
     $request = $this->newRequest(Request::GET_METHOD, "/".$this->dbName."/_design/".$designDocName."/_view/".$viewName);
-
-    // If there are any options, add them to the request.
-    if (isset($args)) {
-      $params = $args->asArray();
-      foreach ($params as $name => $value)
-        $request->setQueryParam($name, $value);
-    }
+    if (isset($args))
+      $request->setQueryParams($args->asArray());
 
     return $this->sendRequest($request);
   }
 
 
-  //! @brief Executes a given view function for all documents and return the result.
+  //! @brief Executes the given view, both map and reduce functions, for all documents and returns the result.
   //! @details Map and Reduce functions are provided by the programmer.
   //! @attention Requires admin privileges.
-  // TODO
-  public function queryTempView($mapFn, $reduceFn, ViewQueryArgs $args) {
+  public function queryTempView($mapFn, $reduceFn = "", ViewQueryArgs $args = NULL) {
     $this->checkForDb();
 
-    $request = $this->newRequest(Request::POST_METHOD, "/".$this->dbName."/_temp_view");
+    $handler = new ViewHandler("temp");
+    $handler->mapFn = $mapFn;
+    if (!empty($reduce))
+      $handler->reduceFn = $reduceFn;
 
-    // If there are any options, add them to the request.
-    if (isset($args)) {
-      $params = $args->asArray();
-      foreach ($params as $name => $value)
-        $request->setQueryParam($name, $value);
-    }
+    $request = $this->newRequest(Request::POST_METHOD, "/".$this->dbName."/_temp_view");
+    $request->setBody(json_encode($handler->getAttributes()));
+    if (isset($args))
+      $request->setQueryParams($args->asArray());
 
     return $this->sendRequest($request);
   }
