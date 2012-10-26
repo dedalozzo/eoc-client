@@ -130,6 +130,44 @@ final class ViewHandler extends DesignHandler {
   }
 
 
+  //! @brief Makes documents' local sequence numbers available to map functions as a '_local_seq' document property.
+  public function includeLocalSeq() {
+    $this->options['local_seq'] = 'true';
+  }
+
+
+  //! @brief Causes map functions to be called on design documents as well as regular documents.
+  public function includeDesignDocs() {
+    $this->options['include_design'] = 'true';
+  }
+
+
+  //! @brief Sets the reduce function to the built-in <i>_count</i> function provided by CouchDB.
+  //! @details The buil-in <i>_count</i> reduce function will be probably the most common reduce function you'll use.
+  //! This function returns the number of mapped values in the set.
+  public function useBuiltInReduceFnCount() {
+    $this->reduceFn = "_count";
+  }
+
+
+  //! @brief Sets the reduce function to the built-in <i>_sum</i> function provided by CouchDB.
+  //! @details The buil-in <i>_sum</i> reduce function will return a sum of mapped values. As with all reductions, you
+  //! can either get a sum of all values grouped by keys or part of keys. You can control this behaviour when you query
+  //! the view, using an instance of <i>ViewQueryArgs</i> class, in particular with methods <i>groupReults</i> and <i>setGroupLevel</i>.
+  //! @warning The buil-in <i>_sum</i> reduce function requires all mapped values to be numbers.
+    public function useBuiltInReduceFnSum() {
+    $this->reduceFn = "_sum";
+  }
+
+
+  //! @brief Sets the reduce function to the built-in <i>_stats</i> function provided by CouchDB.
+  //! @details The buil-in <i>_stats</i> reduce function returns an associative array containing the sum, count, minimum,
+  //! maximum, and sum over all square roots of mapped values.
+  public function useBuiltInReduceFnStats() {
+    $this->reduceFn = "_stats";
+  }
+
+
   public function getMapFn() {
     return $this->mapFn;
   }
@@ -149,18 +187,6 @@ final class ViewHandler extends DesignHandler {
   public function setReduceFn($value) {
     self::checkFn($value, self::REDUCE_DEFINITION, self::REDUCE_REGEX);
     $this->reduceFn = $value;
-  }
-
-
-  //! @brief Makes documents' local sequence numbers available to map functions as a '_local_seq' document property.
-  public function includeLocalSeq() {
-    $this->options['local_seq'] = 'true';
-  }
-
-
-  //! @brief Causes map functions to be called on design documents as well as regular documents.
-  public function includeDesignDocs() {
-    $this->options['include_design'] = 'true';
   }
 
 }
