@@ -197,7 +197,7 @@ class ElephantOnCouch extends Client {
   //!   }
   //! }
   //! @endcode
-  //! @return An instance of Info class.
+  //! @return an Info object.
   //! @see http://wiki.apache.org/couchdb/HttpGetRoot
   public function getSvrInfo() {
     $response = $this->sendRequest($this->newRequest(Request::GET_METHOD, "/"));
@@ -208,8 +208,8 @@ class ElephantOnCouch extends Client {
 
   //! @brief Returns the favicon.ico file.
   //! @details The favicon is a part of the admin interface, but the handler for it is special as CouchDB tries to make
-  //! sure that the favicon is cached for one year.
-  //! @return A string that represents the icon.
+  //! sure that the favicon is cached for one year. Returns a string that represents the icon.
+  //! @return string
   //! @see http://wiki.apache.org/couchdb/HttpGetFavicon
   public function getFavicon() {
     $response = $this->sendRequest($this->newRequest(Request::GET_METHOD, "/favicon.ico"));
@@ -222,14 +222,14 @@ class ElephantOnCouch extends Client {
 
 
   //! @brief Returns server statistics.
-  //! @return An associative array.
+  //! @return associative array
   public function getStats() {
     return $this->sendRequest($this->newRequest(Request::GET_METHOD, "/_stats"))->getBodyAsArray();
   }
 
 
   //! @brief Returns a list of all databases on this server.
-  //! @return An array of string.
+  //! @return array of string
   //! @see http://wiki.apache.org/couchdb/HttpGetAllDbs
   public function getAllDbs() {
     return $this->sendRequest($this->newRequest(Request::GET_METHOD, "/_all_dbs"))->getBodyAsArray();
@@ -238,7 +238,7 @@ class ElephantOnCouch extends Client {
 
   //! @brief Returns a list of running tasks.
   //! @attention Requires admin privileges.
-  //! @return An associative array.
+  //! @return associative array
   //! @exception ResponseException
   //! <c>Code: <i>401 Unauthorized</i></c>\n
   //! <c>Error: <i>unauthorized</i></c>\n
@@ -252,7 +252,7 @@ class ElephantOnCouch extends Client {
   //! @brief Returns the tail of the server's log file.
   //! @attention Requires admin privileges.
   //! @param[in] integer $bytes How many bytes to return from the end of the log file.
-  //! @return A string.
+  //! @return string
   //! @exception ResponseException
   //! <c>Code: <i>401 Unauthorized</i></c>\n
   //! <c>Error: <i>unauthorized</i></c>\n
@@ -267,7 +267,7 @@ class ElephantOnCouch extends Client {
 
   //! @brief Returns a list of generated UUIDs.
   //! @param[in] integer $count Requested UUIDs number.
-  //! @return if <b>$count = 1</b> (default) returns a string else returns an array of strings.
+  //! @return string|array If <i>$count = 1</i> (default) returns a string else returns an array of strings.
   //! @see http://wiki.apache.org/couchdb/HttpGetUuids
   public function getUuids($count = 1) {
     if (is_int($count) and ($count > 0)) {
@@ -294,7 +294,7 @@ class ElephantOnCouch extends Client {
   //! @brief Returns the entire server configuration or a single section or a single configuration value of a section.
   //! @param[in] string $section Requested section.
   //! @param[in] string $key Requested key.
-  //! @return An array with the configuration keys or a simple string in case of a single key.
+  //! @return string|array An array with the configuration keys or a simple string in case of a single key.
   public function getConfig($section = "", $key = "") {
     $path = "/_config";
 
@@ -310,6 +310,9 @@ class ElephantOnCouch extends Client {
 
 
   //! @brief Sets a single configuration value in a given section to server configuration.
+  //! @param[in] string $section The configuration section.
+  //! @param[in] string $key The key.
+  //! @param[in] string $key The value for the key.
   public function setConfigKey($section, $key, $value) {
     $request = $this->newRequest(Request::PUT_METHOD, "/_config/".$section."/".$key);
     $request->setHeaderField(Request::CONTENT_TYPE_HF, "application/json");
@@ -319,6 +322,8 @@ class ElephantOnCouch extends Client {
 
 
   //! @brief Deletes a single configuration value from a given section in server configuration.
+  //! @param[in] string $section The configuration section.
+  //! @param[in] string $key The key.
   public function deleteConfigKey($section, $key) {
     $this->sendRequest($this->newRequest(Request::DELETE_METHOD, "/_config/".$section."/".$key));
   }
@@ -330,12 +335,14 @@ class ElephantOnCouch extends Client {
   // @{
 
   //! @brief Returns cookie based login user information.
+  //! @return TODO
   public function getSession() {
     return $this->sendRequest($this->newRequest(Request::GET_METHOD, "/_session"));
   }
 
 
   //! @brief Makes cookie based user login.
+  //! @return TODO
   public function setSession($userName, $password) {
     $request = $this->newRequest(Request::POST_METHOD, "/_session");
 
@@ -350,30 +357,31 @@ class ElephantOnCouch extends Client {
 
 
   //! @brief Makes user logout.
+  //! @return a Response object
   public function deleteSession() {
     return $this->sendRequest($this->newRequest(Request::DELETE_METHOD, "/_session"));
   }
 
 
-  //! @brief
+  //! @brief TODO
   public function getAccessToken() {
     return $this->sendRequest($this->newRequest(Request::GET_METHOD, "/_oauth/access_token"));
   }
 
 
-  // @brief
+  // @brief TODO
   public function getAuthorize() {
     return $this->sendRequest($this->newRequest(Request::GET_METHOD, "/_oauth/authorize"));
   }
 
 
-  // @brief
+  // @brief TODO
   public function setAuthorize() {
     return $this->sendRequest($this->newRequest(Request::POST_METHOD, "/_oauth/authorize"));
   }
 
 
-  // @brief
+  // @brief TODO
   public function requestToken() {
     return $this->sendRequest($this->newRequest(Request::GET_METHOD, "/_oauth/request_token"));
   }
@@ -403,13 +411,13 @@ class ElephantOnCouch extends Client {
   //! instead.
   //! @param[in] string $dbName Database name.
   public function selectDb($dbName) {
-    // TODO regex on dbName
+    // TODO Add a regex on dbName.
     $this->dbName = $dbName;
   }
 
 
   //! @brief Returns information about the selected database.
-  //! @return A DbInfo object.
+  //! @return a DbInfo object
   //! @exception Exception <c>Message: <i>No database selected.</i></c>
   //! @exception ResponseException
   //! <c>Code: <i>404 Not Found</i></c>\n
@@ -427,7 +435,7 @@ class ElephantOnCouch extends Client {
   //! @param[in] string $dbName The database name. A database must be named with all lowercase letters (a-z),
   //! digits (0-9), or any of the _$()+-/ characters and must end with a slash in the URL. The name has to start with a
   //! lowercase letter (a-z).
-  //! @param[in] bool $auto_select If <b>TRUE</b> selects the created database.
+  //! @param[in] bool $autoSelect If <b>TRUE</b> selects the created database.
   //! @exception Exception <c>Message: <i>You can't create a database with the same name of the selected database.</i></c>
   //! @exception ResponseException
   //! <c>Code: <i>412 Precondition Failed</i></c>\n
@@ -440,6 +448,8 @@ class ElephantOnCouch extends Client {
   //! @see http://docs.couchone.com/couchdb-api/couchdb-api-db.html#couchdb-api-db_db_put
   //! @bug <a href="https://issues.apache.org/jira/browse/COUCHDB-967" target="_blank">COUCHDB-967</a>
   public function createDb($dbName, $autoSelect = TRUE) {
+    // TODO Add regex for $dbName.
+
     if ($dbName != $this->dbName) {
       $this->sendRequest($this->newRequest(Request::PUT_METHOD, "/".$dbName."/"));
 
@@ -463,6 +473,8 @@ class ElephantOnCouch extends Client {
   //! @see http://docs.couchone.com/couchdb-api/couchdb-api-db.html#couchdb-api-db_db_delete
   //! @bug <a href="https://issues.apache.org/jira/browse/COUCHDB-967" target="_blank">COUCHDB-967</a>
   public function deleteDb($dbName) {
+    // TODO Add regex for $dbName.
+
     if ($dbName != $this->dbName)
       $this->sendRequest($this->newRequest(Request::DELETE_METHOD, "/".$dbName));
     else
@@ -558,7 +570,7 @@ class ElephantOnCouch extends Client {
   //! operating on a database by obtaining the database meta information, the <b>compact_running</b> value of the returned
   //! database structure will be set to true.
   //! You can also obtain a list of running processes to determine whether compaction is currently running, using the
-  //! get_active_tasks() method.
+  //! <i>getActiveTasks</i> method.
   //! @exception Exception <c>Message: <i>No database selected.</i></c>
   //! @exception ResponseException
   //! <c>Code: <i>404 Not Found</i></c>\n
@@ -623,7 +635,7 @@ class ElephantOnCouch extends Client {
   //! deeply limits CouchDB's performance for non-bulk writers.
   //! Delayed commit should be left set to true in the configuration settings. Anyway, you can still tell CouchDB to make
   //! an fsync, calling the ensure_full_commit method.
-  //! @return A timestamp when the server instance was started.
+  //! @return string A timestamp when the server instance was started.
   //! @exception Exception <c>Message: <i>No database selected.</i></c>
   //! @exception ResponseException
   //! <c>Code: <i>404 Not Found</i></c>\n
@@ -873,8 +885,9 @@ class ElephantOnCouch extends Client {
 
 
   //! @brief Sets the limit of historical revisions for a single document in the database.
-  //! @param[in] integer $revsLimit Maximum number historical revisions for a single document in the database.
-  //! Must be a positive integer. Optional.
+  //! @param[in] integer $revsLimit (optional) Maximum number historical revisions for a single document in the database.
+  //! Must be a positive integer.
+  //! @return a Response object
   //! @exception Exception <c>Message: <i>\$revsLimit must be a positive integer.</i></c>
   public function setRevsLimit($revsLimit = self::REVS_LIMIT) {
     $this->checkForDb();
@@ -899,7 +912,7 @@ class ElephantOnCouch extends Client {
   //! @details This function is not available for special documents. To get information about a design document, use
   //! the special function getDesignDocInfo().
   //! @param[in] string $docId The document's identifier.
-  //! @return A string.
+  //! @return string
   //! @exception Exception <c>Message: <i>No database selected.</i></c>
   //! @exception Exception <c>Message: <i>You must provide a valid \$docId.</i></c>
   public function getDocEtag($docId) {
@@ -919,9 +932,9 @@ class ElephantOnCouch extends Client {
   //! design and local documents.
   //! @param[in] string $docId The document's identifier.
   //! @param[in] string $docType The document's type. Allowed values: <i>src::STD_DOC</i>, <i>src::LOCAL_DOC</i>, <i>src::DESIGN_DOC</i>.
-  //! @param[in] string $rev The document's revision. Optional.
+  //! @param[in] string $rev (optional) The document's revision.
   //! @param[in] DocOpts $opts Query options to get additional document information, like conflicts, attachments, etc.
-  //! @return TODO
+  //! @return associative array
   //! @exception Exception <c>Message: <i>No database selected.</i></c>
   //! @exception Exception <c>Message: <i>You must provide a valid \$docId.</i></c>
   public function getDoc($docType, $docId, $rev = "", DocOpts $opts = NULL) {
@@ -1065,7 +1078,7 @@ class ElephantOnCouch extends Client {
   //! The purging of old documents is not replicated to other databases. If you are replicating between databases and
   //! have deleted a large number of documents you should run purge on each database.
   //! Purging documents does not remove the space used by them on disk. To reclaim disk space, you should run compact_db().
-  //! @return A Response object.
+  //! @return a Response object
   // TODO Exceptions should be documented here.
   //! @exception Exception <c>Message: <i>No database selected.</i></c>
   // TODO This function is not complete.
@@ -1153,7 +1166,7 @@ class ElephantOnCouch extends Client {
 
   //! @brief Returns basic information about the design document and his views.
   //! @param[in] string $docName The document's name.
-  //! @return An associative array.
+  //! @return associative array
   //! @exception Exception <c>Message: <i>No database selected.</i></c>
   public function getDesignDocInfo($docName) {
     $this->checkForDb();

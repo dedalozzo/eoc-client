@@ -9,7 +9,8 @@
 namespace ElephantOnCouch;
 
 
-//! @brief TODO
+//! @brief To set the query arguments you must create an instance of this class. Use it when you query a CouchDB View with
+//! the methods <i>queryView</i> and <i>queryTempView</i>.
 //! @nosubgrouping
 //! @todo Add 'list' and 'callback' properties.
 class ViewQueryArgs {
@@ -69,6 +70,7 @@ class ViewQueryArgs {
   //! grouping purposes. If your emitted keys are not JSON arrays this parameter's value will effectively be ignored.
   //! Allowed values: positive integers.
   //! @param[in] integer $value The number of elements used for grouping purposes.
+  //! @exception Exception <c>Message: <i>\$value must be a positive integer.</i></c>
   public function setGroupLevel($value) {
     if (is_int($value) && $value > 0) {
       $this->groupResults(); // This parameter is used only if 'group' is 'true'.
@@ -155,6 +157,7 @@ class ViewQueryArgs {
   //! values to do that). For efficient paging you'll need to use start key and limit.
   //! Allowed values: positive integers.
   //! @param[in] integer $number The number of rows to skip.
+  //! @exception Exception <c>Message: <i>\$number must be a positive integer.</i></c>
   public function skipDocs($number) {
     if (is_int($number) && $number > 0)
       $this->options["skip"] = $number;

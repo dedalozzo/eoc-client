@@ -51,7 +51,9 @@ final class DesignDoc extends ReplicableDoc {
   }
 
 
-  //! @brief TODO
+  //! @brief Creates an instance of DesignDoc class.
+  //! @param[in] string $name The design document name.
+  //! @param[in] string $name The programming language used by the design document for his handlers.
   public function __construct($name = "", $language = "php") {
     if (!empty($name))
       $this->meta[self::ID] = (string)$name;
@@ -93,7 +95,10 @@ final class DesignDoc extends ReplicableDoc {
   }
 
 
-  //! @brief TODO
+  //! @brief Given a design document section (ex. views, updates, filters, etc.) and an optional handler's name (because
+  //! the handler couldn't have a name), returns the
+  //! @param[in] string $section The section name.
+  //! @param[in] string $name (optional) The handler name.
   public function getHandlerAttributes($section, $name = "") {
     if (empty($name)) { // The handler doesn't have a name.
       if (array_key_exists($section, $this->meta))

@@ -18,12 +18,10 @@ abstract class AbstractDoc {
   //! @name Properties
   //! @brief Those are standard document's properties.
   //@{
-
   const ID = "_id"; //!< Document identifier. Mandatory and immutable.
   const REV = "_rev"; //!< The current MVCC-token/revision of this document. Mandatory and immutable.
   const DELETED = "_deleted"; //!< Indicates that this document has been deleted and previous revisions will be removed on next compaction run.
   const LOCAL_SEQUENCE = "_local_sequence"; //!< TODO I'm not sure this goes here. Probably on ReplicableDoc.
-
   //@}
 
   // Stores the reserved words.
@@ -52,8 +50,6 @@ abstract class AbstractDoc {
   //! array, the array that stores the document's metadata.
   public function assignObject(\stdClass $object) {
     $this->meta = get_object_vars($object);
-    print "METADATI\n"; // TODO Remove these lines.
-    print_r($this->meta);
   }
 
 
@@ -116,11 +112,7 @@ abstract class AbstractDoc {
 
 
   public function setRev($value) {
-    // TODO regex on $value
-    if (is_string($value) && !empty($value))
-      $this->meta[self::ID] = $value;
-    else
-      throw new \Exception("\$id must be a non-empty string.");
+    $this->meta[self::ID] = (string)$value;
   }
 
 

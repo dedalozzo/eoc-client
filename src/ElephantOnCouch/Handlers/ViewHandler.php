@@ -59,10 +59,8 @@ final class ViewHandler extends DesignHandler {
   //! and for every single view you can have only one reduce function. The reduce function is a closure.
   //! The closure must be declared like:
   //! @code
-  //! function($doc) use ($emit) {
+  //! function($keys, $values, $rereduce) {
   //!   ...
-  //!
-  //!   $emit($key, $value);
   //! }
   //! @endcode
   //! To emit your record you must call the <i>$emit</i> closure.
@@ -107,7 +105,8 @@ final class ViewHandler extends DesignHandler {
     return (!empty($this->name) && !empty($this->mapFn)) ? TRUE : FALSE;
   }
 
-
+  //! @brief Checks the function definition against a regular expression and use PHP lint to find syntax errors.
+  //! @exception Exception <c>Message: <i>The \$closure must be defined like: $fnDef</i></c>
   public static function checkFn($fnImpl, $fnDef, $fnRegex) {
     Lint::checkSourceCode($fnImpl);
 
@@ -143,7 +142,7 @@ final class ViewHandler extends DesignHandler {
 
 
   //! @brief Sets the reduce function to the built-in <i>_count</i> function provided by CouchDB.
-  //! @details The buil-in <i>_count</i> reduce function will be probably the most common reduce function you'll use.
+  //! @details The built-in <i>_count</i> reduce function will be probably the most common reduce function you'll use.
   //! This function returns the number of mapped values in the set.
   public function useBuiltInReduceFnCount() {
     $this->reduceFn = "_count";
@@ -151,7 +150,7 @@ final class ViewHandler extends DesignHandler {
 
 
   //! @brief Sets the reduce function to the built-in <i>_sum</i> function provided by CouchDB.
-  //! @details The buil-in <i>_sum</i> reduce function will return a sum of mapped values. As with all reductions, you
+  //! @details The built-in <i>_sum</i> reduce function will return a sum of mapped values. As with all reductions, you
   //! can either get a sum of all values grouped by keys or part of keys. You can control this behaviour when you query
   //! the view, using an instance of <i>ViewQueryArgs</i> class, in particular with methods <i>groupReults</i> and <i>setGroupLevel</i>.
   //! @warning The buil-in <i>_sum</i> reduce function requires all mapped values to be numbers.
@@ -161,7 +160,7 @@ final class ViewHandler extends DesignHandler {
 
 
   //! @brief Sets the reduce function to the built-in <i>_stats</i> function provided by CouchDB.
-  //! @details The buil-in <i>_stats</i> reduce function returns an associative array containing the sum, count, minimum,
+  //! @details The built-in <i>_stats</i> reduce function returns an associative array containing the sum, count, minimum,
   //! maximum, and sum over all square roots of mapped values.
   public function useBuiltInReduceFnStats() {
     $this->reduceFn = "_stats";
