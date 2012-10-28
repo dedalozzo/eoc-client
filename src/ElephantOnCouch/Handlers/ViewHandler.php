@@ -30,8 +30,8 @@ final class ViewHandler extends DesignHandler {
   const MAP_DEFINITION = "function(\$doc) use (\$emit) { ... };";
 
   const REDUCE = "reduce";
-  const REDUCE_REGEX = '/function\s*\(\s*\$key\s*,\s*\$value\,\s*\$rereduce\)\s*\{[\W\w]*\};\z/m';
-  const REDUCE_DEFINITION = "function(\$key, \$value, \$rereduce) { ... };";
+  const REDUCE_REGEX = '/function\s*\(\s*\$keys\s*,\s*\$values\,\s*\$rereduce\)\s*\{[\W\w]*\};\z/m';
+  const REDUCE_DEFINITION = "function(\$keys, \$values, \$rereduce) { ... };";
 
   private $name;
 
