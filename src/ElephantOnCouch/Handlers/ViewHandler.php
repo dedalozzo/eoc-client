@@ -49,7 +49,7 @@ final class ViewHandler extends DesignHandler {
   //!   ...
   //!
   //!   $emit($key, $value);
-  //! }
+  //! };
   //! @endcode
   //! To emit your record you must call the <i>$emit</i> closure.
   private $mapFn = "";
@@ -61,9 +61,8 @@ final class ViewHandler extends DesignHandler {
   //! @code
   //! function($keys, $values, $rereduce) {
   //!   ...
-  //! }
+  //! };
   //! @endcode
-  //! To emit your record you must call the <i>$emit</i> closure.
   private $reduceFn = "";
 
   //@}
@@ -110,7 +109,7 @@ final class ViewHandler extends DesignHandler {
   public static function checkFn($fnImpl, $fnDef, $fnRegex) {
     Lint::checkSourceCode($fnImpl);
 
-    if (preg_match($fnRegex, $fnImpl) === FALSE)
+    if (!preg_match($fnRegex, $fnImpl))
       throw new \Exception("The \$closure must be defined like: $fnDef");
   }
 
@@ -173,8 +172,9 @@ final class ViewHandler extends DesignHandler {
 
 
   public function setMapFn($value) {
-    self::checkFn($value, self::MAP_DEFINITION, self::MAP_REGEX);
-    $this->mapFn = $value;
+    $fn = stripslashes((string)$value);
+    self::checkFn($fn, self::MAP_DEFINITION, self::MAP_REGEX);
+    $this->mapFn = $fn;
   }
 
 
@@ -184,8 +184,9 @@ final class ViewHandler extends DesignHandler {
 
 
   public function setReduceFn($value) {
-    self::checkFn($value, self::REDUCE_DEFINITION, self::REDUCE_REGEX);
-    $this->reduceFn = $value;
+    $fn = stripslashes((string)$value);
+    self::checkFn($fn, self::REDUCE_DEFINITION, self::REDUCE_REGEX);
+    $this->reduceFn = $fn;
   }
 
 }
