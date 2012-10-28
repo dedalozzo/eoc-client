@@ -27,12 +27,18 @@ use ElephantOnCouch\ResponseException;
 use ElephantOnCouch\Docs\DesignDoc;
 use ElephantOnCouch\Handlers\ViewHandler;
 
+
+function arrayToObject($array) {
+  return is_array($array) ? (object) array_map(__FUNCTION__, $array) : $array;
+}
+
+
 try {
   $couch = new ElephantOnCouch(ElephantOnCouch::DEFAULT_SERVER, "pippo", "calippo");
 
   $couch->useCurl();
   //$couch->useSocket();
-  $couch->selectDb("programmazione2");
+  $couch->selectDb("programmazione");
 
   // -------------------------------------------------------------------------------------------------------------------
   // FIRST DESIGN DOCUMENT
@@ -42,22 +48,32 @@ try {
   //$doc = new DesignDoc("articles");
 
   // This map function indexes every article stored into the database.
-  $closure = "function(\$doc) use (\$emit) {
-                if (\$doc->stereotype == 2)
-                  \$emit(\$doc->idItem, NULL);
-               };";
+  $map = "function(\$doc) use (\$emit) {
+            if (\$doc->stereotype == 2)
+              \$emit(\$doc->idItem, NULL);
+          };";
+
+  $reduce = "function(\$keys, \$values, \$rereduce) {
+               if (\$rereduce)
+                 return array_sum(\$values);
+               else
+                 return sizeof(\$values);
+             };";
 
   $handler = new ViewHandler("articles_by_id");
-  $handler->mapFn = stripslashes($closure);
+  $handler->mapFn = $map;
+  $handler->reduceFn = $reduce;
+  //$handler->useBuiltInReduceFnCount();
   $doc->addHandler($handler);
 
-  $closure = "function(\$doc) use (\$emit) {
+  $map = "function(\$doc) use (\$emit) {
                 if (\$doc->contributorName == \"Luca Domenichini\")
                   \$emit(\$doc->contributorName, \$doc->idItem);
                };";
 
   $handler = new ViewHandler("domenichini");
-  $handler->mapFn = stripslashes($closure);
+  $handler->mapFn = $map;
+  $handler->useBuiltInReduceFnCount();
   $doc->addHandler($handler);
 
   $couch->saveDoc($doc);
@@ -71,13 +87,15 @@ try {
   //$doc = new DesignDoc("books");
 
   // This map function indexes every book stored into the database.
-  $closure = "function(\$doc) use (\$emit) {
+  $map = "function(\$doc) use (\$emit) {
                 if (\$doc->stereotype == 11)
                   \$emit(\$doc->idItem, NULL);
                };";
 
   $handler = new ViewHandler("books_by_id");
-  $handler->mapFn = stripslashes($closure);
+  $handler->mapFn = $map;
+  //$handler->reduceFn = $reduce;
+  $handler->useBuiltInReduceFnCount();
   $doc->addHandler($handler);
 
   $couch->saveDoc($doc);
