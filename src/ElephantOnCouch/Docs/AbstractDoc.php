@@ -61,7 +61,7 @@ abstract class AbstractDoc {
 
 
   //! @brief Adds a non standard reserved word.
-  //! @param[in] string $word
+  //! @param[in] string $word A reserved word.
   //! @exception Exception <c>Message: <i>The '\$word' reserved word is supported and already exists.</i></c>
   public static function addCustomReservedWord($word) {
     if (array_key_exists($word, static::$reservedWords))
@@ -72,7 +72,7 @@ abstract class AbstractDoc {
 
 
   //! @brief Returns a list of reserved words that cannot be used.
-  //! @return associate array
+  //! @return associative array
   public function getReservedWords() {
     return static::$reservedWords;
   }
