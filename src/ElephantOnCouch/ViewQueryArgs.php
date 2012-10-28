@@ -48,6 +48,7 @@ class ViewQueryArgs {
   //! @brief Restricts the number of results.
   //! @details Allowed values: positive integers.
   //! @param[in] integer $value The maximum number of rows to include in the output.
+  //! @exception Exception <c>Message: <i>\$value must be a positive integer.</i></c>
   public function setLimit($value) {
     if (is_int($value) && $value > 0)
       $this->options["limit"] = $value;
