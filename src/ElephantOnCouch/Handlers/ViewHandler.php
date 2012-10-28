@@ -104,7 +104,11 @@ final class ViewHandler extends DesignHandler {
     return (!empty($this->name) && !empty($this->mapFn)) ? TRUE : FALSE;
   }
 
+
   //! @brief Checks the function definition against a regular expression and use PHP lint to find syntax errors.
+  //! @param[in] string $fnImpl The function's implementation.
+  //! @param[in] string $fnDef The function prototype.
+  //! @param[in] string $fnRegex The regular expression to check the function correctness.
   //! @exception Exception <c>Message: <i>The \$closure must be defined like: $fnDef</i></c>
   public static function checkFn($fnImpl, $fnDef, $fnRegex) {
     Lint::checkSourceCode($fnImpl);

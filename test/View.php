@@ -26,7 +26,10 @@ use ElephantOnCouch\ElephantOnCouch;
 use ElephantOnCouch\ResponseException;
 use ElephantOnCouch\Docs\DesignDoc;
 use ElephantOnCouch\Handlers\ViewHandler;
+use ElephantOnCouch\ViewQueryArgs;
 
+
+const FIRST_RUN = FALSE;
 
 function arrayToObject($array) {
   return is_array($array) ? (object) array_map(__FUNCTION__, $array) : $array;
@@ -40,14 +43,19 @@ try {
   //$couch->useSocket();
   $couch->selectDb("programmazione");
 
-  // -------------------------------------------------------------------------------------------------------------------
+  // ===================================================================================================================
   // FIRST DESIGN DOCUMENT
-  // -------------------------------------------------------------------------------------------------------------------
-  $doc = DesignDoc::fromArray($couch->getDoc(ElephantOnCouch::DESIGN_DOC, "articles"));
-  $doc->resetHandlers();
-  //$doc = new DesignDoc("articles");
+  // ===================================================================================================================
+  if (FIRST_RUN)
+    $doc = new DesignDoc("articles");
+  else {
+    $doc = DesignDoc::fromArray($couch->getDoc(ElephantOnCouch::DESIGN_DOC, "articles"));
+    $doc->resetHandlers();
+  }
 
-  // This map function indexes every article stored into the database.
+  // -------------------------------------------------------------------------------------------------------------------
+  // FIRST HANDLER
+  // -------------------------------------------------------------------------------------------------------------------
   $map = "function(\$doc) use (\$emit) {
             if (\$doc->stereotype == 2)
               \$emit(\$doc->idItem, NULL);
@@ -66,6 +74,9 @@ try {
   //$handler->useBuiltInReduceFnCount();
   $doc->addHandler($handler);
 
+  // -------------------------------------------------------------------------------------------------------------------
+  // SECOND HANDLER
+  // -------------------------------------------------------------------------------------------------------------------
   $map = "function(\$doc) use (\$emit) {
                 if (\$doc->contributorName == \"Luca Domenichini\")
                   \$emit(\$doc->contributorName, \$doc->idItem);
@@ -76,34 +87,79 @@ try {
   $handler->useBuiltInReduceFnCount();
   $doc->addHandler($handler);
 
+  // -------------------------------------------------------------------------------------------------------------------
+  // THIRD HANDLER
+  // -------------------------------------------------------------------------------------------------------------------
+  $map = "function(\$doc) use (\$emit) {
+            \$emit(\$doc->stereotype);
+          };";
+
+  $reduce = "function(\$keys, \$values, \$rereduce) {
+               return sizeof(\$values);
+             };";
+
+  $handler = new ViewHandler("items_by_stereotype");
+  $handler->mapFn = $map;
+  $handler->reduceFn = $reduce;
+  //$handler->useBuiltInReduceFnCount();
+  $doc->addHandler($handler);
+
+  // Saves the document.
   $couch->saveDoc($doc);
-  // -------------------------------------------------------------------------------------------------------------------
 
-  // -------------------------------------------------------------------------------------------------------------------
+  // ===================================================================================================================
   // SECOND DESIGN DOCUMENT
-  // -------------------------------------------------------------------------------------------------------------------
-  $doc = DesignDoc::fromArray($couch->getDoc(ElephantOnCouch::DESIGN_DOC, "books"));
-  $doc->resetHandlers();
-  //$doc = new DesignDoc("books");
+  // ===================================================================================================================
+  if (FIRST_RUN)
+    $doc = new DesignDoc("books");
+  else {
+    $doc = DesignDoc::fromArray($couch->getDoc(ElephantOnCouch::DESIGN_DOC, "books"));
+    $doc->resetHandlers();
+  }
 
-  // This map function indexes every book stored into the database.
+  // -------------------------------------------------------------------------------------------------------------------
+  // FIRST HANDLER
+  // -------------------------------------------------------------------------------------------------------------------
   $map = "function(\$doc) use (\$emit) {
                 if (\$doc->stereotype == 11)
                   \$emit(\$doc->idItem, NULL);
                };";
 
-  $handler = new ViewHandler("books_by_id");
+  $handler = new ViewHandler("books");
   $handler->mapFn = $map;
   //$handler->reduceFn = $reduce;
   $handler->useBuiltInReduceFnCount();
   $doc->addHandler($handler);
 
-  $couch->saveDoc($doc);
   // -------------------------------------------------------------------------------------------------------------------
+  // SECOND HANDLER
+  // -------------------------------------------------------------------------------------------------------------------
+  $map = "function(\$doc) use (\$emit) {
+                if (\$doc->stereotype == 1)
+                  \$emit(\$doc->idItem, NULL);
+               };";
 
+  $handler = new ViewHandler("draft_books");
+  $handler->mapFn = $map;
+  //$handler->reduceFn = $reduce;
+  $handler->useBuiltInReduceFnCount();
+  $doc->addHandler($handler);
+
+  // Saves the document.
+  $couch->saveDoc($doc);
+
+
+  // ===================================================================================================================
+  // QUERY THE VIEWS
+  // ===================================================================================================================
   $couch->queryView("articles", "articles_by_id");
   $couch->queryView("articles", "domenichini");
-  $couch->queryView("books", "books_by_id");
+  $couch->queryView("books", "books");
+  $couch->queryView("books", "draft_books");
+
+  $queryArgs = new ViewQueryArgs();
+  $queryArgs->groupResults();
+  $couch->queryView("articles", "items_by_stereotype", $queryArgs);
 }
 catch (Exception $e) {
   echo ">>> Code: ".$e->getCode()."\r\n";

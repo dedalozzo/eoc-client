@@ -42,6 +42,14 @@ final class DesignDoc extends ReplicableDoc {
   ];
 
 
+  //! Creates and returns an instance of DesignDoc class and initialize it with the associative array provided as input.
+  //! @details Use this function when you need to modify an existence design document.
+  //! @param[in] array $array An associative array.
+  //! @code
+  //!   $couch = new ElephantOnCouch(ElephantOnCouch::DEFAULT_SERVER, "username", "password");
+  //!   $couch->selectDb("my_database");
+  //!   $doc = DesignDoc::fromArray($couch->getDoc(ElephantOnCouch::DESIGN_DOC, "my_view"));
+  //! @endcode
   public static function fromArray(array $array) {
     $instance = new self();
     $instance->meta = $array;
@@ -99,6 +107,8 @@ final class DesignDoc extends ReplicableDoc {
   //! the handler couldn't have a name), returns the
   //! @param[in] string $section The section name.
   //! @param[in] string $name (optional) The handler name.
+  //! @exception Exception <c>Message: <i>Can't find '$section' handler in the design document.</i></c>
+  //! @exception Exception <c>Message: <i>Can't find '$name' handler in the design document '$section' section.</i></c>
   public function getHandlerAttributes($section, $name = "") {
     if (empty($name)) { // The handler doesn't have a name.
       if (array_key_exists($section, $this->meta))
@@ -119,8 +129,11 @@ final class DesignDoc extends ReplicableDoc {
   //! @details This method checks the existence of the property 'name', in fact a design document can have sections with
   //! multiple handlers, but in some cases there is one and only one handler per section, so that handler doesn't have a
   //! name.
-  //! @exception TODO
-  //! @exception TODO
+  //! @param[in] DesignHandler $handler An instance of a subclass of the abstract class DesignHandler.
+  //! @exception Exception <c>Message: <i>'$handler->name' handler for the design document '$section' section is not consistent.</i></c>
+  //! @exception Exception <c>Message: <i>'$handler->name' handler already exists for the design document '$section' section'.</i></c>
+  //! @exception Exception <c>Message: <i>'$section' handler is not consistent.</i></c>
+  //! @exception Exception <c>Message: <i>'$section' handler already exists for the design document.</i></c>
   public function addHandler(DesignHandler $handler) {
     $section = $handler->getSection();
 
@@ -146,7 +159,13 @@ final class DesignDoc extends ReplicableDoc {
 
 
   //! @brief Removes the handler.
-  //! @exception TODO
+  //! @details Some handlers belong to a section. For example a view ViewHandler belongs to the 'views' section. To specify
+  //! the appropriate section name, you shoudl use the static method <i>getSection</i> available for every handler
+  //! implementation.
+  //! @param[in] string $section The section's name (views, updates, shows, filters, etc).
+  //! @param[in] string $name (optional) The handler's name.
+  //! @exception Exception <c>Message: <i>Can't find '$section' handler in the design document.</i></c>
+  //! @exception Exception <c>Message: <i>Can't find '$name' handler in the design document '$section' section.</i></c>
   public function removeHandler($section, $name = "") {
     if (empty($name)) { // The handler doesn't have a name.
       if (array_key_exists($section, $this->meta))
