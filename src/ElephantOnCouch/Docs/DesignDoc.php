@@ -23,7 +23,7 @@ final class DesignDoc extends ReplicableDoc {
   //@{
 
   //! @brief The purpose of this property is to specify the programming language used to write the handlers' closures.
-  //! @details CouchDB will automatilly use the right interpreter for the various handlers stored into this design document.
+  //! @details CouchDB will automatically use the right interpreter for the various handlers stored into this design document.
   const LANGUAGE = "language";
 
   //const LIB_RW = "lib"; TODO This must be investigated and added or an handler must be created for it.
