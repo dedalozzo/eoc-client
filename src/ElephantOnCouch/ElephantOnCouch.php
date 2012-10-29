@@ -56,7 +56,7 @@ class ElephantOnCouch extends Client {
   const ALL_DOCS_STYLE = "all_docs";
   //@}
 
-  //! @name Document Types
+  //! @name Document Paths
   // @{
   const STD_DOC = "";
   const LOCAL_DOC = "_local/";
@@ -1215,7 +1215,7 @@ class ElephantOnCouch extends Client {
 
 
   // Invokes the URL rewrite handler and processes the request after rewriting
-  // THIS FUNCTION MAKE NO SENSE
+  // THIS FUNCTION MAKES NO SENSE
   //public function rewriteUrl($designDocName) {
     // /db/_design/design-doc/_rewrite
   //}
