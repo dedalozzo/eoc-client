@@ -9,7 +9,7 @@
 namespace ElephantOnCouch\Docs;
 
 
-//! @brief TODO
+//! @brief Standard documents and Design documents are both replicable documents.
 //! @nosubgrouping
 abstract class ReplicableDoc extends AbstractDoc {
 
@@ -24,7 +24,7 @@ abstract class ReplicableDoc extends AbstractDoc {
 
   //@}
 
-  //! If the document has attachments, holds a meta-data structure
+  //! If the document has attachments, holds a meta-data structure.
   private $attachments = []; // array of attachments
 
   //! Revision history of the document.

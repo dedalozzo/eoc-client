@@ -99,7 +99,7 @@ try {
   $opts->includeRevsInfo();
   $opts->includeRevs();
   //$opts->includeOpenRevs();
-  var_dump($couch->getDoc(ElephantOnCouch::STD_DOC, 48346, "", $opts));
+  var_dump($couch->getDoc(ElephantOnCouch::STD_DOC_PATH, 48346, "", $opts));
   //$couch->saveDoc();
   //$couch->deleteDoc("10002", "1-40bc3cbd9c712f88542adc935603a4ad");
   //$couch->copyDoc();

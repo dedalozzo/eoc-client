@@ -9,6 +9,9 @@
 namespace ElephantOnCouch\Docs;
 
 
+use Rest\Helpers\ArrayHelper;
+
+
 //! @brief The abstract document is the ancestor of the other document classes. This class encapsulates common
 //! properties and methods of every CouchDB document. Since it's an abstract class, you can't create an instance of it.
 //! @nosubgrouping
@@ -24,6 +27,8 @@ abstract class AbstractDoc {
   const LOCAL_SEQUENCE = "_local_sequence"; //!< TODO I'm not sure this goes here. Probably on ReplicableDoc.
   //@}
 
+  CONST DOC_CLASS = "type";
+
   // Stores the reserved words.
   protected static $reservedWords = [
     self::ID => NULL,
@@ -32,7 +37,30 @@ abstract class AbstractDoc {
     self::LOCAL_SEQUENCE => NULL //!< TODO I'm not sure this goes here. Probably on ReplicableDoc.
   ];
 
-  protected $meta = [];
+  protected $meta;
+
+
+  public function __construct() {
+    $this->initMetadata();
+  }
+
+
+  private function initMetadata() {
+    $this->meta = [];
+
+    if ($this instanceof Doc || $this instanceof LocalDoc)
+      $this->meta[self::DOC_CLASS] = "\\".get_class($this);
+  }
+
+
+  private function fixDocId() {
+    if (isset($this->meta[self::ID])) {
+      if ($this instanceof LocalDoc)
+        $this->meta[self::ID] = preg_replace('%\A_local/%m', "", $this->meta[self::ID]);
+      elseif ($this instanceof DesignDoc)
+        $this->meta[self::ID] = preg_replace('%\A_design/%m', "", $this->meta[self::ID]);
+    }
+  }
 
 
   protected function isMetadataPresent($name) {
@@ -43,13 +71,28 @@ abstract class AbstractDoc {
   //! @brief Resets the metadata.
   public function resetMetadata() {
     unset($this->meta);
-    $this->meta = [];
+    $this->initMetadata();
   }
+
+
+  //! Assigns the given associative array to the <i>$meta</i> array, the array that stores the document's metadata..
+  //! @param[in] array $array An associative array.
+  //! @exception Exception <c>Message: <i>\$array must be an associative array.</i></c>
+  public function assignArray(array $array) {
+    if (ArrayHelper::isAssociative($array)) {
+      $this->meta = array_merge($array, $this->meta);
+      $this->fixDocId();
+    }
+    else
+      throw new \Exception("\$array must be an associative array.");
+  }
+
 
   //! @brief Given an instance of a standard class, this function assigns every single object's property to the <i>$meta</i>
   //! array, the array that stores the document's metadata.
   public function assignObject(\stdClass $object) {
-    $this->meta = get_object_vars($object);
+    $this->meta = array_merge(get_object_vars($object), $this->meta);
+    $this->fixDocId();
   }
 
 

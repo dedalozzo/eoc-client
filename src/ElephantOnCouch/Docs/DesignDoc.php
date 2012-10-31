@@ -42,32 +42,8 @@ final class DesignDoc extends ReplicableDoc {
   ];
 
 
-  //! Creates and returns an instance of DesignDoc class and initialize it with the associative array provided as input.
-  //! @details Use this function when you need to modify an existence design document.
-  //! @param[in] array $array An associative array.
-  //! @code
-  //!   $couch = new ElephantOnCouch(ElephantOnCouch::DEFAULT_SERVER, "username", "password");
-  //!   $couch->selectDb("my_database");
-  //!   $doc = DesignDoc::fromArray($couch->getDoc(ElephantOnCouch::DESIGN_DOC, "my_view"));
-  //! @endcode
-  public static function fromArray(array $array) {
-    $instance = new self();
-    $instance->meta = $array;
-    $instance->meta[self::ID] = preg_replace('%\A_design/%m', "", $instance->meta[self::ID]);
-
-    return $instance;
-  }
-
-
-  //! @brief Creates an instance of DesignDoc class.
-  //! @param[in] string $name The design document name.
-  //! @param[in] string $name The programming language used by the design document for his handlers.
-  public function __construct($name = "", $language = "php") {
-    if (!empty($name))
-      $this->meta[self::ID] = (string)$name;
-
-    if (!empty($language))
-      $this->meta[self::LANGUAGE] = (string)$language;
+  public function __construct() {
+    parent::__construct();
 
     if (!self::$initialized) {
       self::$initialized = TRUE;
@@ -77,6 +53,42 @@ final class DesignDoc extends ReplicableDoc {
       self::scanForHandlers();
     }
   }
+
+  //! @brief Creates an instance of DesignDoc class.
+  //! @param[in] string $name The design document name.
+  //! @param[in] string $name The programming language used by the design document for his handlers.
+  public static function create($name, $language = "php") {
+    $instance = new self();
+
+    if (is_string($name) && !empty($name))
+      $instance->meta[self::ID] = $name;
+    else
+      throw new \Exception("\$name must be a non-empty string.");
+
+    if (is_string($language) && !empty($language))
+      $instance->meta[self::LANGUAGE] = $language;
+    else
+      throw new \Exception("\$language must be a non-empty string.");
+
+    return $instance;
+  }
+
+
+  //! Creates and returns an instance of DesignDoc class and initialize it with the associative array provided as input.
+  //! @details Use this function when you need to modify an existence design document.
+  //! @param[in] array $array An associative array.
+  //! @code
+  //!   $couch = new ElephantOnCouch(ElephantOnCouch::DEFAULT_SERVER, "username", "password");
+  //!   $couch->selectDb("my_database");
+  //!   $doc = DesignDoc::fromArray($couch->getDoc(ElephantOnCouch::DESIGN_DOC, "my_view"));
+  //! @endcode
+  /*public static function init(array $array) {
+    $instance = new self();
+    $instance->meta = $array;
+    $instance->meta[self::ID] = preg_replace('%\A_design/%m', "", $instance->meta[self::ID]);
+
+    return $instance;
+  }*/
 
 
   //! @brief Scans the handlers' directory.

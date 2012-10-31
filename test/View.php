@@ -47,9 +47,9 @@ try {
   // FIRST DESIGN DOCUMENT
   // ===================================================================================================================
   if (FIRST_RUN)
-    $doc = new DesignDoc("articles");
+    $doc = DesignDoc::create("articles");
   else {
-    $doc = DesignDoc::fromArray($couch->getDoc(ElephantOnCouch::DESIGN_DOC, "articles"));
+    $doc = $couch->getDoc(ElephantOnCouch::DESIGN_DOC_PATH, "articles");
     $doc->resetHandlers();
   }
 
@@ -113,7 +113,7 @@ try {
   if (FIRST_RUN)
     $doc = new DesignDoc("books");
   else {
-    $doc = DesignDoc::fromArray($couch->getDoc(ElephantOnCouch::DESIGN_DOC, "books"));
+    $doc = $couch->getDoc(ElephantOnCouch::DESIGN_DOC_PATH, "books");
     $doc->resetHandlers();
   }
 

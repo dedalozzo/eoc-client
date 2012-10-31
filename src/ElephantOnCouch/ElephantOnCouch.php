@@ -58,9 +58,9 @@ class ElephantOnCouch extends Client {
 
   //! @name Document Paths
   // @{
-  const STD_DOC = "";
-  const LOCAL_DOC = "_local/";
-  const DESIGN_DOC = "_design/";
+  const STD_DOC_PATH = "";
+  const LOCAL_DOC_PATH = "_local/";
+  const DESIGN_DOC_PATH = "_design/";
   //@}
 
   //! Default CouchDB revisions limit number.
@@ -110,10 +110,10 @@ class ElephantOnCouch extends Client {
   }
 
 
-  //! @brief This method raise an exception when the user provides an unknown document type.
-  private function checkDocType($docType) {
-    if (($docType != self::STD_DOC) && ($docType != self::LOCAL_DOC) && ($docType != self::DESIGN_DOC))
-      throw new \Exception("\$docType is not a valid document type.");
+  //! @brief This method raise an exception when the user provides an unknown document path.
+  private function checkDocPath($docPath) {
+    if (($docPath != self::STD_DOC_PATH) && ($docPath != self::LOCAL_DOC_PATH) && ($docPath != self::DESIGN_DOC_PATH))
+      throw new \Exception("\$docPath is not a valid document type.");
   }
 
 
@@ -931,18 +931,18 @@ class ElephantOnCouch extends Client {
   //! @details Since CouchDB uses different paths to store special documents, you must provide the document type for
   //! design and local documents.
   //! @param[in] string $docId The document's identifier.
-  //! @param[in] string $docType The document's type. Allowed values: <i>src::STD_DOC</i>, <i>src::LOCAL_DOC</i>, <i>src::DESIGN_DOC</i>.
+  //! @param[in] string $docPath The document's type. Allowed values: <i>src::STD_DOC</i>, <i>src::LOCAL_DOC</i>, <i>src::DESIGN_DOC</i>.
   //! @param[in] string $rev (optional) The document's revision.
   //! @param[in] DocOpts $opts Query options to get additional document information, like conflicts, attachments, etc.
   //! @return associative array
   //! @exception Exception <c>Message: <i>No database selected.</i></c>
   //! @exception Exception <c>Message: <i>You must provide a valid \$docId.</i></c>
-  public function getDoc($docType, $docId, $rev = "", DocOpts $opts = NULL) {
+  public function getDoc($docPath, $docId, $rev = "", DocOpts $opts = NULL) {
     $this->checkForDb();
     $this->checkDocId($docId);
-    $this->checkDocType($docType);
+    $this->checkDocPath($docPath);
 
-    $path = "/".$this->dbName."/".$docType.$docId;
+    $path = "/".$this->dbName."/".$docPath.$docId;
 
     $request = $this->newRequest(Request::GET_METHOD, $path);
 
@@ -957,7 +957,24 @@ class ElephantOnCouch extends Client {
         $request->setQueryParam($name, $value);
     }
 
-    return $this->sendRequest($request)->getBodyAsArray();
+    $body = $this->sendRequest($request)->getBodyAsArray();
+
+    // We use 'type' metadata to store an instance of a specialized document class. We can have Article and Book classes,
+    // both derived from Doc, with special properties and methods. Instead to convert them, we store the class type in a
+    // special attribute called "type" within the others metadata. So, once we retrieve the document, the client creates
+    // an instance of the class we provided when we saved the document. We don't need to convert it.
+    if (isset($body["type"]))                  // Special document class inherited from Doc or LocalDoc.
+      $doc = new $body["type"];
+    elseif ($docPath == self::LOCAL_DOC_PATH)  // Local document.
+      $doc = new Docs\LocalDoc;
+    elseif ($docPath == self::DESIGN_DOC_PATH) // Design document.
+      $doc = new Docs\DesignDoc;
+    else                                       // Standard document.
+      $doc = new Docs\Doc;
+
+    $doc->assignArray($body);
+
+    return $doc;
   }
 
 
@@ -995,9 +1012,9 @@ class ElephantOnCouch extends Client {
 
     // Sets the path according to the document type.
     if ($doc instanceof Docs\DesignDoc)
-      $path = "/".$this->dbName."/".self::DESIGN_DOC.$doc->getId();
+      $path = "/".$this->dbName."/".self::DESIGN_DOC_PATH.$doc->getId();
     elseif ($doc instanceof Docs\LocalDoc)
-      $path = "/".$this->dbName."/".self::LOCAL_DOC.$doc->getId();
+      $path = "/".$this->dbName."/".self::LOCAL_DOC_PATH.$doc->getId();
     else
       $path = "/".$this->dbName."/".$doc->getId();
 
@@ -1017,17 +1034,17 @@ class ElephantOnCouch extends Client {
   //! @details To delete a document you must provide the document identifier and the revision number.
   //! @param[in] string $docId The document's identifier you want delete.
   //! @param[in] string $rev The document's revision number you want delete.
-  //! @param[in] string $docType The document type. You need to specify a document type only when you want delete a
+  //! @param[in] string $docPath The document type. You need to specify a document type only when you want delete a
   //! document. Allowed values: <i>src::STD_DOC</i>, <i>src::LOCAL_DOC</i>, <i>src::DESIGN_DOC</i>.
   //! @exception Exception <c>Message: <i>No database selected.</i></c>
   //! @exception Exception <c>Message: <i>You must provide a valid \$docId.</i></c>
-  //! @exception Exception <c>Message: <i>\$docType is not a valid document type.</i></c>
-  public function deleteDoc($docType, $docId, $rev) {
+  //! @exception Exception <c>Message: <i>\$docPath is not a valid document type.</i></c>
+  public function deleteDoc($docPath, $docId, $rev) {
     $this->checkForDb();
     $this->checkDocId($docId);
-    $this->checkDocType($docType);
+    $this->checkDocPath($docPath);
 
-    $path = "/".$this->dbName."/".$docType.$docId;
+    $path = "/".$this->dbName."/".$docPath.$docId;
 
     $request = $this->newRequest(Request::DELETE_METHOD, $path);
     $request->setQueryParam("rev", $rev);
@@ -1045,17 +1062,17 @@ class ElephantOnCouch extends Client {
   //! @param[in] string $sourceDocId The source document id.
   //! @param[in] string $targetDocId The destination document id.
   //! @param[in] string $rev Needed when you want override an existent document.
-  //! @param[in] string $docType The document type. Allowed values: <i>src::STD_DOC</i>, <i>src::LOCAL_DOC</i>, <i>src::DESIGN_DOC</i>.
+  //! @param[in] string $docPath The document type. Allowed values: <i>src::STD_DOC</i>, <i>src::LOCAL_DOC</i>, <i>src::DESIGN_DOC</i>.
   //! @exception Exception <c>Message: <i>No database selected.</i></c>
   //! @exception Exception <c>Message: <i>You must provide a valid \$docId.</i></c>
-  //! @exception Exception <c>Message: <i>\$docType is not a valid document type.</i></c>
-  public function copyDoc($docType, $sourceDocId, $targetDocId, $rev = "") {
+  //! @exception Exception <c>Message: <i>\$docPath is not a valid document type.</i></c>
+  public function copyDoc($docPath, $sourceDocId, $targetDocId, $rev = "") {
     $this->checkForDb();
-    $this->checkDocType($docType);
+    $this->checkDocPath($docPath);
     $this->checkDocId($sourceDocId);
     $this->checkDocId($targetDocId);
 
-    $path = "/".$this->dbName."/".$docType.$sourceDocId;
+    $path = "/".$this->dbName."/".$docPath.$sourceDocId;
 
     // This request uses the special method COPY.
     $request = $this->newRequest(self::COPY_METHOD, $path);
@@ -1172,7 +1189,7 @@ class ElephantOnCouch extends Client {
     $this->checkForDb();
     $this->checkDocId($docName);
 
-    $path = "/".$this->dbName."/".self::DESIGN_DOC.$docName."/_info";
+    $path = "/".$this->dbName."/".self::DESIGN_DOC_PATH.$docName."/_info";
 
     $request = $this->newRequest(Request::GET_METHOD, $path);
 
