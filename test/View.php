@@ -111,7 +111,7 @@ try {
   // SECOND DESIGN DOCUMENT
   // ===================================================================================================================
   if (FIRST_RUN)
-    $doc = new DesignDoc("books");
+    $doc = DesignDoc::create("books");
   else {
     $doc = $couch->getDoc(ElephantOnCouch::DESIGN_DOC_PATH, "books");
     $doc->resetHandlers();

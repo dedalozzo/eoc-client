@@ -15,20 +15,15 @@ abstract class ReplicableDoc extends AbstractDoc {
 
   //! @name Replicable Document Properties
   //@{
-
   const ATTACHMENTS = "_attachments"; //!< The document attachments.
-  const REVISIONS = "_revisions"; //!< The document revisions.
   const REVS_INFO = "_revs_info";
+  const LOCAL_SEQUENCE = "_local_sequence"; //!< TODO
   const CONFLICTS = "_conflicts";
   const DELETED_CONFLICTS = "_deleted_conflicts";
-
   //@}
 
   //! If the document has attachments, holds a meta-data structure.
   private $attachments = []; // array of attachments
-
-  //! Revision history of the document.
-  private $revisions = [];
 
   //! A list of revisions of the document, and their availability.
   private $revsInfo = [];

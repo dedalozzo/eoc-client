@@ -74,23 +74,6 @@ final class DesignDoc extends ReplicableDoc {
   }
 
 
-  //! Creates and returns an instance of DesignDoc class and initialize it with the associative array provided as input.
-  //! @details Use this function when you need to modify an existence design document.
-  //! @param[in] array $array An associative array.
-  //! @code
-  //!   $couch = new ElephantOnCouch(ElephantOnCouch::DEFAULT_SERVER, "username", "password");
-  //!   $couch->selectDb("my_database");
-  //!   $doc = DesignDoc::fromArray($couch->getDoc(ElephantOnCouch::DESIGN_DOC, "my_view"));
-  //! @endcode
-  /*public static function init(array $array) {
-    $instance = new self();
-    $instance->meta = $array;
-    $instance->meta[self::ID] = preg_replace('%\A_design/%m', "", $instance->meta[self::ID]);
-
-    return $instance;
-  }*/
-
-
   //! @brief Scans the handlers' directory.
   //! @details Every CouchDB's handler is stored in a particular design document section. Every class that extends the
   //! abstract handler DesignHandler, must implement a static method to return his own section. These sections are stored

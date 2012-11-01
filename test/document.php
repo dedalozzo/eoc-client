@@ -152,11 +152,14 @@ try {
   $opts->includeRevsInfo();
   $opts->includeLatest();
   $opts->includeMeta();
-  $opts->includeOpenRevs();
+  //$opts->includeOpenRevs();
+  $opts->includeLocalSeq();
+  $opts->includeConflicts();
+  $opts->includeDeletedConflicts();
 
-  $doc = $couch->getDoc(ElephantOnCouch::LOCAL_DOC_PATH, "b4819145-9a46-4af4-b591-c19817d8e0b1");
-  $doc->title = "New title for the document";
-  $couch->saveDoc($doc);
+  $doc = $couch->getDoc(ElephantOnCouch::LOCAL_DOC_PATH, "f73f5082-918a-44d5-dd4d-2d63d22f23e1", NULL, $opts);
+  //$doc->title = "New title for the document";
+  //$couch->saveDoc($doc);
 }
 catch (Exception $e) {
   echo ">>> Code: ".$e->getCode()."\r\n";

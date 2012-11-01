@@ -12,8 +12,9 @@ namespace ElephantOnCouch;
 
 use Rest\Client;
 use Rest\Request;
+use Rest\Response;
 use ElephantOnCouch\Docs\AbstractDoc;
-use ElephantOnCouch\Handlers\ViewHandler;
+use ElephantOnCouch\Handlers\Viewandler;
 
 
 //! @brief This class is the main class of src library. You need an instance of this class to interact with
@@ -834,7 +835,7 @@ class ElephantOnCouch extends Client {
   public function queryTempView($mapFn, $reduceFn = "", ViewQueryArgs $args = NULL) {
     $this->checkForDb();
 
-    $handler = new ViewHandler("temp");
+    $handler = new Viewandler("temp");
     $handler->mapFn = $mapFn;
     if (!empty($reduce))
       $handler->reduceFn = $reduceFn;
@@ -923,7 +924,7 @@ class ElephantOnCouch extends Client {
 
     $request = $this->newRequest(Request::HEAD_METHOD, $path);
 
-    return $this->sendRequest($request)->getHeaderField("Etag");
+    return $this->sendRequest($request)->getHeaderField(Response::ETAG_HF);
   }
 
 
@@ -937,7 +938,7 @@ class ElephantOnCouch extends Client {
   //! @return associative array
   //! @exception Exception <c>Message: <i>No database selected.</i></c>
   //! @exception Exception <c>Message: <i>You must provide a valid \$docId.</i></c>
-  public function getDoc($docPath, $docId, $rev = "", DocOpts $opts = NULL) {
+  public function getDoc($docPath, $docId, $rev = NULL, DocOpts $opts = NULL) {
     $this->checkForDb();
     $this->checkDocId($docId);
     $this->checkDocPath($docPath);
@@ -961,15 +962,17 @@ class ElephantOnCouch extends Client {
 
     // We use 'type' metadata to store an instance of a specialized document class. We can have Article and Book classes,
     // both derived from Doc, with special properties and methods. Instead to convert them, we store the class type in a
-    // special attribute called "type" within the others metadata. So, once we retrieve the document, the client creates
-    // an instance of the class we provided when we saved the document. We don't need to convert it.
-    if (isset($body["type"]))                  // Special document class inherited from Doc or LocalDoc.
-      $doc = new $body["type"];
-    elseif ($docPath == self::LOCAL_DOC_PATH)  // Local document.
+    // special attribute called <i>AbstractDoc::DOC_CLASS</i> within the others metadata. So, once we retrieve the document,
+    // the client creates an instance of the class we provided when we saved the document. We don't need to convert it.
+    if (isset($body[AbstractDoc::DOC_CLASS])) { // Special document class inherited from Doc or LocalDoc.
+      $type = "\\".$body[AbstractDoc::DOC_CLASS];
+      $doc = new $type;
+    }
+    elseif ($docPath == self::LOCAL_DOC_PATH)   // Local document.
       $doc = new Docs\LocalDoc;
-    elseif ($docPath == self::DESIGN_DOC_PATH) // Design document.
+    elseif ($docPath == self::DESIGN_DOC_PATH)  // Design document.
       $doc = new Docs\DesignDoc;
-    else                                       // Standard document.
+    else                                        // Standard document.
       $doc = new Docs\Doc;
 
     $doc->assignArray($body);
@@ -1047,10 +1050,10 @@ class ElephantOnCouch extends Client {
     $path = "/".$this->dbName."/".$docPath.$docId;
 
     $request = $this->newRequest(Request::DELETE_METHOD, $path);
-    $request->setQueryParam("rev", $rev);
+    $request->setQueryParam("rev", (string)$rev);
 
     // We could use another technique to send the revision number. Here just for documentation.
-    // $request->setHeader(Request::IF_MATCH_HEADER, $rev);
+    // $request->setHeader(Request::IF_MATCH_HEADER,(string) $rev);
 
     return $this->sendRequest($request);
   }
@@ -1066,7 +1069,7 @@ class ElephantOnCouch extends Client {
   //! @exception Exception <c>Message: <i>No database selected.</i></c>
   //! @exception Exception <c>Message: <i>You must provide a valid \$docId.</i></c>
   //! @exception Exception <c>Message: <i>\$docPath is not a valid document type.</i></c>
-  public function copyDoc($docPath, $sourceDocId, $targetDocId, $rev = "") {
+  public function copyDoc($docPath, $sourceDocId, $targetDocId, $rev = NULL) {
     $this->checkForDb();
     $this->checkDocPath($docPath);
     $this->checkDocId($sourceDocId);
@@ -1080,7 +1083,7 @@ class ElephantOnCouch extends Client {
     if (empty($rev))
       $request->setHeaderField(self::DESTINATION_HF, $targetDocId);
     else
-      $request->setHeaderField(self::DESTINATION_HF, $targetDocId."?rev=".$rev);
+      $request->setHeaderField(self::DESTINATION_HF, $targetDocId."?rev=".(string)$rev);
 
     $this->sendRequest($request);
   }
@@ -1136,7 +1139,7 @@ class ElephantOnCouch extends Client {
 
   //! @brief Retrieves the attachment from the specified document.
   // TODO
-  public function getAttachment($docId, $fileName, $rev = "") {
+  public function getAttachment($docId, $fileName, $rev = NULL) {
     $this->checkForDb();
     $this->checkDocId($docId);
 

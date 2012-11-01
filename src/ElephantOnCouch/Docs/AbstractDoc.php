@@ -25,16 +25,21 @@ abstract class AbstractDoc {
   const REV = "_rev"; //!< The current MVCC-token/revision of this document. Mandatory and immutable.
   const DELETED = "_deleted"; //!< Indicates that this document has been deleted and previous revisions will be removed on next compaction run.
   const LOCAL_SEQUENCE = "_local_sequence"; //!< TODO I'm not sure this goes here. Probably on ReplicableDoc.
+  const REVISIONS = "_revisions"; //!< The document revisions.
   //@}
 
-  CONST DOC_CLASS = "type";
+  CONST DOC_CLASS = "doc_class"; //!< Special attribute used to store the concrete class name.
 
   // Stores the reserved words.
   protected static $reservedWords = [
     self::ID => NULL,
     self::REV => NULL,
     self::DELETED => NULL,
-    self::LOCAL_SEQUENCE => NULL //!< TODO I'm not sure this goes here. Probably on ReplicableDoc.
+    self::LOCAL_SEQUENCE => NULL, //!< TODO I'm not sure this goes here. Probably on ReplicableDoc.
+    self::REVISIONS,
+
+
+    self::DOC_CLASS
   ];
 
   protected $meta;
@@ -49,7 +54,7 @@ abstract class AbstractDoc {
     $this->meta = [];
 
     if ($this instanceof Doc || $this instanceof LocalDoc)
-      $this->meta[self::DOC_CLASS] = "\\".get_class($this);
+      $this->meta[self::DOC_CLASS] = get_class($this);
   }
 
 
@@ -179,6 +184,11 @@ abstract class AbstractDoc {
 
   public function issetLocalSequence() {
     return $this->isMetadataPresent(self::LOCAL_SEQUENCE);
+  }
+
+
+  public function getRevisions() {
+    return (array_key_exists(self::REVISIONS, $this->meta)) ? $this->meta[self::REVISIONS] : NULL;
   }
 
 }

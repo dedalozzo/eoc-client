@@ -21,7 +21,7 @@ use Lint\Lint;
 //! you can write these functions directly in PHP.
 //! All the views in one design document are indexed whenever any of them gets queried.
 //! @nosubgrouping
-final class ViewHandler extends DesignHandler {
+final class Viewandler extends DesignHandler {
   const VIEWS = "views";
   const OPTIONS = "options";
 
