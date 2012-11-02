@@ -841,7 +841,7 @@ class ElephantOnCouch extends Client {
       $handler->reduceFn = $reduceFn;
 
     $request = $this->newRequest(Request::POST_METHOD, "/".$this->dbName."/_temp_view");
-    $request->setBody(json_encode($handler->getAttributes()));
+    $request->setBody(json_encode($handler->asArray()));
     if (isset($args))
       $request->setQueryParams($args->asArray());
 
@@ -910,10 +910,11 @@ class ElephantOnCouch extends Client {
   // @{
 
   //! @brief Returns the document's entity tag, that can be used for caching or optimistic concurrency control purposes.
+  //! The ETag Header is simply the document's revision in quotes.
   //! @details This function is not available for special documents. To get information about a design document, use
   //! the special function getDesignDocInfo().
   //! @param[in] string $docId The document's identifier.
-  //! @return string
+  //! @return string The document's revision.
   //! @exception Exception <c>Message: <i>No database selected.</i></c>
   //! @exception Exception <c>Message: <i>You must provide a valid \$docId.</i></c>
   public function getDocEtag($docId) {

@@ -139,7 +139,7 @@ final class DesignDoc extends ReplicableDoc {
       if (@array_key_exists($handler->name, $this->meta[$section]))
         throw new \Exception("'$handler->name' handler already exists for the design document '$section' section'.");
       else
-        $this->meta[$section][$handler->name] = $handler->getAttributes();
+        $this->meta[$section][$handler->name] = $handler->asArray();
     }
     else {
       if (!$handler->isConsistent())

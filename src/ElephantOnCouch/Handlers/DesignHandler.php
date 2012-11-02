@@ -29,7 +29,7 @@ abstract class DesignHandler {
 
   //! @brief Returns the handler's attributes.
   //! @return string|array
-  abstract public function getAttributes();
+  abstract public function asArray();
 }
 
 ?>

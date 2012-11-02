@@ -9,6 +9,9 @@
 namespace ElephantOnCouch\Docs;
 
 
+use ElephantOnCouch\Attachment;
+
+
 //! @brief Standard documents and Design documents are both replicable documents.
 //! @nosubgrouping
 abstract class ReplicableDoc extends AbstractDoc {
@@ -34,17 +37,16 @@ abstract class ReplicableDoc extends AbstractDoc {
 
 
   public function getAttachments() {
-    return $this->attachments;
+    return $this->meta[self::ATTACHMENTS];
   }
 
 
-  public function addAttachment($attachment) {
-    $this->attachments = $attachment;
+  public function addAttachment(Attachment $attachment) {
+    $this->meta[self::ATTACHMENTS][] = $attachment;
   }
 
 
-  public function removeAttachment($attachment) {
-    $this->attachments = $attachment;
+  public function removeAttachment($name) {
   }
 
 }

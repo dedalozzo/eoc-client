@@ -118,7 +118,7 @@ final class Viewandler extends DesignHandler {
   }
 
 
-  public function getAttributes() {
+  public function asArray() {
     $view = [];
     $view[self::MAP] = $this->mapFn;
 

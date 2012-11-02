@@ -43,7 +43,7 @@ final class FilterHandler extends DesignHandler {
   }
 
 
-  public function getAttributes() {
+  public function asArray() {
     // TODO: Implement getAttributes() method.
   }
 

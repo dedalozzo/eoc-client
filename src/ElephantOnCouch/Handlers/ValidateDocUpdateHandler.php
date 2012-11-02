@@ -32,7 +32,7 @@ final class ValidateDocUpdateHandler extends DesignHandler {
   }
 
 
-  public function getAttributes() {
+  public function asArray() {
     return $this->validateDocUpdate;
   }
 
