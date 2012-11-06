@@ -391,7 +391,7 @@ class ElephantOnCouch extends Client {
   //@}
 
 
-  //! @name Database Methods
+  //! @name Database-level Miscellaneous Methods
   // @{
 
   //! @brief Check if a database has been selected. This function is used internally, but you want use it in combination
@@ -824,7 +824,7 @@ class ElephantOnCouch extends Client {
 
     $request = $this->newRequest(Request::GET_METHOD, "/".$this->dbName."/_design/".$designDocName."/_view/".$viewName);
     if (isset($args))
-      $request->setQueryParams($args->asArray());
+      $request->setMultipleQueryParamsAtOnce($args->asArray());
 
     return $this->sendRequest($request);
   }
@@ -844,7 +844,7 @@ class ElephantOnCouch extends Client {
     $request = $this->newRequest(Request::POST_METHOD, "/".$this->dbName."/_temp_view");
     $request->setBody(json_encode($handler->asArray()));
     if (isset($args))
-      $request->setQueryParams($args->asArray());
+      $request->setMultipleQueryParamsAtOnce($args->asArray());
 
     return $this->sendRequest($request);
   }
@@ -955,7 +955,7 @@ class ElephantOnCouch extends Client {
 
     // If there are any options, add them to the request.
     if (isset($opts))
-      $request->setQueryParams($opts->asArray());
+      $request->setMultipleQueryParamsAtOnce($opts->asArray());
 
     $body = $this->sendRequest($request)->getBodyAsArray();
 
@@ -1169,7 +1169,7 @@ class ElephantOnCouch extends Client {
     $request = $this->newRequest(Request::PUT_METHOD, $path);
     $request->setHeaderField(Request::CONTENT_LENGTH_HF, $attachment->getContentLength());
     $request->setHeaderField(Request::CONTENT_TYPE_HF, $attachment->getContentType());
-    $request->setBody($attachment->getData());
+    $request->setBody(base64_encode($attachment->getData()));
 
     // In case of adding or updating an existence document.
     if (!empty($rev))
