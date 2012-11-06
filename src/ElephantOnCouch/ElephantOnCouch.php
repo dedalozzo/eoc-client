@@ -14,10 +14,11 @@ use Rest\Client;
 use Rest\Request;
 use Rest\Response;
 use ElephantOnCouch\Docs\AbstractDoc;
-use ElephantOnCouch\Handlers\Viewandler;
+use ElephantOnCouch\Handlers\ViewHandler;
+use ElephantOnCouch\Attachment;
 
 
-//! @brief This class is the main class of src library. You need an instance of this class to interact with
+//! @brief This class is the main class of ElephantOnCouch library. You need an instance of this class to interact with
 //! CouchDB.
 //! @nosubgrouping
 class ElephantOnCouch extends Client {
@@ -835,7 +836,7 @@ class ElephantOnCouch extends Client {
   public function queryTempView($mapFn, $reduceFn = "", ViewQueryArgs $args = NULL) {
     $this->checkForDb();
 
-    $handler = new Viewandler("temp");
+    $handler = new ViewHandler("temp");
     $handler->mapFn = $mapFn;
     if (!empty($reduce))
       $handler->reduceFn = $reduceFn;
@@ -941,8 +942,8 @@ class ElephantOnCouch extends Client {
   //! @exception Exception <c>Message: <i>You must provide a valid \$docId.</i></c>
   public function getDoc($docPath, $docId, $rev = NULL, DocOpts $opts = NULL) {
     $this->checkForDb();
-    $this->checkDocId($docId);
     $this->checkDocPath($docPath);
+    $this->checkDocId($docId);
 
     $path = "/".$this->dbName."/".$docPath.$docId;
 
@@ -953,11 +954,8 @@ class ElephantOnCouch extends Client {
       $request->setQueryParam("rev", (string)$rev);
 
     // If there are any options, add them to the request.
-    if (isset($opts)) {
-      $params = $opts->asArray();
-      foreach ($params as $name => $value)
-        $request->setQueryParam($name, $value);
-    }
+    if (isset($opts))
+      $request->setQueryParams($opts->asArray());
 
     $body = $this->sendRequest($request)->getBodyAsArray();
 
@@ -1045,8 +1043,8 @@ class ElephantOnCouch extends Client {
   //! @exception Exception <c>Message: <i>\$docPath is not a valid document type.</i></c>
   public function deleteDoc($docPath, $docId, $rev) {
     $this->checkForDb();
-    $this->checkDocId($docId);
     $this->checkDocPath($docPath);
+    $this->checkDocId($docId);
 
     $path = "/".$this->dbName."/".$docPath.$docId;
 
@@ -1140,27 +1138,42 @@ class ElephantOnCouch extends Client {
 
   //! @brief Retrieves the attachment from the specified document.
   // TODO
-  public function getAttachment($docId, $fileName, $rev = NULL) {
+  public function getAttachment($fileName, $docPath, $docId, $rev = NULL) {
     $this->checkForDb();
+    $this->checkDocPath($docPath);
     $this->checkDocId($docId);
 
-    $path = "/".$this->dbName."/".$docId."/".$fileName;
+    $path = "/".$this->dbName."/".$docPath.$docId."/".$fileName;
 
     $request = $this->newRequest(Request::GET_METHOD, $path);
 
-    return $this->sendRequest($request);
+    // In case we want retrieve a specific document revision.
+    if (!empty($rev))
+      $request->setQueryParam("rev", (string)$rev);
+
+    return $this->sendRequest($request)->getBody();
   }
 
 
   //! @brief Inserts or updates an attachment to the specified document.
   // TODO
-  public function putAttachment($docId, $fileName) {
+  public function putAttachment($fileName, $docPath, $docId, $rev = NULL) {
     $this->checkForDb();
+    $this->checkDocPath($docPath);
     $this->checkDocId($docId);
 
-    $path = "/".$this->dbName."/".$docId."/".$fileName;
+    $attachment = Attachment::fromFile($fileName);
+
+    $path = "/".$this->dbName."/".$docPath.$docId."/".$attachment->getName();
 
     $request = $this->newRequest(Request::PUT_METHOD, $path);
+    $request->setHeaderField(Request::CONTENT_LENGTH_HF, $attachment->getContentLength());
+    $request->setHeaderField(Request::CONTENT_TYPE_HF, $attachment->getContentType());
+    $request->setBody($attachment->getData());
+
+    // In case of adding or updating an existence document.
+    if (!empty($rev))
+      $request->setQueryParam("rev", (string)$rev);
 
     return $this->sendRequest($request);
   }
@@ -1168,13 +1181,15 @@ class ElephantOnCouch extends Client {
 
   //! @brief Deletes an attachment from the document.
   // TODO
-  public function deleteAttachment($docId, $fileName, $rev) {
+  public function deleteAttachment($fileName, $docPath, $docId, $rev) {
     $this->checkForDb();
+    $this->checkDocPath($docPath);
     $this->checkDocId($docId);
 
-    $path = "/".$this->dbName."/".$docId."/".$fileName;
+    $path = "/".$this->dbName."/".$docPath.$docId."/".$fileName;
 
     $request = $this->newRequest(Request::DELETE_METHOD, $path);
+    $request->setQueryParam("rev", (string)$rev);
 
     return $this->sendRequest($request);
   }
@@ -1201,15 +1216,16 @@ class ElephantOnCouch extends Client {
   }
 
 
+  // Invokes the show handler without a document
+  // /db/_design/design-doc/_show/show-name
+  // Invokes the show handler for the given document
+  // /db/_design/design-doc/_show/show-name/doc
+  // GET /db/_design/examples/_show/posts/somedocid
+  // GET /db/_design/examples/_show/people/otherdocid
+  // GET /db/_design/examples/_show/people/otherdocid?format=xml&details=true
+  // public function showDoc($designDocName, $funcName, $docId, $format, $details = FALSE) {
+  // TODO
   public function showDoc($designDocName, $listName, $docId = "") {
-    // Invokes the show handler without a document
-    // /db/_design/design-doc/_show/show-name
-    // Invokes the show handler for the given document
-    // /db/_design/design-doc/_show/show-name/doc
-    // GET /db/_design/examples/_show/posts/somedocid
-    // GET /db/_design/examples/_show/people/otherdocid
-    // GET /db/_design/examples/_show/people/otherdocid?format=xml&details=true
-    // public function showDoc($designDocName, $funcName, $docId, $format, $details = FALSE) {
   }
 
 
@@ -1220,6 +1236,7 @@ class ElephantOnCouch extends Client {
   // GET /db/_design/examples/_list/browse-people/people-by-name?startkey=["a"]&limit=10
   // GET /db/_design/examples/_list/index-posts/other_ddoc/posts-by-tag?key="howto"
   // public function listDocs($designDocName, $funcName, $viewName, $queryArgs, $keys = "") {
+  // TODO
   public function listDocs($docId = "") {
 
   }
@@ -1229,6 +1246,7 @@ class ElephantOnCouch extends Client {
   // /db/_design/design-doc/_update/update-name
   // Invokes the update handler for the given document
   // /db/_design/design-doc/_update/update-name/doc
+  // TODO
   public function callUpdateDocFunc($designDocName, $funcName) {
     // a PUT request against the handler function with a document id: /<database>/_design/<design>/_update/<function>/<docid>
     // a POST request against the handler function without a document id: /<database>/_design/<design>/_update/<function>

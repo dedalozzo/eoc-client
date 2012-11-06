@@ -9,59 +9,89 @@
 namespace ElephantOnCouch;
 
 
+use Rest\Response;
+
+
 //! @brief TODO
-class Attachment {
-  //! Default CouchDB attachment content type.
-  const DEFAULT_ATTACHMENT_CONTENT_TYPE = "application/octet-stream";
+final class Attachment {
+  use Properties;
 
-  private $name = "";
+  // Default CouchDB attachment content type. Here just for documentation.
+  //const DEFAULT_ATTACHMENT_CONTENT_TYPE = "application/octet-stream";
 
-  private $mimeType = self::DEFAULT_ATTACHMENT_CONTENT_TYPE;
-  private $fileSize = 0;
-
-  private $rev = "";
-  private $data = NULL;
-
-
-  public static function uploadedByPost($fileName) {
-    $instance = new self();
-
-    $this->fileName =
-    $this->data =
+  private $name;
+  private $contentLength;
+  private $contentType;
+  private $data;
 
 
-    return $instance;
+  private function __construct() {
   }
 
 
-  public static function readFromMemory() {
+  public static function fromFile($fileName) {
     $instance = new self();
 
-    return $instance;
-  }
+    if (file_exists($fileName)) {
+      if (is_dir($fileName))
+        throw new \Exception("The file $fileName is a directory.");
 
+      $instance->name = basename($fileName);
 
-  public static function loadFromDisk($fileName) {
-    $instance = new self();
+      $fd = @fopen($fileName, "r");
+      if (is_resource($fd)) {
+        $instance->contentLength = filesize($fileName);
+
+        $buffer = fread($fd, $instance->contentLength);
+        $instance->data = base64_encode($buffer);
+
+        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+        $instance->contentType = finfo_file($finfo, $fileName);
+
+        finfo_close($finfo);
+        fclose($fd);
+      }
+      else
+        throw new \Exception("Cannot open the file $fileName.");
+    }
+    else
+      throw new \Exception("The file $fileName doesn't exist.");
 
     return $instance;
   }
 
 
   public function asArray() {
-    $attachment[$this->name] = $this->contentType;
-    $attachment[$this->name] = $this->contentType;
-    $attachment[$data] = $this->data;
+    return [
+      "content_lenght" => $this->contentType,
+      "content_type" => $this->contentType,
+      "data" => $this->data
+    ];
+  }
 
-    $view[self::MAP] = $this->mapFn;
 
-    if (!empty($this->reduceFn))
-      $view[self::REDUCE] = $this->reduceFn;
+  public function getName() {
+    return $this->name;
+  }
 
-    if (!empty($this->options))
-      $view[self::OPTIONS] = $this->options;
 
-    return $attachment;
+  public function setName($value) {
+    $this->name = (string)$value;
+  }
+
+
+  public function getContentType() {
+    return $this->contentType;
+  }
+
+
+  public function getContentLength() {
+    return $this->contentLength;
+  }
+
+
+  public function getData() {
+    return $this->data;
   }
 
 }

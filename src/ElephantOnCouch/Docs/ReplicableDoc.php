@@ -42,7 +42,9 @@ abstract class ReplicableDoc extends AbstractDoc {
 
 
   public function addAttachment(Attachment $attachment) {
-    $this->meta[self::ATTACHMENTS][] = $attachment;
+    print "\n\nPASSO DI QUI!\n\n";
+
+    $this->meta[self::ATTACHMENTS][$attachment->getName()] = $attachment->asArray();
   }
 
 
