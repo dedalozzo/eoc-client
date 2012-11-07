@@ -20,12 +20,14 @@ final class Attachment {
   //const DEFAULT_ATTACHMENT_CONTENT_TYPE = "application/octet-stream";
 
   private $name;
+  private $stub;
   private $contentLength;
   private $contentType;
   private $data;
 
 
   private function __construct() {
+    $this->stub = FALSE;
   }
 
 
@@ -38,18 +40,20 @@ final class Attachment {
 
       $instance->name = basename($fileName);
 
-      $fd = @fopen($fileName, "r");
+      $fd = @fopen($fileName, "rb");
       if (is_resource($fd)) {
         $instance->contentLength = filesize($fileName);
 
-        $buffer = fread($fd, $instance->contentLength);
-        $instance->data = base64_encode($buffer);
+        $instance->data = fread($fd, $instance->contentLength);
 
         $finfo = finfo_open(FILEINFO_MIME_TYPE);
         $instance->contentType = finfo_file($finfo, $fileName);
 
         finfo_close($finfo);
         fclose($fd);
+
+        if ($instance->data === FALSE)
+          throw new \Exception("Error reading the file $fileName.");
       }
       else
         throw new \Exception("Cannot open the file $fileName.");
@@ -61,13 +65,43 @@ final class Attachment {
   }
 
 
+  public static function fromArray(array $array) {
+    $instance = new self();
+
+    $instance->name = key($array);
+    $meta = reset($array);
+    $instance->stub = (array_key_exists("stub", $meta)) ? TRUE : FALSE;
+    $instance->contentLength = $meta["lenght"];
+    $instance->contentType = $meta["content_type"];
+    $instance->data = base64_decode($meta["data"]);
+
+    return $instance;
+  }
+
+
   public function asArray() {
     return [
-      "content_lenght" => $this->contentType,
       "content_type" => $this->contentType,
-      "data" => $this->data
+      "data" => base64_encode($this->data)
     ];
   }
+
+
+  public function save($overwrite = TRUE) {
+    $mode = ($overwrite) ? "wb" : "xb";
+
+    $fd = @fopen($fileName, $mode);
+    if (is_resource($fd)) {
+      $bytes = fwrite($fd, $this->data);
+      fclose($fd);
+
+      if ($bytes === FALSE)
+        throw new \Exception("Error writing the file $fileName.");
+    }
+    else
+      throw new \Exception("Cannot create the file $fileName.");
+  }
+
 
 
   public function getName() {
@@ -77,6 +111,11 @@ final class Attachment {
 
   public function setName($value) {
     $this->name = (string)$value;
+  }
+
+
+  public function getStub() {
+    return $this->stub;
   }
 
 
