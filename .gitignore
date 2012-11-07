@@ -2,4 +2,3 @@
 composer.lock
 vendor
 doc
-test/Pit.php
