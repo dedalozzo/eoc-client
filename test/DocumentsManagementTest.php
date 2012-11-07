@@ -1,52 +1,59 @@
 <?php
 
-//! @file DocumentsManagementTest.php
-//! @brief This file contains the DocumentsManagementTest class.
-//! @details
-//! @author Filippo F. Fadda
+error_reporting (E_ALL & ~(E_NOTICE | E_STRICT));
+
+$start = microtime(true);
+
+$loader = require_once __DIR__ . "/../vendor/autoload.php";
+
+use ElephantOnCouch\ElephantOnCouch;
+use ElephantOnCouch\ResponseException;
+use ElephantOnCouch\DocOpts;
+use ElephantOnCouch\Docs\Doc;
+
+const COUCH_USER = "pippo";
+const COUCH_PASSWORD = "calippo";
+const COUCH_DATABASE = "programmazione";
+
+const USE_CURL = TRUE;
+const FIRST_RUN = FALSE;
 
 
-class DocumentsManagementTest extends PHPUnit_Framework_TestCase {
+try {
+  $couch = new ElephantOnCouch(ElephantOnCouch::DEFAULT_SERVER, "pippo", "calippo");
 
-  public function getDocEtag() {
-    echo $couch->getDocEtag(48346); // TEST PASSED!
-  }
+  if (USE_CURL)
+    $couch->useCurl();
 
+  $couch->selectDb("localdb");
 
-  public function getDoc() {
-    $opts = new DocOpts();
-    $opts->includeMeta();
-    $opts->includeLatest();
-    $opts->includeLocalSeq();
-    $opts->includeRevsInfo();
-    $opts->includeRevs();
-    //$opts->includeOpenRevs();
-    var_dump($couch->getDoc(ElephantOnCouch::STD_DOC_PATH, 48346, "", $opts));
-    //$couch->saveDoc();
-  }
+  $opts = new DocOpts;
+  $opts->includeRevs();
+  $opts->includeRevsInfo();
+  $opts->includeLatest();
+  $opts->includeMeta();
+  //$opts->includeOpenRevs();
+  $opts->includeLocalSeq();
+  $opts->includeConflicts();
+  $opts->includeDeletedConflicts();
 
-
-  public function saveDoc() {
-  }
-
-
-  public function deleteDoc() {
-    //$couch->deleteDoc("10002", "1-40bc3cbd9c712f88542adc935603a4ad");
-  }
-
-
-  public function copyDoc() {
-    //$couch->copyDoc();
-  }
-
-
-  public function purgeDocs() {
-    //$couch->purgeDocs();
-  }
-
-
-  public function performBulkOperations() {
-    //$couch->performBulkOperations();
-  }
-
+  $doc = $couch->getDoc(ElephantOnCouch::LOCAL_DOC_PATH, "f73f5082-918a-44d5-dd4d-2d63d22f23e1", NULL, $opts);
+  $doc->title = "New title for the document";
+  $couch->saveDoc($doc);
 }
+catch (Exception $e) {
+  echo ">>> Code: ".$e->getCode()."\r\n";
+  echo ">>> Message: ".$e->getMessage()."\r\n";
+
+  if ($e instanceof ResponseException) {
+    echo ">>> CouchDB Error: ".$e->getError()."\r\n";
+    echo ">>> CouchDB Reason: ".$e->getReason()."\r\n";
+  }
+}
+
+$stop = microtime(true);
+$time = round($stop - $start, 3);
+
+echo "\r\n\r\nElapsed time: $time";
+
+?>
