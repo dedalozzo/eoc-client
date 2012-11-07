@@ -37,18 +37,38 @@ abstract class ReplicableDoc extends AbstractDoc {
 
 
   public function getAttachments() {
-    return $this->meta[self::ATTACHMENTS];
+    $attachments = [];
+
+    foreach ($this->meta[self::ATTACHMENTS] as $attachment)
+      $attachments[] = Attachment::fromArray($attachment);
+
+    return $attachments;
   }
 
 
   public function addAttachment(Attachment $attachment) {
-    print "\n\nPASSO DI QUI!\n\n";
-
     $this->meta[self::ATTACHMENTS][$attachment->getName()] = $attachment->asArray();
   }
 
 
   public function removeAttachment($name) {
+    if ($this->isMetadataPresent(self::ATTACHMENTS))
+      if (array_key_exists($name, $this->meta[self::ATTACHMENTS]))
+        unset($this->meta[self::ATTACHMENTS][$name]);
+      else
+        throw new \Exception("Can't find '$name' attachment in the document.");
+    else
+      throw new \Exception("The document doesn't have any attachment.");
+  }
+
+
+  public function getLocalSequence() {
+    return $this->meta[self::LOCAL_SEQUENCE];
+  }
+
+
+  public function issetLocalSequence() {
+    return $this->isMetadataPresent(self::LOCAL_SEQUENCE);
   }
 
 }
