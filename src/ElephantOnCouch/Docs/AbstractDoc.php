@@ -24,7 +24,6 @@ abstract class AbstractDoc {
   const ID = "_id"; //!< Document identifier. Mandatory and immutable.
   const REV = "_rev"; //!< The current MVCC-token/revision of this document. Mandatory and immutable.
   const DELETED = "_deleted"; //!< Indicates that this document has been deleted and previous revisions will be removed on next compaction run.
-  const LOCAL_SEQUENCE = "_local_sequence"; //!< TODO I'm not sure this goes here. Probably on ReplicableDoc.
   const REVISIONS = "_revisions"; //!< The document revisions.
   //@}
 
@@ -35,9 +34,7 @@ abstract class AbstractDoc {
     self::ID => NULL,
     self::REV => NULL,
     self::DELETED => NULL,
-    self::LOCAL_SEQUENCE => NULL, //!< TODO I'm not sure this goes here. Probably on ReplicableDoc.
     self::REVISIONS,
-
 
     self::DOC_CLASS
   ];
@@ -174,16 +171,6 @@ abstract class AbstractDoc {
       return TRUE;
     else
       return FALSE;
-  }
-
-
-  public function getLocalSequence() {
-    return $this->meta[self::LOCAL_SEQUENCE];
-  }
-
-
-  public function issetLocalSequence() {
-    return $this->isMetadataPresent(self::LOCAL_SEQUENCE);
   }
 
 
