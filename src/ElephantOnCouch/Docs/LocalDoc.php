@@ -1,7 +1,7 @@
 <?php
 
-//! @file document.php
-//! @brief This file contains the Doc class.
+//! @file LocalDoc.php
+//! @brief This file contains the LocalDoc class.
 //! @details
 //! @author Filippo F. Fadda
 
