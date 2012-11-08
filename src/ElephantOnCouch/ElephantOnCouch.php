@@ -1,7 +1,7 @@
 <?php
 
 //! @file ElephantOnCouch.php
-//! @brief This file contains the src class.
+//! @brief This file contains the ElephantOnCouch class.
 //! @details
 //! @author Filippo F. Fadda
 
@@ -24,9 +24,9 @@ use ElephantOnCouch\Attachment;
 class ElephantOnCouch extends Client {
 
   //! @name User Agent
-  //! @brief User agent information.
+  //! @brief User agent's information.
   // @{
-  const USER_AGENT_NAME = "src";
+  const USER_AGENT_NAME = "ElephantOnCouch";
   const USER_AGENT_VERSION = "0.1";
   //@}
 
@@ -177,10 +177,10 @@ class ElephantOnCouch extends Client {
   //! @details The MOTD can be specified in CouchDB configuration files. This function returns more information
   //! compared to the CouchDB standard REST call.
   //! @code
-  //! use src\Client;
-  //! use src\ResponseException;
+  //! use ElephantOnCouch\Client;
+  //! use ElephantOnCouch\ResponseException;
   //!
-  //! $couch = new src(src::DEFAULT_SERVER, "user", "password");
+  //! $couch = new ElephantOnCouch(ElephantOnCouch::DEFAULT_SERVER, "user", "password");
   //! $couch->selectDb("database");
   //!
   //! try {
@@ -406,7 +406,7 @@ class ElephantOnCouch extends Client {
   //! @brief Sets the database name to use.
   //! @details You should call this method before just after the constructor. CouchDB is a RESTful server implementation,
   //! that means that you can't establish a permanent connection with it, but you just call APIs through HTTP requests.
-  //! In every call you have to specify the database name (when a database is required). The src client stores this
+  //! In every call you have to specify the database name (when a database is required). The ElephantOnCouch client stores this
   //! information for us, so we don't need to pass the database name as parameter to every method call. The purpose of
   //! this method, is to avoid you repeat database name every time. The function doesn't check if the database really
   //! exists, but it performs a fast check on the name itself. To obtain information about a database, use get_db_info
@@ -934,7 +934,7 @@ class ElephantOnCouch extends Client {
   //! @details Since CouchDB uses different paths to store special documents, you must provide the document type for
   //! design and local documents.
   //! @param[in] string $docId The document's identifier.
-  //! @param[in] string $docPath The document's type. Allowed values: <i>src::STD_DOC</i>, <i>src::LOCAL_DOC</i>, <i>src::DESIGN_DOC</i>.
+  //! @param[in] string $docPath The document's type. Allowed values: <i>ElephantOnCouch::STD_DOC</i>, <i>ElephantOnCouch::LOCAL_DOC</i>, <i>ElephantOnCouch::DESIGN_DOC</i>.
   //! @param[in] string $rev (optional) The document's revision.
   //! @param[in] DocOpts $opts Query options to get additional document information, like conflicts, attachments, etc.
   //! @return associative array
@@ -1037,7 +1037,7 @@ class ElephantOnCouch extends Client {
   //! @param[in] string $docId The document's identifier you want delete.
   //! @param[in] string $rev The document's revision number you want delete.
   //! @param[in] string $docPath The document type. You need to specify a document type only when you want delete a
-  //! document. Allowed values: <i>src::STD_DOC</i>, <i>src::LOCAL_DOC</i>, <i>src::DESIGN_DOC</i>.
+  //! document. Allowed values: <i>ElephantOnCouch::STD_DOC</i>, <i>ElephantOnCouch::LOCAL_DOC</i>, <i>ElephantOnCouch::DESIGN_DOC</i>.
   //! @exception Exception <c>Message: <i>No database selected.</i></c>
   //! @exception Exception <c>Message: <i>You must provide a valid \$docId.</i></c>
   //! @exception Exception <c>Message: <i>\$docPath is not a valid document type.</i></c>
@@ -1064,7 +1064,7 @@ class ElephantOnCouch extends Client {
   //! @param[in] string $sourceDocId The source document id.
   //! @param[in] string $targetDocId The destination document id.
   //! @param[in] string $rev Needed when you want override an existent document.
-  //! @param[in] string $docPath The document type. Allowed values: <i>src::STD_DOC</i>, <i>src::LOCAL_DOC</i>, <i>src::DESIGN_DOC</i>.
+  //! @param[in] string $docPath The document type. Allowed values: <i>ElephantOnCouch::STD_DOC</i>, <i>ElephantOnCouch::LOCAL_DOC</i>, <i>ElephantOnCouch::DESIGN_DOC</i>.
   //! @exception Exception <c>Message: <i>No database selected.</i></c>
   //! @exception Exception <c>Message: <i>You must provide a valid \$docId.</i></c>
   //! @exception Exception <c>Message: <i>\$docPath is not a valid document type.</i></c>
