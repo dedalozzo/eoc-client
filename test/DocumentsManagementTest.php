@@ -49,6 +49,9 @@ catch (Exception $e) {
     echo ">>> CouchDB Error: ".$e->getError()."\r\n";
     echo ">>> CouchDB Reason: ".$e->getReason()."\r\n";
   }
+  //echo $e->getLine()."\r\n";
+  //echo $e->getFile()."\r\n";
+  //echo $e->getTraceAsString();
 }
 
 $stop = microtime(true);
