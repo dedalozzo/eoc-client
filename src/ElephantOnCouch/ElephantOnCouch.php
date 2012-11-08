@@ -71,7 +71,7 @@ class ElephantOnCouch extends Client {
   //! Default period after which an empty line is sent during a longpoll or continuous feed.
   const DEFAULT_HEARTBEAT = 60000;
 
-  // Current selected database name.
+  // Current selected rawencoded database name.
   private $dbName;
 
   // Used to know if the constructor has been already called.
@@ -112,6 +112,28 @@ class ElephantOnCouch extends Client {
   }
 
 
+  //! This method raise an exception when a user provide an invalid database name.
+  //! @param[in] string $name Database name.
+  //! @exception Exception <c>Message: <i>Invalid database name.</i></c>
+  private function validateAndEncodeDbName(&$name) {
+    # \A[a-z][a-z\d_$()+-/]++\z
+    #
+    # Assert position at the beginning of the string «\A»
+    # Match a single character in the range between “a” and “z” «[a-z]»
+    # Match a single character present in the list below «[a-z\d_$()+-/]++»
+    #    Between one and unlimited times, as many times as possible, without giving back (possessive) «++»
+    #    A character in the range between “a” and “z” «a-z»
+    #    A single digit 0..9 «\d»
+    #    One of the characters “_$()” «_$()»
+    #    A character in the range between “+” and “/” «+-/»
+    # Assert position at the very end of the string «\z»
+    if (preg_match('%\A[a-z][a-z\d_$()+-/]++\z%', $name))
+      return $name = rawurlencode($name);
+    else
+      throw new \Exception("Invalid database name.");
+  }
+
+
   //! @brief This method raise an exception when the user provides an unknown document path.
   private function checkDocPath($docPath) {
     if (($docPath != self::STD_DOC_PATH) && ($docPath != self::LOCAL_DOC_PATH) && ($docPath != self::DESIGN_DOC_PATH))
@@ -119,9 +141,21 @@ class ElephantOnCouch extends Client {
   }
 
 
-  //! @brief This method raise an exception when the user provides an invalid document identificator.
-  private function checkDocId($docId) {
-    if (empty($docId))
+  //! @brief This method raise an exception when the user provides an invalid document identifier.
+  //! @exception Exception <c>Message: <i>You must provide a valid \$docId.</i></c>
+  private function validateAndEncodeDocId(&$docId) {
+    # \A[\w_-]++\z
+    #
+    # Options: case insensitive
+    #
+    # Assert position at the beginning of the string «\A»
+    # Match a single character present in the list below «[\w_-]++»
+    #    Between one and unlimited times, as many times as possible, without giving back (possessive) «++»
+    #    A word character (letters, digits, and underscores) «\w»
+    #    The character “_” «_»
+    #    The character “-” «-»
+    # Assert position at the very end of the string «\z»
+    if (!preg_match('/\A[\w_-]++\z/i', $docId))
       throw new \Exception("You must provide a valid \$docId.");
   }
 
@@ -409,27 +443,14 @@ class ElephantOnCouch extends Client {
   //! In every call you have to specify the database name (when a database is required). The ElephantOnCouch client stores this
   //! information for us, so we don't need to pass the database name as parameter to every method call. The purpose of
   //! this method, is to avoid you repeat database name every time. The function doesn't check if the database really
-  //! exists, but it performs a fast check on the name itself. To obtain information about a database, use get_db_info
+  //! exists, but it performs a fast check on the name itself. To obtain information about a database, use getDbInfo
   //! instead.
+  //! @attention Only lowercase characters (a-z), digits (0-9), and any of the characters _, $, (, ), +, -, and / are
+  //! allowed. Must begin with a letter.</i></c>\n
   //! @param[in] string $dbName Database name.
+  //! @exception Exception <c>Message: <i>Invalid database name.</i></c>
   public function selectDb($dbName) {
-    // TODO Add a regex on dbName.
-    $this->dbName = $dbName;
-  }
-
-
-  //! @brief Returns information about the selected database.
-  //! @return a DbInfo object
-  //! @exception Exception <c>Message: <i>No database selected.</i></c>
-  //! @exception ResponseException
-  //! <c>Code: <i>404 Not Found</i></c>\n
-  //! <c>Error: <i>not_found</i></c>\n
-  //! <c>Reason: <i>no_db_file</i></c>
-  //! @see http://docs.couchone.com/couchdb-api/couchdb-api-db.html#couchdb-api-db_db_get
-  public function getDbInfo() {
-    $this->checkForDb();
-
-    return new Dbinfo($this->sendRequest($this->newRequest(Request::GET_METHOD, "/".$this->dbName."/"))->getBodyAsArray());
+    $this->dbName = $this->validateAndEncodeDbName($dbName);
   }
 
 
@@ -450,10 +471,8 @@ class ElephantOnCouch extends Client {
   //! @see http://docs.couchone.com/couchdb-api/couchdb-api-db.html#couchdb-api-db_db_put
   //! @bug <a href="https://issues.apache.org/jira/browse/COUCHDB-967" target="_blank">COUCHDB-967</a>
   public function createDb($dbName, $autoSelect = TRUE) {
-    // TODO Add regex for $dbName.
-
     if ($dbName != $this->dbName) {
-      $this->sendRequest($this->newRequest(Request::PUT_METHOD, "/".$dbName."/"));
+      $this->sendRequest($this->newRequest(Request::PUT_METHOD, "/".rawurlencode($dbName)."/"));
 
       if ($autoSelect)
         $this->selectDb($dbName);
@@ -475,12 +494,27 @@ class ElephantOnCouch extends Client {
   //! @see http://docs.couchone.com/couchdb-api/couchdb-api-db.html#couchdb-api-db_db_delete
   //! @bug <a href="https://issues.apache.org/jira/browse/COUCHDB-967" target="_blank">COUCHDB-967</a>
   public function deleteDb($dbName) {
-    // TODO Add regex for $dbName.
+    $this->validateAndEncodeDbName($dbName);
 
     if ($dbName != $this->dbName)
       $this->sendRequest($this->newRequest(Request::DELETE_METHOD, "/".$dbName));
     else
       throw new \Exception("You can't delete the selected database.");
+  }
+
+
+  //! @brief Returns information about the selected database.
+  //! @return a DbInfo object
+  //! @exception Exception <c>Message: <i>No database selected.</i></c>
+  //! @exception ResponseException
+  //! <c>Code: <i>404 Not Found</i></c>\n
+  //! <c>Error: <i>not_found</i></c>\n
+  //! <c>Reason: <i>no_db_file</i></c>
+  //! @see http://docs.couchone.com/couchdb-api/couchdb-api-db.html#couchdb-api-db_db_get
+  public function getDbInfo() {
+    $this->checkForDb();
+
+    return new Dbinfo($this->sendRequest($this->newRequest(Request::GET_METHOD, "/".$this->dbName."/"))->getBodyAsArray());
   }
 
 
@@ -818,7 +852,7 @@ class ElephantOnCouch extends Client {
   //! @brief Executes the given view and returns the result.
   public function queryView($designDocName, $viewName, ViewQueryArgs $args = NULL) {
     $this->checkForDb();
-    $this->checkDocId($designDocName);
+    $this->validateAndEncodeDocId($designDocName);
     if (empty($viewName))
       throw new \Exception("You must provide a valid \$viewName.");
 
@@ -920,13 +954,14 @@ class ElephantOnCouch extends Client {
   //! @exception Exception <c>Message: <i>You must provide a valid \$docId.</i></c>
   public function getDocEtag($docId) {
     $this->checkForDb();
-    $this->checkDocId($docId);
+    $this->validateAndEncodeDocId($docId);
 
     $path = "/".$this->dbName."/".$docId;
 
     $request = $this->newRequest(Request::HEAD_METHOD, $path);
 
-    return $this->sendRequest($request)->getHeaderField(Response::ETAG_HF);
+    // CouchDB ETag is included between quotation marks.
+    return trim($this->sendRequest($request)->getHeaderField(Response::ETAG_HF), '"');
   }
 
 
@@ -943,7 +978,7 @@ class ElephantOnCouch extends Client {
   public function getDoc($docPath, $docId, $rev = NULL, DocOpts $opts = NULL) {
     $this->checkForDb();
     $this->checkDocPath($docPath);
-    $this->checkDocId($docId);
+    $this->validateAndEncodeDocId($docId);
 
     $path = "/".$this->dbName."/".$docPath.$docId;
 
@@ -1044,9 +1079,9 @@ class ElephantOnCouch extends Client {
   public function deleteDoc($docPath, $docId, $rev) {
     $this->checkForDb();
     $this->checkDocPath($docPath);
-    $this->checkDocId($docId);
+    $this->validateAndEncodeDocId($docId);
 
-    $path = "/".$this->dbName."/".$docPath.$docId;
+    $path = "/".$this->dbName."/".$docPath.rawurlencode($docId);
 
     $request = $this->newRequest(Request::DELETE_METHOD, $path);
     $request->setQueryParam("rev", (string)$rev);
@@ -1071,8 +1106,8 @@ class ElephantOnCouch extends Client {
   public function copyDoc($docPath, $sourceDocId, $targetDocId, $rev = NULL) {
     $this->checkForDb();
     $this->checkDocPath($docPath);
-    $this->checkDocId($sourceDocId);
-    $this->checkDocId($targetDocId);
+    $this->validateAndEncodeDocId($sourceDocId);
+    $this->validateAndEncodeDocId($targetDocId);
 
     $path = "/".$this->dbName."/".$docPath.$sourceDocId;
 
@@ -1141,7 +1176,7 @@ class ElephantOnCouch extends Client {
   public function getAttachment($fileName, $docPath, $docId, $rev = NULL) {
     $this->checkForDb();
     $this->checkDocPath($docPath);
-    $this->checkDocId($docId);
+    $this->validateAndEncodeDocId($docId);
 
     $path = "/".$this->dbName."/".$docPath.$docId."/".$fileName;
 
@@ -1160,11 +1195,11 @@ class ElephantOnCouch extends Client {
   public function putAttachment($fileName, $docPath, $docId, $rev = NULL) {
     $this->checkForDb();
     $this->checkDocPath($docPath);
-    $this->checkDocId($docId);
+    $this->validateAndEncodeDocId($docId);
 
     $attachment = Attachment::fromFile($fileName);
 
-    $path = "/".$this->dbName."/".$docPath.$docId."/".$attachment->getName();
+    $path = "/".$this->dbName."/".$docPath.$docId."/".rawurlencode($attachment->getName());
 
     $request = $this->newRequest(Request::PUT_METHOD, $path);
     $request->setHeaderField(Request::CONTENT_LENGTH_HF, $attachment->getContentLength());
@@ -1184,9 +1219,9 @@ class ElephantOnCouch extends Client {
   public function deleteAttachment($fileName, $docPath, $docId, $rev) {
     $this->checkForDb();
     $this->checkDocPath($docPath);
-    $this->checkDocId($docId);
+    $this->validateAndEncodeDocId($docId);
 
-    $path = "/".$this->dbName."/".$docPath.$docId."/".$fileName;
+    $path = "/".$this->dbName."/".$docPath.$docId."/".rawurlencode($fileName);
 
     $request = $this->newRequest(Request::DELETE_METHOD, $path);
     $request->setQueryParam("rev", (string)$rev);
@@ -1201,12 +1236,12 @@ class ElephantOnCouch extends Client {
   // @{
 
   //! @brief Returns basic information about the design document and his views.
-  //! @param[in] string $docName The document's name.
+  //! @param[in] string $docName The design document's name.
   //! @return associative array
   //! @exception Exception <c>Message: <i>No database selected.</i></c>
   public function getDesignDocInfo($docName) {
     $this->checkForDb();
-    $this->checkDocId($docName);
+    $this->validateAndEncodeDocId($docName);
 
     $path = "/".$this->dbName."/".self::DESIGN_DOC_PATH.$docName."/_info";
 
