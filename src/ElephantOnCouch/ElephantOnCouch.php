@@ -135,7 +135,7 @@ class ElephantOnCouch extends Client {
 
 
   //! @brief This method raise an exception when the user provides an unknown document path.
-  private function checkDocPath($docPath) {
+  private function validateDocPath($docPath) {
     if (($docPath != self::STD_DOC_PATH) && ($docPath != self::LOCAL_DOC_PATH) && ($docPath != self::DESIGN_DOC_PATH))
       throw new \Exception("\$docPath is not a valid document type.");
   }
@@ -155,7 +155,9 @@ class ElephantOnCouch extends Client {
     #    The character “_” «_»
     #    The character “-” «-»
     # Assert position at the very end of the string «\z»
-    if (!preg_match('/\A[\w_-]++\z/i', $docId))
+    if (preg_match('/\A[\w_-]++\z/i', $docId))
+      $docId = rawurlencode($docId);
+    else
       throw new \Exception("You must provide a valid \$docId.");
   }
 
@@ -977,7 +979,7 @@ class ElephantOnCouch extends Client {
   //! @exception Exception <c>Message: <i>You must provide a valid \$docId.</i></c>
   public function getDoc($docPath, $docId, $rev = NULL, DocOpts $opts = NULL) {
     $this->checkForDb();
-    $this->checkDocPath($docPath);
+    $this->validateDocPath($docPath);
     $this->validateAndEncodeDocId($docId);
 
     $path = "/".$this->dbName."/".$docPath.$docId;
@@ -1078,7 +1080,7 @@ class ElephantOnCouch extends Client {
   //! @exception Exception <c>Message: <i>\$docPath is not a valid document type.</i></c>
   public function deleteDoc($docPath, $docId, $rev) {
     $this->checkForDb();
-    $this->checkDocPath($docPath);
+    $this->validateDocPath($docPath);
     $this->validateAndEncodeDocId($docId);
 
     $path = "/".$this->dbName."/".$docPath.rawurlencode($docId);
@@ -1105,7 +1107,7 @@ class ElephantOnCouch extends Client {
   //! @exception Exception <c>Message: <i>\$docPath is not a valid document type.</i></c>
   public function copyDoc($docPath, $sourceDocId, $targetDocId, $rev = NULL) {
     $this->checkForDb();
-    $this->checkDocPath($docPath);
+    $this->validateDocPath($docPath);
     $this->validateAndEncodeDocId($sourceDocId);
     $this->validateAndEncodeDocId($targetDocId);
 
@@ -1175,7 +1177,7 @@ class ElephantOnCouch extends Client {
   // TODO
   public function getAttachment($fileName, $docPath, $docId, $rev = NULL) {
     $this->checkForDb();
-    $this->checkDocPath($docPath);
+    $this->validateDocPath($docPath);
     $this->validateAndEncodeDocId($docId);
 
     $path = "/".$this->dbName."/".$docPath.$docId."/".$fileName;
@@ -1194,7 +1196,7 @@ class ElephantOnCouch extends Client {
   // TODO
   public function putAttachment($fileName, $docPath, $docId, $rev = NULL) {
     $this->checkForDb();
-    $this->checkDocPath($docPath);
+    $this->validateDocPath($docPath);
     $this->validateAndEncodeDocId($docId);
 
     $attachment = Attachment::fromFile($fileName);
@@ -1218,7 +1220,7 @@ class ElephantOnCouch extends Client {
   // TODO
   public function deleteAttachment($fileName, $docPath, $docId, $rev) {
     $this->checkForDb();
-    $this->checkDocPath($docPath);
+    $this->validateDocPath($docPath);
     $this->validateAndEncodeDocId($docId);
 
     $path = "/".$this->dbName."/".$docPath.$docId."/".rawurlencode($fileName);
@@ -1260,7 +1262,7 @@ class ElephantOnCouch extends Client {
   // GET /db/_design/examples/_show/people/otherdocid?format=xml&details=true
   // public function showDoc($designDocName, $funcName, $docId, $format, $details = FALSE) {
   // TODO
-  public function showDoc($designDocName, $listName, $docId = "") {
+  public function showDoc($designDocName, $listName, $docId = NULL) {
   }
 
 
@@ -1272,7 +1274,7 @@ class ElephantOnCouch extends Client {
   // GET /db/_design/examples/_list/index-posts/other_ddoc/posts-by-tag?key="howto"
   // public function listDocs($designDocName, $funcName, $viewName, $queryArgs, $keys = "") {
   // TODO
-  public function listDocs($docId = "") {
+  public function listDocs($docId = NULL) {
 
   }
 
