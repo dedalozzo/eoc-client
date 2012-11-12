@@ -23,9 +23,11 @@ try {
   if (USE_CURL)
     $couch->useCurl();
 
+  $couch->selectDb(COUCH_DATABASE);
+
   print_r($couch->getDbInfo()); // TEST PASSED!
   $couch->createDb("mazinga", FALSE); // TEST PASSED!
-  $couch->createDb("asdadaaandler767656/$4d()dfsfs____d____a-");
+  $couch->createDb("asdadaaandler767656/$4d()dfsfs____d____a-", FALSE);
   $couch->deleteDb("mazinga"); // TEST PASSED!
   $couch->deleteDb("asdadaaandler767656/$4d()dfsfs____d____a-");
   print_r($couch->getDbChanges()); // TEST PASSED!
