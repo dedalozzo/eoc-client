@@ -15,5 +15,3 @@ namespace ElephantOnCouch\Docs;
 class LocalDoc extends AbstractDoc {
 
 }
-
-?>

@@ -348,5 +348,3 @@ class UUID {
     return self::conv_byte2binary($byte);
   }
 }
-
-?>

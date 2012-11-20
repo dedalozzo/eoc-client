@@ -72,5 +72,3 @@ abstract class ReplicableDoc extends AbstractDoc {
   }
 
 }
-
-?>

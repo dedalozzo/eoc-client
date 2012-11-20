@@ -194,5 +194,3 @@ final class ViewHandler extends DesignHandler {
   }
 
 }
-
-?>

@@ -31,5 +31,3 @@ abstract class DesignHandler {
   //! @return string|array
   abstract public function asArray();
 }
-
-?>

@@ -179,5 +179,3 @@ abstract class AbstractDoc {
   }
 
 }
-
-?>

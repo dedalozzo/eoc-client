@@ -47,5 +47,3 @@ $stop = microtime(true);
 $time = round($stop - $start, 3);
 
 echo "\r\n\r\nElapsed time: $time";
-
-?>

@@ -197,5 +197,3 @@ final class DesignDoc extends ReplicableDoc {
   }
 
 }
-
-?>

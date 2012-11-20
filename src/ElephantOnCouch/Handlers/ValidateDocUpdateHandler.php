@@ -57,5 +57,3 @@ final class ValidateDocUpdateHandler extends DesignHandler {
   }
 
 }
-
-?>

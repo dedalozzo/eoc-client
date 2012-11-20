@@ -40,5 +40,3 @@ trait Properties {
       throw new \BadMethodCallException("Method $method is not implemented for property $name.");
   }
 }
-
-?>

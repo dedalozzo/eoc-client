@@ -81,8 +81,6 @@ class ElephantOnCouch extends Client {
   public function __construct($server = self::DEFAULT_SERVER, $userName = "", $password = "") {
     parent::__construct($server, $userName, $password);
 
-    $this->setUserAgent(self::USER_AGENT_NAME." ".self::USER_AGENT_VERSION);
-
     // We can avoid to call the following code every time a ElephantOnCouch instance is created, testing a static property.
     // Because the static nature of self::$initialized, this code will be executed only one time, even multiple ElephantOnCouch
     // instances are created.
@@ -162,7 +160,19 @@ class ElephantOnCouch extends Client {
   }
 
 
-  //! @brief This method is used to send a Request to CouchDB. See details for more informations.
+  //! @brief This is a factory method to create a new Request.
+  //! @details This method is used to create a Request object. You can still create a Request instance using the appropriate
+  //! constructor, but I recommend you to use this factory method, because it does a lot of dirty work. You should use
+  //! this method combined with sendRequest.
+  private function newRequest($method, $path) {
+    $request = new Request($method, $path);
+    $request->setHeaderField(Request::ACCEPT_HF, "application/json"); // default accept header value
+    $request->setHeaderField(Request::USER_AGENT_HF, self::USER_AGENT_NAME." ".self::USER_AGENT_VERSION);
+    return $request;
+  }
+
+
+  //! @brief This method is used to send a Request to CouchDB. See details for more information.
   //! @details You can use this method in conjunction with newRequest factory method to build and execute a new request.
   public function sendRequest(Request $request) {
     $response = parent::sendRequest($request);
@@ -175,8 +185,10 @@ class ElephantOnCouch extends Client {
       else {
         throw new ResponseException($response->getSupportedStatusCodes()[$response->getStatusCode()], $response->getStatusCode());
       }
-    else
+    else {
+      print_r($response->getBody());
       return $response;
+    }
   }
 
 

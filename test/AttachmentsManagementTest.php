@@ -16,7 +16,7 @@ const COUCH_DATABASE = "programmazione";
 
 const ATTACHMENTS_DIR = "/Users/fff/Downloads/Attachments/";
 
-const DOC_ID = "000569be-ecd9-446f-f681-74224e3dfc8b";
+const DOC_ID = "0003ef13-f2dd-4ccd-cbcb-dec902e7bca7";
 
 const USE_CURL = FALSE;
 const FIRST_RUN = FALSE;
@@ -37,7 +37,11 @@ try {
   $couch->putAttachment(ATTACHMENTS_DIR."La memoria del futuro.pdf", ElephantOnCouch::STD_DOC_PATH, DOC_ID, DOC_REV);
   $couch->putAttachment(ATTACHMENTS_DIR."LetteraSullaFelicità.doc", ElephantOnCouch::STD_DOC_PATH, DOC_ID, DOC_REV);*/
   $couch->deleteAttachment("pippo?.txt", ElephantOnCouch::STD_DOC_PATH, DOC_ID, $couch->getDocEtag(DOC_ID));
-  $couch->putAttachment(ATTACHMENTS_DIR."pippo?.txt", ElephantOnCouch::STD_DOC_PATH, DOC_ID, $couch->getDocEtag(DOC_ID));
+
+  //$couch->deleteDb("adajhdgas");
+  //$couch->deleteDoc(ElephantOnCouch::STD_DOC_PATH, DOC_ID, "hhgg");
+
+  //$couch->putAttachment(ATTACHMENTS_DIR."pippo?.txt", ElephantOnCouch::STD_DOC_PATH, DOC_ID, $couch->getDocEtag(DOC_ID));
 
   /*$attachment = Attachment::fromFile(ATTACHMENTS_DIR."Is your API naked?.pdf");
   $attachment = Attachment::fromFile(ATTACHMENTS_DIR."J2EE versus .NET.pdf");

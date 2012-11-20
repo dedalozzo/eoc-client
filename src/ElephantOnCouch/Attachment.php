@@ -134,5 +134,3 @@ final class Attachment {
   }
 
 }
-
-?>
