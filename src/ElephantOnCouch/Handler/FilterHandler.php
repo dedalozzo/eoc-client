@@ -1,22 +1,22 @@
 <?php
 
-//! @file ListHandler.php
-//! @brief This file contains the ListHandler class.
+//! @file FilterHandler.php
+//! @brief This file contains the FilterHandler class.
 //! @details
 //! @author Filippo F. Fadda
 
 
-namespace ElephantOnCouch\Handlers;
+namespace ElephantOnCouch\Handler;
 
 
 //! @brief TODO
-final class ListHandler extends DesignHandler {
-  const LISTS = "lists";
+final class FilterHandler extends DesignHandler {
+  const FILTERS = "filters";
 
   private $name;
 
 
-  //! @brief Creates a ListHandler class instance.
+  //! @brief Creates a FilterHandler class instance.
   //! @param[in] string $name Handler name.
   public function __construct($name) {
     $this->setName($name);
@@ -34,7 +34,7 @@ final class ListHandler extends DesignHandler {
 
 
   public static function getSection() {
-    return self::LISTS;
+    return self::FILTERS;
   }
 
 

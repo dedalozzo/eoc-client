@@ -6,7 +6,7 @@
 //! @author Filippo F. Fadda
 
 
-namespace ElephantOnCouch\Handlers;
+namespace ElephantOnCouch\Handler;
 
 
 //! @brief This handler let you define a validation function, so every request to create or update a document is validated

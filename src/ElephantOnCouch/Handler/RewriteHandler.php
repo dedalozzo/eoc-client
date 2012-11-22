@@ -1,22 +1,22 @@
 <?php
 
-//! @file FilterHandler.php
-//! @brief This file contains the FilterHandler class.
+//! @file RewriteHandler.php
+//! @brief This file contains the RewriteHandler class.
 //! @details
 //! @author Filippo F. Fadda
 
 
-namespace ElephantOnCouch\Handlers;
+namespace ElephantOnCouch\Handler;
 
 
 //! @brief TODO
-final class FilterHandler extends DesignHandler {
-  const FILTERS = "filters";
+final class RewriteHandler extends DesignHandler {
+  const REWRITES = "rewrites";
 
   private $name;
 
 
-  //! @brief Creates a FilterHandler class instance.
+  //! @brief Creates a RewriteHandler class instance.
   //! @param[in] string $name Handler name.
   public function __construct($name) {
     $this->setName($name);
@@ -34,7 +34,7 @@ final class FilterHandler extends DesignHandler {
 
 
   public static function getSection() {
-    return self::FILTERS;
+    return self::REWRITES;
   }
 
 

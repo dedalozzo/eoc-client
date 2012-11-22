@@ -1,22 +1,22 @@
 <?php
 
-//! @file UpdateHandler.php
-//! @brief This file contains the UpdateHandler class.
+//! @file ShowHandler.php
+//! @brief This file contains the ShowHandler class.
 //! @details
 //! @author Filippo F. Fadda
 
 
-namespace ElephantOnCouch\Handlers;
+namespace ElephantOnCouch\Handler;
 
 
 //! @brief TODO
-final class UpdateHandler extends DesignHandler {
-  const UPDATES = "updates";
+final class ShowHandler extends DesignHandler {
+  const SHOWS = "shows";
 
   private $name;
 
 
-  //! @brief Creates a UpdateHandler class instance.
+  //! @brief Creates a ShowHandler class instance.
   //! @param[in] string $name Handler name.
   public function __construct($name) {
     $this->setName($name);
@@ -34,7 +34,7 @@ final class UpdateHandler extends DesignHandler {
 
 
   public static function getSection() {
-    return self::UPDATES;
+    return self::SHOWS;
   }
 
 

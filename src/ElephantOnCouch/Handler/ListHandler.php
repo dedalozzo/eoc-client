@@ -1,22 +1,22 @@
 <?php
 
-//! @file ShowHandler.php
-//! @brief This file contains the ShowHandler class.
+//! @file ListHandler.php
+//! @brief This file contains the ListHandler class.
 //! @details
 //! @author Filippo F. Fadda
 
 
-namespace ElephantOnCouch\Handlers;
+namespace ElephantOnCouch\Handler;
 
 
 //! @brief TODO
-final class ShowHandler extends DesignHandler {
-  const SHOWS = "shows";
+final class ListHandler extends DesignHandler {
+  const LISTS = "lists";
 
   private $name;
 
 
-  //! @brief Creates a ShowHandler class instance.
+  //! @brief Creates a ListHandler class instance.
   //! @param[in] string $name Handler name.
   public function __construct($name) {
     $this->setName($name);
@@ -34,7 +34,7 @@ final class ShowHandler extends DesignHandler {
 
 
   public static function getSection() {
-    return self::SHOWS;
+    return self::LISTS;
   }
 
 

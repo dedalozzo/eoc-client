@@ -1,22 +1,22 @@
 <?php
 
-//! @file RewriteHandler.php
-//! @brief This file contains the RewriteHandler class.
+//! @file UpdateHandler.php
+//! @brief This file contains the UpdateHandler class.
 //! @details
 //! @author Filippo F. Fadda
 
 
-namespace ElephantOnCouch\Handlers;
+namespace ElephantOnCouch\Handler;
 
 
 //! @brief TODO
-final class RewriteHandler extends DesignHandler {
-  const REWRITES = "rewrites";
+final class UpdateHandler extends DesignHandler {
+  const UPDATES = "updates";
 
   private $name;
 
 
-  //! @brief Creates a RewriteHandler class instance.
+  //! @brief Creates a UpdateHandler class instance.
   //! @param[in] string $name Handler name.
   public function __construct($name) {
     $this->setName($name);
@@ -34,7 +34,7 @@ final class RewriteHandler extends DesignHandler {
 
 
   public static function getSection() {
-    return self::REWRITES;
+    return self::UPDATES;
   }
 
 

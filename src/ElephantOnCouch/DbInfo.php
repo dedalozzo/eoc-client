@@ -9,7 +9,7 @@
 namespace ElephantOnCouch;
 
 
-use Rest\Helpers;
+use Rest\Helper;
 
 
 //! @brief This is an information only purpose class. It's used by src.getDbInfo() method.
@@ -36,7 +36,7 @@ class DbInfo {
 
   //! @brief This constructor is used by src.getDbinfo() method.
   public function __construct(array $info) {
-    if (Helpers\ArrayHelper::isAssociative($info)) {
+    if (Helper\ArrayHelper::isAssociative($info)) {
       $this->name = $info['db_name'];
       $this->diskSize = $info['disk_size'];
       $this->dataSize = $info['data_size'];

@@ -6,20 +6,23 @@
 //! @author Filippo F. Fadda
 
 
-//! @brief TODO
+//! @brief This is the main ElephantOnCouch library namespace.
 namespace ElephantOnCouch;
 
 
 use Rest\Client;
 use Rest\Request;
 use Rest\Response;
-use ElephantOnCouch\Docs\AbstractDoc;
-use ElephantOnCouch\Handlers\ViewHandler;
+use ElephantOnCouch\Exception\ClientErrorException;
+use ElephantOnCouch\Exception\ServerErrorException;
+use ElephantOnCouch\Doc\AbstractDoc;
+use ElephantOnCouch\Handler\ViewHandler;
 use ElephantOnCouch\Attachment;
 
 
 //! @brief This class is the main class of ElephantOnCouch library. You need an instance of this class to interact with
 //! CouchDB.
+//! @todo add memcached
 //! @nosubgrouping
 class ElephantOnCouch extends Client {
 
@@ -172,23 +175,13 @@ class ElephantOnCouch extends Client {
   }
 
 
-  //! @brief This method is used to send a Request to CouchDB. See details for more information.
-  //! @details You can use this method in conjunction with newRequest factory method to build and execute a new request.
-  public function sendRequest(Request $request) {
-    $response = parent::sendRequest($request);
+  protected function handleClientError(Request $request, Response $response) {
+    throw new ClientErrorException($request, $response);
+  }
 
-    if ($response->getStatusCode() >= 400)
-      if ($response->hasBody()) {
-        $body = $response->getBodyAsArray();
-        throw new ResponseException($response->getSupportedStatusCodes()[$response->getStatusCode()], $response->getStatusCode(), $body["error"], $body["reason"]);
-      }
-      else {
-        throw new ResponseException($response->getSupportedStatusCodes()[$response->getStatusCode()], $response->getStatusCode());
-      }
-    else {
-      print_r($response->getBody());
-      return $response;
-    }
+
+  protected function handleServerError(Request $request, Response $response) {
+    throw new ServerErrorException($request, $response);
   }
 
 
@@ -547,7 +540,7 @@ class ElephantOnCouch extends Client {
   //! will only return the winning revision; <i>all_docs</i> will return all the conflicting revisions.
   //! @param[in] string $filter Filter function from a design document to get updates.
   //! @return A Response object.
-  // TODO Exceptions should be documented here.
+  //! @todo Exceptions should be documented here.
   //! @exception Exception <c>Message: <i>No database selected.</i></c>
   //! @exception Exception <c>Message: <i>\$since must be a non-negative integer.</i></c>
   //! @exception Exception <c>Message: <i>\$limit must be a positive integer.</i></c>
@@ -556,7 +549,7 @@ class ElephantOnCouch extends Client {
   //! @exception Exception <c>Message: <i>\$timeout must be a positive integer.</i></c>
   //! @exception Exception <c>Message: <i>\$style not supported.</i></c>
   //! @see http://wiki.apache.org/couchdb/HTTP_database_API#Changes
-  // TODO This function is not complete.
+  //! @todo This function is not complete.
   public function getDbChanges($since = 0,
                                $limit = 1,
                                $feed = self::NORMAL_FEED,
@@ -825,6 +818,7 @@ class ElephantOnCouch extends Client {
   //! permanent continuous replications that survive a server restart without you having to do anything.
   //! @param[in] string|array $filter TODO
   //! @param[in] QueryArgs $queryArgs TODO
+  //! @todo document parameters
   public function startDbReplication($sourceDbUrl, $targetDbUrl, $createTargetDb = TRUE,
                                      $continuous = FALSE, $filter = NULL, $queryArgs = NULL) {
     return $this->realDbReplication($sourceDbUrl, $targetDbUrl, $createTargetDb, $continuous, $filter, $queryArgs);
@@ -832,13 +826,13 @@ class ElephantOnCouch extends Client {
 
 
   //! @brief Cancels replication.
-  // TODO
+  //! @todo document parameters
   public function cancelDbReplication($sourceDbUrl, $targetDbUrl, $continuous = FALSE) {
     return $this->realDbReplication($sourceDbUrl, $targetDbUrl, $continuous);
   }
 
 
-  // TODO
+  //! @todo this function is not complete
   //! @see http://wiki.apache.org/couchdb/Replication#Replicator_database
   //! @see http://docs.couchbase.org/couchdb-release-1.1/index.html#couchb-release-1.1-replicatordb
   //! @see https://gist.github.com/832610
@@ -853,7 +847,7 @@ class ElephantOnCouch extends Client {
   // @{
 
   //! @brief Returns a built-in view of all documents in this database. If keys are specified returns only certain rows.
-  // TODO
+  //! @todo Add the $keys support
   public function queryAllDocs($keys) {
     $this->checkForDb();
 
@@ -864,6 +858,7 @@ class ElephantOnCouch extends Client {
 
 
   //! @brief Executes the given view and returns the result.
+  //! @todo document parameters
   public function queryView($designDocName, $viewName, ViewQueryArgs $args = NULL) {
     $this->checkForDb();
     $this->validateAndEncodeDocId($designDocName);
@@ -881,6 +876,7 @@ class ElephantOnCouch extends Client {
   //! @brief Executes the given view, both map and reduce functions, for all documents and returns the result.
   //! @details Map and Reduce functions are provided by the programmer.
   //! @attention Requires admin privileges.
+  //! @todo document parameters
   public function queryTempView($mapFn, $reduceFn = "", ViewQueryArgs $args = NULL) {
     $this->checkForDb();
 
@@ -1017,11 +1013,11 @@ class ElephantOnCouch extends Client {
       $doc = new $type;
     }
     elseif ($docPath == self::LOCAL_DOC_PATH)   // Local document.
-      $doc = new Docs\LocalDoc;
+      $doc = new Doc\LocalDoc;
     elseif ($docPath == self::DESIGN_DOC_PATH)  // Design document.
-      $doc = new Docs\DesignDoc;
+      $doc = new Doc\DesignDoc;
     else                                        // Standard document.
-      $doc = new Docs\Doc;
+      $doc = new Doc\Doc;
 
     $doc->assignArray($body);
 
@@ -1062,9 +1058,9 @@ class ElephantOnCouch extends Client {
       $doc->setid(UUID::generate(UUID::UUID_RANDOM, UUID::FMT_STRING));
 
     // Sets the path according to the document type.
-    if ($doc instanceof Docs\DesignDoc)
+    if ($doc instanceof Doc\DesignDoc)
       $path = "/".$this->dbName."/".self::DESIGN_DOC_PATH.$doc->getId();
-    elseif ($doc instanceof Docs\LocalDoc)
+    elseif ($doc instanceof Doc\LocalDoc)
       $path = "/".$this->dbName."/".self::LOCAL_DOC_PATH.$doc->getId();
     else
       $path = "/".$this->dbName."/".$doc->getId();
@@ -1101,7 +1097,7 @@ class ElephantOnCouch extends Client {
     $request->setQueryParam("rev", (string)$rev);
 
     // We could use another technique to send the revision number. Here just for documentation.
-    // $request->setHeader(Request::IF_MATCH_HEADER,(string) $rev);
+    // $request->setHeader(Request::IF_MATCH_HEADER, (string)$rev);
 
     return $this->sendRequest($request);
   }
@@ -1147,9 +1143,10 @@ class ElephantOnCouch extends Client {
   //! have deleted a large number of documents you should run purge on each database.
   //! Purging documents does not remove the space used by them on disk. To reclaim disk space, you should run compact_db().
   //! @return a Response object
-  // TODO Exceptions should be documented here.
+  //! @todo Exceptions should be documented here.
   //! @exception Exception <c>Message: <i>No database selected.</i></c>
-  // TODO This function is not complete.
+  //! @todo  This function is not complete.
+  //! @todo document paremeters
   //! @see http://docs.couchone.com/couchdb-api/couchdb-api-db.html#couchdb-api-db_db-purge_post
   public function purgeDocs(array $docs) {
     $this->checkForDb();
@@ -1161,7 +1158,8 @@ class ElephantOnCouch extends Client {
   //! @brief Inserts, updates and deletes documents in a bulk.
   //! @details Documents that are updated or deleted must contain the 'rev' number. To delete a document, you should set
   //! 'delete = true'.
-  // TODO
+  //! @todo document parameters
+  //! @todo this function is not complete
   public function performBulkOperations(array $docs, $fullCommit = FALSE) {
     $this->checkForDb();
 
@@ -1186,7 +1184,7 @@ class ElephantOnCouch extends Client {
   // @{
 
   //! @brief Retrieves the attachment from the specified document.
-  // TODO
+  //! @todo document parameters and exceptions
   public function getAttachment($fileName, $docPath, $docId, $rev = NULL) {
     $this->checkForDb();
     $this->validateDocPath($docPath);
@@ -1205,7 +1203,7 @@ class ElephantOnCouch extends Client {
 
 
   //! @brief Inserts or updates an attachment to the specified document.
-  // TODO
+  //! @todo document parameters and exceptions
   public function putAttachment($fileName, $docPath, $docId, $rev = NULL) {
     $this->checkForDb();
     $this->validateDocPath($docPath);
@@ -1229,7 +1227,7 @@ class ElephantOnCouch extends Client {
 
 
   //! @brief Deletes an attachment from the document.
-  // TODO
+  //! @todo document parameters and exceptions
   public function deleteAttachment($fileName, $docPath, $docId, $rev) {
     $this->checkForDb();
     $this->validateDocPath($docPath);
@@ -1273,7 +1271,7 @@ class ElephantOnCouch extends Client {
   // GET /db/_design/examples/_show/people/otherdocid
   // GET /db/_design/examples/_show/people/otherdocid?format=xml&details=true
   // public function showDoc($designDocName, $funcName, $docId, $format, $details = FALSE) {
-  // TODO
+  //! @todo this function is not complete
   public function showDoc($designDocName, $listName, $docId = NULL) {
   }
 
@@ -1285,7 +1283,7 @@ class ElephantOnCouch extends Client {
   // GET /db/_design/examples/_list/browse-people/people-by-name?startkey=["a"]&limit=10
   // GET /db/_design/examples/_list/index-posts/other_ddoc/posts-by-tag?key="howto"
   // public function listDocs($designDocName, $funcName, $viewName, $queryArgs, $keys = "") {
-  // TODO
+  //! @todo this function is not complete
   public function listDocs($docId = NULL) {
 
   }
@@ -1295,7 +1293,7 @@ class ElephantOnCouch extends Client {
   // /db/_design/design-doc/_update/update-name
   // Invokes the update handler for the given document
   // /db/_design/design-doc/_update/update-name/doc
-  // TODO
+  //! @todo this function is not complete
   public function callUpdateDocFunc($designDocName, $funcName) {
     // a PUT request against the handler function with a document id: /<database>/_design/<design>/_update/<function>/<docid>
     // a POST request against the handler function without a document id: /<database>/_design/<design>/_update/<function>

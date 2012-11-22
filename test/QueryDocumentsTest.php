@@ -7,9 +7,8 @@ $start = microtime(true);
 $loader = require_once __DIR__ . "/../vendor/autoload.php";
 
 use ElephantOnCouch\ElephantOnCouch;
-use ElephantOnCouch\ResponseException;
-use ElephantOnCouch\Docs\DesignDoc;
-use ElephantOnCouch\Handlers\ViewHandler;
+use ElephantOnCouch\Doc\DesignDoc;
+use ElephantOnCouch\Handler\ViewHandler;
 use ElephantOnCouch\ViewQueryArgs;
 
 const COUCH_USER = "pippo";
@@ -136,23 +135,17 @@ try {
   // ===================================================================================================================
   // QUERY THE VIEWS
   // ===================================================================================================================
-  $couch->queryView("articles", "articles_by_id");
-  $couch->queryView("articles", "domenichini");
-  $couch->queryView("books", "books");
-  $couch->queryView("books", "draft_books");
+  echo $couch->queryView("articles", "articles_by_id");
+  echo $couch->queryView("articles", "domenichini");
+  echo $couch->queryView("books", "books");
+  echo $couch->queryView("books", "draft_books");
 
   $queryArgs = new ViewQueryArgs();
   $queryArgs->groupResults();
   //$couch->queryView("articles", "items_by_stereotype", $queryArgs);
 }
 catch (Exception $e) {
-  echo ">>> Code: ".$e->getCode()."\r\n";
-  echo ">>> Message: ".$e->getMessage()."\r\n";
-
-  if ($e instanceof ResponseException) {
-    echo ">>> CouchDB Error: ".$e->getError()."\r\n";
-    echo ">>> CouchDB Reason: ".$e->getReason()."\r\n";
-  }
+  echo $e;
 }
 
 $stop = microtime(true);

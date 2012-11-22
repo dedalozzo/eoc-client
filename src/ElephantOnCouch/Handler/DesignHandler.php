@@ -6,7 +6,8 @@
 //! @author Filippo F. Fadda
 
 
-namespace ElephantOnCouch\Handlers;
+//! @brief The CouchDB's design document handlers namespace.
+namespace ElephantOnCouch\Handler;
 
 
 //! @brief This class defines the interface for all the concrete CouchDB's handlers.
