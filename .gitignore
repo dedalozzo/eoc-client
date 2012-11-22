@@ -1,4 +1,4 @@
 .idea
 composer.lock
-vendor
-doc
+/vendor
+/doc
