@@ -7,7 +7,6 @@ $start = microtime(true);
 $loader = require_once __DIR__ . "/../vendor/autoload.php";
 
 use ElephantOnCouch\ElephantOnCouch;
-use ElephantOnCouch\ResponseException;
 
 require(__DIR__."/Docs/Article.php");
 require(__DIR__."/Docs/Book.php");
@@ -78,13 +77,7 @@ try {
   mysql_free_result($result);
 }
 catch (Exception $e) {
-  echo ">>> Code: ".$e->getCode()."\r\n";
-  echo ">>> Message: ".$e->getMessage()."\r\n";
-
-  if ($e instanceof ResponseException) {
-    echo ">>> CouchDB Error: ".$e->getError()."\r\n";
-    echo ">>> CouchDB Reason: ".$e->getReason()."\r\n";
-  }
+  echo $e;
 }
 
 $stop = microtime(true);

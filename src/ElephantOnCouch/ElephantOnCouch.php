@@ -437,7 +437,6 @@ class ElephantOnCouch extends Client {
 
   //! @brief Check if a database has been selected. This function is used internally, but you want use it in combination
   //! with exec_request method.
-  //! @exception Exception <c>Message: <i>No database selected.</i></c>
   public function checkForDb() {
     if (empty($this->dbName))
       throw new \Exception("No database selected.");
