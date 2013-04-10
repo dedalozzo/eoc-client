@@ -175,6 +175,18 @@ class ElephantOnCouch extends Client {
   }
 
 
+  protected function handleSuccess(Request $request, Response $response) {
+  }
+
+
+  protected function handleInformational(Request $request, Response $response) {
+  }
+
+
+  protected function handleRedirection(Request $request, Response $response) {
+  }
+
+
   protected function handleClientError(Request $request, Response $response) {
     throw new ClientErrorException($request, $response);
   }
@@ -182,6 +194,10 @@ class ElephantOnCouch extends Client {
 
   protected function handleServerError(Request $request, Response $response) {
     throw new ServerErrorException($request, $response);
+  }
+
+
+  protected function handleUnknown(Request $request, Response $response) {
   }
 
 
