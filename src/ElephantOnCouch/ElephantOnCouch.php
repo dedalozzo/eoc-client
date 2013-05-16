@@ -113,6 +113,14 @@ class ElephantOnCouch extends Client {
   }
 
 
+  //! @brief Check if a database has been selected. This function is used internally.
+  //! @exception Exception <c>Message: <i>No database selected.</i></c>
+  private function checkForDb() {
+    if (empty($this->dbName))
+      throw new \Exception("No database selected.");
+  }
+
+
   //! This method raise an exception when a user provide an invalid database name.
   //! @param[in] string $name Database name.
   //! @exception Exception <c>Message: <i>Invalid database name.</i></c>
@@ -450,14 +458,6 @@ class ElephantOnCouch extends Client {
 
   //! @name Database-level Miscellaneous Methods
   // @{
-
-  //! @brief Check if a database has been selected. This function is used internally, but you want use it in combination
-  //! with exec_request method.
-  public function checkForDb() {
-    if (empty($this->dbName))
-      throw new \Exception("No database selected.");
-  }
-
 
   //! @brief Sets the database name to use.
   //! @details You should call this method before just after the constructor. CouchDB is a RESTful server implementation,
