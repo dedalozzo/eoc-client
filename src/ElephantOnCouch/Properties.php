@@ -1,7 +1,7 @@
 <?php
 
 //! @file Properties.php
-//! @brief This file contains the Doc class.
+//! @brief This file contains the Properties trait.
 //! @details
 //! @author Filippo F. Fadda
 
@@ -9,7 +9,8 @@
 namespace ElephantOnCouch;
 
 
-//! @brief TODO
+//! @brief This trait can be used by a class to emulate the C# properties.
+//! @see http://www.programmazione.it/index.php?entity=eitem&idItem=48399
 trait Properties {
 
   public function __get($name) {
