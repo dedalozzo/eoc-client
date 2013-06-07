@@ -28,7 +28,7 @@ abstract class AbstractDoc {
   const REVISIONS = "_revisions"; //!< The document revisions.
   //@}
 
-  CONST DOC_CLASS = "doc_class"; //!< Special attribute used to store the concrete class name.
+  CONST DOC_CLASS = "doc_class"; //!< Special attribute used to store the concrete class name. It also contains the full namespace.
 
   // Stores the reserved words.
   protected static $reservedWords = [
