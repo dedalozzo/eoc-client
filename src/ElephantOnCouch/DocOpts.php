@@ -11,6 +11,7 @@ namespace ElephantOnCouch;
 
 //! @brief To retrieve additional information about document, you can create a DocOpts instance and pass it as parameter
 //! to the ElephantOnCouch <i>getDoc</i> method.
+//! @nosubgrouping
 class DocOpts {
   use \ElephantOnCouch\Properties;
 
