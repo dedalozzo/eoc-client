@@ -124,6 +124,31 @@ abstract class AbstractDoc {
   }
 
 
+  public function getDocClass() {
+    return $this->meta[self::DOC_CLASS];
+  }
+
+
+  public function issetDocClass() {
+    return isset($this->meta[self::DOC_CLASS]);
+  }
+
+
+  public function setDocClass($value) {
+    // TODO add regex
+    if (!empty($value))
+      $this->meta[self::DOC_CLASS] = (string)$value;
+    else
+      throw new \Exception("\$value must be a non-empty string.");
+  }
+
+
+  public function unsetDocClass() {
+    if ($this->isMetadataPresent(self::DOC_CLASS))
+      unset($this->meta[self::DOC_CLASS]);
+  }
+
+
   public function getId() {
     return $this->meta[self::ID];
   }
