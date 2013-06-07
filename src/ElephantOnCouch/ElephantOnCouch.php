@@ -1014,16 +1014,20 @@ class ElephantOnCouch extends Client {
       $request->setQueryParam("rev", (string)$rev);
 
     // If there are any options, add them to the request.
-    if (isset($opts))
+    if (isset($opts)) {
       $request->setMultipleQueryParamsAtOnce($opts->asArray());
+      $ignoreClassName = $opts->ignoreClassName;
+    }
+    else
+      $ignoreClassName = FALSE;
 
     $body = $this->sendRequest($request)->getBodyAsArray();
 
-    // We use 'type' metadata to store an instance of a specialized document class. We can have Article and Book classes,
+    // We use 'doc_class' metadata to store an instance of a specialized document class. We can have Article and Book classes,
     // both derived from Doc, with special properties and methods. Instead to convert them, we store the class type in a
     // special attribute called <i>AbstractDoc::DOC_CLASS</i> within the others metadata. So, once we retrieve the document,
     // the client creates an instance of the class we provided when we saved the document. We don't need to convert it.
-    if (isset($body[AbstractDoc::DOC_CLASS])) { // Special document class inherited from Doc or LocalDoc.
+    if (!$ignoreClassName && isset($body[AbstractDoc::DOC_CLASS])) { // Special document class inherited from Doc or LocalDoc.
       $type = "\\".$body[AbstractDoc::DOC_CLASS];
       $doc = new $type;
     }

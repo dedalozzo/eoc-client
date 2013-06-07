@@ -12,6 +12,19 @@ namespace ElephantOnCouch;
 //! @brief To retrieve additional information about document, you can create a DocOpts instance and pass it as parameter
 //! to the ElephantOnCouch <i>getDoc</i> method.
 class DocOpts {
+  use \ElephantOnCouch\Properties;
+
+  //! @name Properties
+  //@{
+
+  //! @brief Ignores the class name to avoid the creation of an instance of that class.
+  //! @details When TRUE ignores the class name, previously saved in the special attribute 'doc_class', to avoid the
+  //! creation of an instance of that particular class. You want use this property when the interpreter can't load class
+  //! due to namespace resolution problem or because the class definition is missing.
+  private $ignoreClassName = FALSE;
+
+  //@}
+
   private $options = [];
 
 
@@ -26,6 +39,16 @@ class DocOpts {
   //! @return associative array
   public function asArray() {
     return $this->options;
+  }
+
+
+  public function setIgnoreClassName($value) {
+    $this->ignoreClassName = (boolean)$value;
+  }
+
+
+  public function getIgnoreClassName() {
+    return $this->ignoreClassName;
   }
 
 
