@@ -16,7 +16,7 @@ use ElephantOnCouch\Attachment;
 //! @nosubgrouping
 abstract class ReplicableDoc extends AbstractDoc {
 
-  //! @name Replicable Document Properties
+  //! @name Replicable Document's Special Attributes
   //@{
   const ATTACHMENTS = "_attachments"; //!< The document attachments.
   const REVS_INFO = "_revs_info";
