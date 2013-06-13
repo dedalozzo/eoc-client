@@ -17,9 +17,9 @@ use ElephantOnCouch\Handler\DesignHandler;
 //! stored.
 //! @see http://guide.couchdb.org/editions/1/en/design.html
 //! @nosubgrouping
-final class DesignDoc extends ReplicableDoc {
+class DesignDoc extends ReplicableDoc {
 
-  //! @name Design Document Properties
+  //! @name Design Document's Special Attributes
   //@{
 
   //! @brief The purpose of this property is to specify the programming language used to write the handlers' closures.
@@ -42,7 +42,14 @@ final class DesignDoc extends ReplicableDoc {
   ];
 
 
-  public function __construct() {
+  //! @brief Initializes the object.
+  //! @details Override this method when you create a new class that inherit from DesignDoc. The method is called inside
+  //! the constructor, so you can initialize members, adding handlers, etc.
+  protected function initialize() {
+  }
+
+
+  final public function __construct() {
     parent::__construct();
 
     if (!self::$initialized) {
@@ -52,12 +59,14 @@ final class DesignDoc extends ReplicableDoc {
 
       self::scanForHandlers();
     }
+
+    $this->initialize();
   }
 
   //! @brief Creates an instance of DesignDoc class.
   //! @param[in] string $name The design document name.
   //! @param[in] string $name The programming language used by the design document for his handlers.
-  public static function create($name, $language = "php") {
+  final public static function create($name, $language = "php") {
     $instance = new self();
 
     $instance->setId($name);
@@ -71,7 +80,7 @@ final class DesignDoc extends ReplicableDoc {
   //! @details Every CouchDB's handler is stored in a particular design document section. Every class that extends the
   //! abstract handler DesignHandler, must implement a static method to return his own section. These sections are stored
   //! in a static class property to be used later.
-  private static function scanForHandlers() {
+  final private static function scanForHandlers() {
     foreach (glob(dirname(__DIR__)."/Handler/*.php") as $fileName) {
       //$className = preg_replace('/\.php\z/i', '', $fileName);
       $className = "ElephantOnCouch\\Handler\\".basename($fileName, ".php"); // Same like the above regular expression.
@@ -84,7 +93,7 @@ final class DesignDoc extends ReplicableDoc {
 
 
   //! @brief Reset the list of handlers.
-  public function resetHandlers() {
+  final public function resetHandlers() {
     foreach (self::$sections as $name => $value) {
       if (array_key_exists($name, $this->meta))
         unset($this->meta[$name]);
@@ -98,7 +107,7 @@ final class DesignDoc extends ReplicableDoc {
   //! @param[in] string $name (optional) The handler name.
   //! @exception Exception <c>Message: <i>Can't find handler in the design document.</i></c>
   //! @exception Exception <c>Message: <i>Can't find handler in the design document section.</i></c>
-  public function getHandlerAttributes($section, $name = "") {
+  final public function getHandlerAttributes($section, $name = "") {
     if (empty($name)) { // The handler doesn't have a name.
       if (array_key_exists($section, $this->meta))
         return $this->meta[$section];
@@ -121,7 +130,7 @@ final class DesignDoc extends ReplicableDoc {
   //! @param[in] DesignHandler $handler An instance of a subclass of the abstract class DesignHandler.
   //! @exception Exception <c>Message: <i>The handler is not consistent.</i></c>
   //! @exception Exception <c>Message: <i>The handler already exists.</i></c>
-  public function addHandler(DesignHandler $handler) {
+  final public function addHandler(DesignHandler $handler) {
     $section = $handler->getSection();
 
     if (property_exists($handler, "name")) {
@@ -152,7 +161,7 @@ final class DesignDoc extends ReplicableDoc {
   //! @param[in] string $section The section's name (views, updates, shows, filters, etc).
   //! @param[in] string $name (optional) The handler's name.
   //! @exception Exception <c>Message: <i>Can't find the handler.</i></c>
-  public function removeHandler($section, $name = "") {
+  final public function removeHandler($section, $name = "") {
     if (empty($name)) { // The handler doesn't have a name.
       if (array_key_exists($section, $this->meta))
         unset($this->meta[$section]);
@@ -168,17 +177,17 @@ final class DesignDoc extends ReplicableDoc {
   }
 
 
-  public function getLanguage() {
+  final public function getLanguage() {
     return $this->meta[self::LANGUAGE];
   }
 
 
-  public function issetLanguage() {
+  final public function issetLanguage() {
     return isset($this->meta[self::LANGUAGE]);
   }
 
 
-  public function setLanguage($value) {
+  final public function setLanguage($value) {
     if (!empty($value))
       $this->meta[self::LANGUAGE] = (string)$value;
     else
@@ -186,7 +195,7 @@ final class DesignDoc extends ReplicableDoc {
   }
 
 
-  public function unsetLanguage() {
+  final public function unsetLanguage() {
     if ($this->isMetadataPresent(self::LANGUAGE))
       unset($this->meta[self::LANGUAGE]);
   }
