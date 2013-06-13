@@ -19,8 +19,8 @@ use Rest\Helper\ArrayHelper;
 abstract class AbstractDoc {
   use \ElephantOnCouch\Properties;
 
-  //! @name Properties
-  //! @brief Those are standard document's properties.
+  //! @name Document's Special Attributes
+  //! @brief Those are special CouchDB document's attributes.
   //@{
   const ID = "_id"; //!< Document identifier. Mandatory and immutable.
   const REV = "_rev"; //!< The current MVCC-token/revision of this document. Mandatory and immutable.
@@ -28,7 +28,12 @@ abstract class AbstractDoc {
   const REVISIONS = "_revisions"; //!< The document revisions.
   //@}
 
-  CONST DOC_CLASS = "doc_class"; //!< Special attribute used to store the concrete class name. It also contains the full namespace.
+  //! @name ElephantOnCouch's Special Attributes
+  //! @brief Those are special attributes introduced by ElephantOnCouch object model to store the class name within the
+  //! document itself.
+  //@{
+  const DOC_CLASS = "doc_class"; //!< Special attribute used to store the concrete class name. It also contains the full namespace.
+  //@}
 
   // Stores the reserved words.
   protected static $reservedWords = [
