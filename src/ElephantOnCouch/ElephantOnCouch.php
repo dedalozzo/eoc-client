@@ -18,6 +18,8 @@ use ElephantOnCouch\Exception\ServerErrorException;
 use ElephantOnCouch\Doc\AbstractDoc;
 use ElephantOnCouch\Handler\ViewHandler;
 use ElephantOnCouch\Attachment;
+use ElephantOnCouch\Opt\ViewQueryArgs;
+use ElephantOnCouch\Opt\DocOpts;
 
 
 //! @brief This class is the main class of ElephantOnCouch library. You need an instance of this class to interact with
