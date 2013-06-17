@@ -18,8 +18,8 @@ use ElephantOnCouch\Exception\ServerErrorException;
 use ElephantOnCouch\Doc\AbstractDoc;
 use ElephantOnCouch\Handler\ViewHandler;
 use ElephantOnCouch\Attachment;
-use ElephantOnCouch\Opt\ViewQueryOpts;
 use ElephantOnCouch\Opt\DocOpts;
+use ElephantOnCouch\Opt\ViewQueryOpts;
 
 
 //! @brief This class is the main class of ElephantOnCouch library. You need an instance of this class to interact with
@@ -48,19 +48,6 @@ class ElephantOnCouch extends Client {
   //! @name Custom Request Methods
   // @{
   const COPY_METHOD = "COPY"; // This method is not part of HTTP 1.1 protocol.
-  //@}
-
-  //! @name Feeds
-  //@{
-  const NORMAL_FEED = "normal"; //!< Normal mode.
-  const CONTINUOUS_FEED = "continuous"; //!< Continuous (non-polling) mode.
-  const LONGPOLL_FEED = "longpoll"; //!< Long polling mode.
-  //@}
-
-  //! @name Styles (used in the getDbChanges method)
-  //@{
-  const MAIN_ONLY_STYLE = "main_only";
-  const ALL_DOCS_STYLE = "all_docs";
   //@}
 
   //! @name Document Paths
@@ -544,18 +531,6 @@ class ElephantOnCouch extends Client {
 
   //! @brief Obtains a list of the changes made to the database. This can be used to monitor for update and modifications
   //! to the database for post processing or synchronization.
-  //! @param[in] integer $heartbeat Period, in milliseconds, after which an empty line is sent during longpoll or
-  //! continuous. Must be a positive integer.
-  //! @param[in] integer $since Start the results from the specified sequence number.
-  //! @param[in] integer $limit Maximum number of rows to return. Must be a positive integer.
-  //! @param[in] string $feed Type of feed.
-  //! @param[in] integer $heartbeat Period in milliseconds after which an empty line is sent in the results. Only
-  //! applicable for <i>longpoll</i> or <i>continuous</i> feeds. Overrides any timeout to keep the feed alive indefinitely.
-  //! @param[in] integer $timeout Maximum period to wait before the response is sent. Must be a positive integer.
-  //! @param[in] bool $includeDocs If <b>TRUE</b> the Response object includes the changed documents.
-  //! @param[in] bool $style Specifies how many revisions are returned in the changes array. The default, <i>main_only</i>,
-  //! will only return the winning revision; <i>all_docs</i> will return all the conflicting revisions.
-  //! @param[in] string $filter Filter function from a design document to get updates.
   //! @return A Response object.
   //! @todo Exceptions should be documented here.
   //! @exception Exception <c>Message: <i>No database selected.</i></c>
@@ -864,27 +839,59 @@ class ElephantOnCouch extends Client {
   // @{
 
   //! @brief Returns a built-in view of all documents in this database. If keys are specified returns only certain rows.
-  //! @todo Add the $keys support
-  public function queryAllDocs($keys) {
+  //! @param[in] string $designDocName The design document's name.
+  //! @param[in] string $viewName The view's name.
+  //! @param[in] \ArrayIterator $keys (optional) Used to retrieve just the view rows matching that set of keys. Rows are returned
+  //! in the order of the specified keys. Combining this feature with include_docs=true results in the so-called
+  //! multi-document-fetch feature.
+  //! @param[in] ViewQueryOpts $opts (optional) Query options to get additional information, grouping results, include
+  //! docs, etc.
+  //! @return associative array
+  //! @exception Exception <c>Message: <i>No database selected.</i></c>
+  //! @exception Exception <c>Message: <i>You must provide a valid \$docId.</i></c>
+  public function queryAllDocs(\ArrayIterator $keys = NULL, ViewQueryOpts $opts = NULL) {
     $this->checkForDb();
 
-    $request = $this->newRequest(Request::POST_METHOD, "/".$this->dbName."/_all_docs");
+    if (is_null($keys))
+      $request = $this->newRequest(Request::GET_METHOD, "/".$this->dbName."/_all_docs");
+    else {
+      $request = $this->newRequest(Request::POST_METHOD, "/".$this->dbName."/_all_docs");
+      $request->setBody(json_encode(utf8_encode(['keys' => $keys])));
+    }
+
+    if (isset($opts))
+      $request->setMultipleQueryParamsAtOnce($opts->asArray());
 
     return $this->sendRequest($request);
   }
 
 
   //! @brief Executes the given view and returns the result.
-  //! @todo document parameters
-  public function queryView($designDocName, $viewName, ViewQueryOpts $args = NULL) {
+  //! @param[in] string $designDocName The design document's name.
+  //! @param[in] string $viewName The view's name.
+  //! @param[in] \ArrayIterator $keys (optional) Used to retrieve just the view rows matching that set of keys. Rows are returned
+  //! in the order of the specified keys. Combining this feature with include_docs=true results in the so-called
+  //! multi-document-fetch feature.
+  //! @param[in] ViewQueryOpts $opts (optional) Query options to get additional information, grouping results, include
+  //! docs, etc.
+  //! @return associative array
+  //! @exception Exception <c>Message: <i>No database selected.</i></c>
+  //! @exception Exception <c>Message: <i>You must provide a valid \$docId.</i></c>
+  public function queryView($designDocName, $viewName, \ArrayIterator $keys = NULL, ViewQueryOpts $opts = NULL) {
     $this->checkForDb();
     $this->validateAndEncodeDocId($designDocName);
     if (empty($viewName))
       throw new \Exception("You must provide a valid \$viewName.");
 
-    $request = $this->newRequest(Request::GET_METHOD, "/".$this->dbName."/_design/".$designDocName."/_view/".$viewName);
-    if (isset($args))
-      $request->setMultipleQueryParamsAtOnce($args->asArray());
+    if (is_null($keys))
+      $request = $this->newRequest(Request::GET_METHOD, "/".$this->dbName."/_design/".$designDocName."/_view/".$viewName);
+    else {
+      $request = $this->newRequest(Request::POST_METHOD, "/".$this->dbName."/_design/".$designDocName."/_view/".$viewName);
+      $request->setBody(json_encode(utf8_encode(['keys' => $keys])));
+    }
+
+    if (isset($opts))
+      $request->setMultipleQueryParamsAtOnce($opts->asArray());
 
     return $this->sendRequest($request);
   }
@@ -893,19 +900,36 @@ class ElephantOnCouch extends Client {
   //! @brief Executes the given view, both map and reduce functions, for all documents and returns the result.
   //! @details Map and Reduce functions are provided by the programmer.
   //! @attention Requires admin privileges.
-  //! @todo document parameters
-  public function queryTempView($mapFn, $reduceFn = "", ViewQueryOpts $args = NULL) {
+  //! @param[in] string $designDocName The design document's name.
+  //! @param[in] string $viewName The view's name.
+  //! @param[in] \ArrayIterator $keys (optional) Used to retrieve just the view rows matching that set of keys. Rows are returned
+  //! in the order of the specified keys. Combining this feature with include_docs=true results in the so-called
+  //! multi-document-fetch feature.
+  //! @param[in] ViewQueryOpts $opts (optional) Query options to get additional information, grouping results, include
+  //! docs, etc.
+  //! @return associative array
+  //! @exception Exception <c>Message: <i>No database selected.</i></c>
+  //! @exception Exception <c>Message: <i>You must provide a valid \$docId.</i></c>
+  public function queryTempView($mapFn, $reduceFn = "", \ArrayIterator $keys = NULL, ViewQueryOpts $opts = NULL) {
     $this->checkForDb();
 
-    $handler = new ViewHandler("temp");
+    $handler = new Handler\ViewHandler("temp");
     $handler->mapFn = $mapFn;
     if (!empty($reduce))
       $handler->reduceFn = $reduceFn;
 
     $request = $this->newRequest(Request::POST_METHOD, "/".$this->dbName."/_temp_view");
-    $request->setBody(json_encode($handler->asArray()));
-    if (isset($args))
-      $request->setMultipleQueryParamsAtOnce($args->asArray());
+
+    if (is_null($keys))
+      $request->setBody(json_encode($handler->asArray()));
+    else {
+      $body = $handler->asArray() + ['keys' => $keys];
+
+      $request->setBody(json_encode(utf8_encode($body)));
+    }
+
+    if (isset($opts))
+      $request->setMultipleQueryParamsAtOnce($opts->asArray());
 
     return $this->sendRequest($request);
   }
