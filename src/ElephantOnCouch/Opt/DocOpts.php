@@ -9,10 +9,13 @@
 namespace ElephantOnCouch\Opt;
 
 
+use ElephantOnCouch\Opt\AbstractOpts;
+
+
 //! @brief To retrieve additional information about document, you can create a DocOpts instance and pass it as parameter
 //! to the ElephantOnCouch <i>getDoc</i> method.
 //! @nosubgrouping
-class DocOpts {
+class DocOpts extends AbstractOpts {
   use \ElephantOnCouch\Properties;
 
   //! @name Properties
@@ -25,22 +28,6 @@ class DocOpts {
   private $ignoreClassName = FALSE;
 
   //@}
-
-  private $options = [];
-
-
-  //! @brief Resets the options.
-  public function reset() {
-    unset($this->options);
-    $this->options = [];
-  }
-
-
-  //! @brief Returns an associative array of the chosen options. Used internally by ElephantOnCouch <i>getDoc</i> method.
-  //! @return associative array
-  public function asArray() {
-    return $this->options;
-  }
 
 
   public function setIgnoreClassName($value) {
