@@ -6,7 +6,8 @@
 //! @author Filippo F. Fadda
 
 
-namespace ElephantOnCouch;
+//! @brief The CouchDB's options namespace.
+namespace ElephantOnCouch\Opt;
 
 
 //! @brief To set the query arguments you must create an instance of this class. Use it when you query a CouchDB View with
