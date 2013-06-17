@@ -14,6 +14,7 @@
     ],
     "require": {
         "php": ">=5.4.0",
+        "ext-SPL_Types": "",
         "3f/rest": "dev-master",
         "3f/lint": "dev-master"
     },
