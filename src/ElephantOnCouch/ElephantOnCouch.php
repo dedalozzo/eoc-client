@@ -1257,7 +1257,7 @@ class ElephantOnCouch extends Client {
 
     $this->validateAndEncodeDocId($docName);
 
-    $path = "/".$this->dbName."/".self::DESIGN_DOC_PATH.$docName."/_info";
+    $path = "/".$this->dbName."/".Enum\DocPath::DESIGN.$docName."/_info";
 
     $request = $this->newRequest(Request::GET_METHOD, $path);
 
