@@ -15,11 +15,6 @@ use Rest\Request;
 use Rest\Response;
 use ElephantOnCouch\Exception\ClientErrorException;
 use ElephantOnCouch\Exception\ServerErrorException;
-use ElephantOnCouch\Doc\AbstractDoc;
-use ElephantOnCouch\Handler\ViewHandler;
-use ElephantOnCouch\Attachment;
-use ElephantOnCouch\Opt\DocOpts;
-use ElephantOnCouch\Opt\ViewQueryOpts;
 
 
 //! @brief This class is the main class of ElephantOnCouch library. You need an instance of this class to interact with
@@ -50,18 +45,8 @@ class ElephantOnCouch extends Client {
   const COPY_METHOD = "COPY"; // This method is not part of HTTP 1.1 protocol.
   //@}
 
-  //! @name Document Paths
-  // @{
-  const STD_DOC_PATH = "";
-  const LOCAL_DOC_PATH = "_local/";
-  const DESIGN_DOC_PATH = "_design/";
-  //@}
-
   //! Default CouchDB revisions limit number.
   const REVS_LIMIT = 1000;
-
-  //! Default period after which an empty line is sent during a longpoll or continuous feed.
-  const DEFAULT_HEARTBEAT = 60000;
 
   // Current selected rawencoded database name.
   private $dbName;
@@ -128,14 +113,7 @@ class ElephantOnCouch extends Client {
     if (preg_match('%\A[a-z][a-z\d_$()+-/]++\z%', $name))
       return $name = rawurlencode($name);
     else
-      throw new \Exception("Invalid database name.");
-  }
-
-
-  //! @brief This method raise an exception when the user provides an unknown document path.
-  private function validateDocPath($docPath) {
-    if (($docPath != self::STD_DOC_PATH) && ($docPath != self::LOCAL_DOC_PATH) && ($docPath != self::DESIGN_DOC_PATH))
-      throw new \Exception("\$docPath is not a valid document type.");
+      throw new \InvalidArgumentException("Invalid database name.");
   }
 
 
@@ -156,7 +134,7 @@ class ElephantOnCouch extends Client {
     if (preg_match('/\A[\w_-]++\z/i', $docId))
       $docId = rawurlencode($docId);
     else
-      throw new \Exception("You must provide a valid \$docId.");
+      throw new \InvalidArgumentException("You must provide a valid \$docId.");
   }
 
 
@@ -273,7 +251,7 @@ class ElephantOnCouch extends Client {
     if ($response->getHeaderField(Request::CONTENT_TYPE_HF) == "image/x-icon")
       return $response->getBody();
     else
-      throw new \Exception("Content-Type must be image/x-icon.");
+      throw new \InvalidArgumentException("Content-Type must be image/x-icon.");
   }
 
 
@@ -315,9 +293,13 @@ class ElephantOnCouch extends Client {
   //! <c>Reason: <i>You are not a server admin.</i></c>
   //! @see http://wiki.apache.org/couchdb/HttpGetLog
   public function getLogTail($bytes = 1000) {
-    $request = $this->newRequest(Request::GET_METHOD, "/_log");
-    $request->setQueryParam("bytes", $bytes);
-    return $this->sendRequest($request)->getBody();
+    if (is_int($bytes) and ($bytes > 0)) {
+      $request = $this->newRequest(Request::GET_METHOD, "/_log");
+      $request->setQueryParam("bytes", $bytes);
+      return $this->sendRequest($request)->getBody();
+    }
+    else
+      throw new \InvalidArgumentException("\$bytes must be a positive integer.");
   }
 
 
@@ -338,7 +320,7 @@ class ElephantOnCouch extends Client {
         return $response->getBodyAsArray()['uuids'];
     }
     else
-      throw new \Exception("\$count must be a positive integer.");
+      throw new \InvalidArgumentException("\$count must be a positive integer.");
   }
 
   //@}
@@ -368,8 +350,17 @@ class ElephantOnCouch extends Client {
   //! @brief Sets a single configuration value in a given section to server configuration.
   //! @param[in] string $section The configuration section.
   //! @param[in] string $key The key.
-  //! @param[in] string $key The value for the key.
+  //! @param[in] string $value The value for the key.
   public function setConfigKey($section, $key, $value) {
+    if (!is_string($section) or empty($section))
+      throw new \InvalidArgumentException("\$section must be a not empty string.");
+
+    if (!is_string($key) or empty($key))
+      throw new \InvalidArgumentException("\$key must be a not empty string.");
+
+    if (is_null($value))
+      throw new \InvalidArgumentException("\$value cannot be null.");
+
     $request = $this->newRequest(Request::PUT_METHOD, "/_config/".$section."/".$key);
     $request->setHeaderField(Request::CONTENT_TYPE_HF, "application/json");
     $request->setBody(json_encode(utf8_encode($value)));
@@ -381,6 +372,12 @@ class ElephantOnCouch extends Client {
   //! @param[in] string $section The configuration section.
   //! @param[in] string $key The key.
   public function deleteConfigKey($section, $key) {
+    if (!is_string($section) or empty($section))
+      throw new \InvalidArgumentException("\$section must be a not empty string.");
+
+    if (!is_string($key) or empty($key))
+      throw new \InvalidArgumentException("\$key must be a not empty string.");
+
     $this->sendRequest($this->newRequest(Request::DELETE_METHOD, "/_config/".$section."/".$key));
   }
 
@@ -400,6 +397,12 @@ class ElephantOnCouch extends Client {
   //! @brief Makes cookie based user login.
   //! @return TODO
   public function setSession($userName, $password) {
+    if (!is_string($userName) or empty($userName))
+      throw new \InvalidArgumentException("\$userName must be a not empty string.");
+
+    if (!is_string($password) or empty($password))
+      throw new \InvalidArgumentException("\$password must be a not empty string.");
+
     $request = $this->newRequest(Request::POST_METHOD, "/_session");
 
     $request->setHeaderField(self::X_COUCHDB_WWW_AUTHENTICATE_HF, "Cookie");
@@ -458,15 +461,15 @@ class ElephantOnCouch extends Client {
   //! instead.
   //! @attention Only lowercase characters (a-z), digits (0-9), and any of the characters _, $, (, ), +, -, and / are
   //! allowed. Must begin with a letter.</i></c>\n
-  //! @param[in] string $dbName Database name.
+  //! @param[in] string $name Database name.
   //! @exception Exception <c>Message: <i>Invalid database name.</i></c>
-  public function selectDb($dbName) {
-    $this->dbName = $this->validateAndEncodeDbName($dbName);
+  public function selectDb($name) {
+    $this->dbName = $this->validateAndEncodeDbName($name);
   }
 
 
   //! @brief Creates a new database and selects it.
-  //! @param[in] string $dbName The database name. A database must be named with all lowercase letters (a-z),
+  //! @param[in] string $name The database name. A database must be named with all lowercase letters (a-z),
   //! digits (0-9), or any of the _$()+-/ characters and must end with a slash in the URL. The name has to start with a
   //! lowercase letter (a-z).
   //! @param[in] bool $autoSelect If <b>TRUE</b> selects the created database.
@@ -481,20 +484,22 @@ class ElephantOnCouch extends Client {
   //! <c>Reason: <i>Only lowercase characters (a-z), digits (0-9), and any of the characters _, $, (, ), +, -, and / are allowed. Must begin with a letter.</i></c>\n
   //! @see http://docs.couchone.com/couchdb-api/couchdb-api-db.html#couchdb-api-db_db_put
   //! @bug <a href="https://issues.apache.org/jira/browse/COUCHDB-967" target="_blank">COUCHDB-967</a>
-  public function createDb($dbName, $autoSelect = TRUE) {
-    if ($dbName != $this->dbName) {
-      $this->sendRequest($this->newRequest(Request::PUT_METHOD, "/".rawurlencode($dbName)."/"));
+  public function createDb($name, $autoSelect = TRUE) {
+    $this->validateAndEncodeDbName($name);
+
+    if ($name != $this->dbName) {
+      $this->sendRequest($this->newRequest(Request::PUT_METHOD, "/".rawurlencode($name)."/"));
 
       if ($autoSelect)
-        $this->selectDb($dbName);
+        $this->dbName = $name;
     }
     else
-      throw new \Exception("You can't create a database with the same name of the selected database.");
+      throw new \UnexpectedValueException("You can't create a database with the same name of the selected database.");
   }
 
 
   //! @brief Deletes an existing database.
-  //! @param[in] string $dbName The database name. A database must be named with all lowercase letters (a-z),
+  //! @param[in] string $name The database name. A database must be named with all lowercase letters (a-z),
   //! digits (0-9), or any of the _$()+-/ characters and must end with a slash in the URL. The name has to start with a
   //! lowercase letter (a-z).
   //! @exception Exception <c>Message: <i>You can't delete the selected database.</i>
@@ -504,13 +509,13 @@ class ElephantOnCouch extends Client {
   //! <c>Reason: <i>missing</i></c>
   //! @see http://docs.couchone.com/couchdb-api/couchdb-api-db.html#couchdb-api-db_db_delete
   //! @bug <a href="https://issues.apache.org/jira/browse/COUCHDB-967" target="_blank">COUCHDB-967</a>
-  public function deleteDb($dbName) {
-    $this->validateAndEncodeDbName($dbName);
+  public function deleteDb($name) {
+    $this->validateAndEncodeDbName($name);
 
-    if ($dbName != $this->dbName)
-      $this->sendRequest($this->newRequest(Request::DELETE_METHOD, "/".$dbName));
+    if ($name != $this->dbName)
+      $this->sendRequest($this->newRequest(Request::DELETE_METHOD, "/".$name));
     else
-      throw new \Exception("You can't delete the selected database.");
+      throw new \UnexpectedValueException("You can't delete the selected database.");
   }
 
 
@@ -533,62 +538,14 @@ class ElephantOnCouch extends Client {
   //! to the database for post processing or synchronization.
   //! @return A Response object.
   //! @todo Exceptions should be documented here.
-  //! @exception Exception <c>Message: <i>No database selected.</i></c>
-  //! @exception Exception <c>Message: <i>\$since must be a non-negative integer.</i></c>
-  //! @exception Exception <c>Message: <i>\$limit must be a positive integer.</i></c>
-  //! @exception Exception <c>Message: <i>\$feed is not supported.</i></c>
-  //! @exception Exception <c>Message: <i>\$heartbeat must be a non-negative integer.</i></c>
-  //! @exception Exception <c>Message: <i>\$timeout must be a positive integer.</i></c>
-  //! @exception Exception <c>Message: <i>\$style not supported.</i></c>
-  //! @see http://wiki.apache.org/couchdb/HTTP_database_API#Changes
   //! @todo This function is not complete.
-  public function getDbChanges($since = 0,
-                               $limit = 1,
-                               $feed = self::NORMAL_FEED,
-                               $heartbeat = self::DEFAULT_HEARTBEAT,
-                               $timeout = self::DEFAULT_TIMEOUT,
-                               $includeDocs = FALSE,
-                               $style = self::MAIN_ONLY_STYLE,
-                               $filter = "") {
+  public function getDbChanges(Opt\ChangesFeedOpts $opts = NULL) {
     $this->checkForDb();
 
     $request = $this->newRequest(Request::GET_METHOD, "/".$this->dbName."/_changes");
 
-    if (is_int($since) and ($since >= 0))
-      $request->setQueryParam("since", $since);
-    else
-      throw new \Exception("\$since must be a non-negative integer.");
-
-    if (is_int($limit) and ($limit > 0))
-      $request->setQueryParam("limit", $limit);
-    else
-      throw new \Exception("\$limit must be a positive integer.");
-
-    if (($feed == self::NORMAL_FEED) or ($feed == self::CONTINUOUS_FEED) or ($feed == self::LONGPOLL_FEED))
-      $request->setQueryParam("feed", $feed);
-    else
-      throw new \Exception("\$feed is not supported.");
-
-    if (($feed == self::CONTINUOUS_FEED) or ($feed == self::LONGPOLL_FEED))
-      if (is_int($heartbeat) and ($heartbeat >= 0))
-        $request->setQueryParam("heartbeat", $heartbeat);
-      else
-        throw new \Exception("\$heartbeat must be a non-negative integer.");
-
-    if (is_int($timeout) and ($timeout > 0))
-      $request->setQueryParam("timeout", $timeout);
-    else
-      throw new \Exception("\$timeout must be a positive integer.");
-
-    if ($includeDocs)
-      $request->setQueryParam("include_docs", "true");
-
-    if (($style == self::MAIN_ONLY_STYLE) or ($style == self::ALL_DOCS_STYLE))
-      $request->setQueryParam("style", $style);
-    else
-      throw new \Exception("\$style not supported.");
-
-    $request->setQueryParam("filter", $filter);
+    if (isset($opts))
+      $request->setMultipleQueryParamsAtOnce($opts->asArray());
 
     return $this->sendRequest($request)->getBodyAsArray();
   }
@@ -749,10 +706,10 @@ class ElephantOnCouch extends Client {
       $body["target"] = $targetDbUrl;
     }
     else
-      throw new \Exception("\$source_db_url and \$target_db_url must be non-empty strings.");
+      throw new \InvalidArgumentException("\$source_db_url and \$target_db_url must be non-empty strings.");
 
     if (!is_bool($continuous))
-      throw new \Exception("\$continuous must be a boolean.");
+      throw new \InvalidArgumentException("\$continuous must be a boolean.");
     elseif ($continuous)
       $body["continuous"] = $continuous;
 
@@ -766,7 +723,7 @@ class ElephantOnCouch extends Client {
     if ($callerMethod == "startDbReplication") {
       // create_target option
       if (!is_bool($createTargetDb))
-        throw new \Exception("\$createTargetDb must be a boolean.");
+        throw new \InvalidArgumentException("\$createTargetDb must be a boolean.");
       elseif ($createTargetDb)
         $body["create_target"] = $createTargetDb;
 
@@ -776,15 +733,15 @@ class ElephantOnCouch extends Client {
         elseif (is_array($filter)) // doc_ids option
           $body["doc_ids"] = array_values($filter);
         else
-          throw new \Exception("\$filter must be a string or an array.");
+          throw new \InvalidArgumentException("\$filter must be a string or an array.");
       }
 
       // queryParams option
       if (!is_null($queryArgs)) {
-        if ($queryArgs instanceof ViewQueryOpts)
+        if ($queryArgs instanceof Opt\ViewQueryOpts)
           $body["queryParams"] = get_object_vars($queryArgs);
         else
-          throw new \Exception("\$queryParams must be an instance of ViewQueryOpts class.");
+          throw new \InvalidArgumentException("\$queryParams must be an instance of ViewQueryOpts class.");
       }
     }
     elseif ($callerMethod == "cancelDbReplication") {
@@ -849,7 +806,7 @@ class ElephantOnCouch extends Client {
   //! @return associative array
   //! @exception Exception <c>Message: <i>No database selected.</i></c>
   //! @exception Exception <c>Message: <i>You must provide a valid \$docId.</i></c>
-  public function queryAllDocs(\ArrayIterator $keys = NULL, ViewQueryOpts $opts = NULL) {
+  public function queryAllDocs(\ArrayIterator $keys = NULL, Opt\ViewQueryOpts $opts = NULL) {
     $this->checkForDb();
 
     if (is_null($keys))
@@ -877,11 +834,13 @@ class ElephantOnCouch extends Client {
   //! @return associative array
   //! @exception Exception <c>Message: <i>No database selected.</i></c>
   //! @exception Exception <c>Message: <i>You must provide a valid \$docId.</i></c>
-  public function queryView($designDocName, $viewName, \ArrayIterator $keys = NULL, ViewQueryOpts $opts = NULL) {
+  public function queryView($designDocName, $viewName, \ArrayIterator $keys = NULL, Opt\ViewQueryOpts $opts = NULL) {
     $this->checkForDb();
+
     $this->validateAndEncodeDocId($designDocName);
+
     if (empty($viewName))
-      throw new \Exception("You must provide a valid \$viewName.");
+      throw new \InvalidArgumentException("You must provide a valid \$viewName.");
 
     if (is_null($keys))
       $request = $this->newRequest(Request::GET_METHOD, "/".$this->dbName."/_design/".$designDocName."/_view/".$viewName);
@@ -910,7 +869,7 @@ class ElephantOnCouch extends Client {
   //! @return associative array
   //! @exception Exception <c>Message: <i>No database selected.</i></c>
   //! @exception Exception <c>Message: <i>You must provide a valid \$docId.</i></c>
-  public function queryTempView($mapFn, $reduceFn = "", \ArrayIterator $keys = NULL, ViewQueryOpts $opts = NULL) {
+  public function queryTempView($mapFn, $reduceFn = "", \ArrayIterator $keys = NULL, Opt\ViewQueryOpts $opts = NULL) {
     $this->checkForDb();
 
     $handler = new Handler\ViewHandler("temp");
@@ -980,7 +939,7 @@ class ElephantOnCouch extends Client {
     $this->checkForDb();
 
     if (!is_int($revsLimit) or ($revsLimit <= 0))
-      throw new \Exception("\$revsLimit must be a positive integer.");
+      throw new \InvalidArgumentException("\$revsLimit must be a positive integer.");
 
     $request = $this->newRequest(Request::PUT_METHOD, "/".$this->dbName."/_revs_limit");
     $request->setHeaderField(Request::CONTENT_TYPE_HF, "application/json");
@@ -1005,6 +964,7 @@ class ElephantOnCouch extends Client {
   //! @exception Exception <c>Message: <i>You must provide a valid \$docId.</i></c>
   public function getDocEtag($docId) {
     $this->checkForDb();
+
     $this->validateAndEncodeDocId($docId);
 
     $path = "/".$this->dbName."/".$docId;
@@ -1020,18 +980,18 @@ class ElephantOnCouch extends Client {
   //! @details Since CouchDB uses different paths to store special documents, you must provide the document type for
   //! design and local documents.
   //! @param[in] string $docId The document's identifier.
-  //! @param[in] string $docPath The document's type. Allowed values: <i>ElephantOnCouch::STD_DOC</i>, <i>ElephantOnCouch::LOCAL_DOC</i>, <i>ElephantOnCouch::DESIGN_DOC</i>.
+  //! @param[in] string $path The document's path.
   //! @param[in] string $rev (optional) The document's revision.
   //! @param[in] DocOpts $opts Query options to get additional document information, like conflicts, attachments, etc.
   //! @return associative array
   //! @exception Exception <c>Message: <i>No database selected.</i></c>
   //! @exception Exception <c>Message: <i>You must provide a valid \$docId.</i></c>
-  public function getDoc($docPath, $docId, $rev = NULL, DocOpts $opts = NULL) {
+  public function getDoc(Enum\DocPath $path, $docId, $rev = NULL, Opt\DocOpts $opts = NULL) {
     $this->checkForDb();
-    $this->validateDocPath($docPath);
+
     $this->validateAndEncodeDocId($docId);
 
-    $path = "/".$this->dbName."/".$docPath.$docId;
+    $path = "/".$this->dbName."/".$path.$docId;
 
     $request = $this->newRequest(Request::GET_METHOD, $path);
 
@@ -1053,13 +1013,13 @@ class ElephantOnCouch extends Client {
     // both derived from Doc, with special properties and methods. Instead to convert them, we store the class type in a
     // special attribute called <i>AbstractDoc::DOC_CLASS</i> within the others metadata. So, once we retrieve the document,
     // the client creates an instance of the class we provided when we saved the document. We don't need to convert it.
-    if (!$ignoreClassName && isset($body[AbstractDoc::DOC_CLASS])) { // Special document class inherited from Doc or LocalDoc.
-      $type = "\\".$body[AbstractDoc::DOC_CLASS];
+    if (!$ignoreClassName && isset($body[Doc\AbstractDoc::DOC_CLASS])) { // Special document class inherited from Doc or LocalDoc.
+      $type = "\\".$body[Doc\AbstractDoc::DOC_CLASS];
       $doc = new $type;
     }
-    elseif ($docPath == self::LOCAL_DOC_PATH)   // Local document.
+    elseif ($path == Enum\DocPath::LOCAL)   // Local document.
       $doc = new Doc\LocalDoc;
-    elseif ($docPath == self::DESIGN_DOC_PATH)  // Design document.
+    elseif ($path == Enum\DocPath::DESIGN)  // Design document.
       $doc = new Doc\DesignDoc;
     else                                        // Standard document.
       $doc = new Doc\Doc;
@@ -1091,7 +1051,7 @@ class ElephantOnCouch extends Client {
   //! <c>Reason: <i>no_db_file</i></c> TODO this is wrong
   //! @see http://wiki.apache.org/couchdb/HTTP_Document_API#PUT
   // TODO support the new_edits=true|false option http://wiki.apache.org/couchdb/HTTP_Bulk_Document_API#Posting_Existing_Revisions
-  public function saveDoc(AbstractDoc $doc, $batchMode = FALSE) {
+  public function saveDoc(Doc\AbstractDoc $doc, $batchMode = FALSE) {
     $this->checkForDb();
 
     // We never use the POST method.
@@ -1104,9 +1064,9 @@ class ElephantOnCouch extends Client {
 
     // Sets the path according to the document type.
     if ($doc instanceof Doc\DesignDoc)
-      $path = "/".$this->dbName."/".self::DESIGN_DOC_PATH.$doc->getId();
+      $path = "/".$this->dbName."/".Enum\DocPath::DESIGN.$doc->getId();
     elseif ($doc instanceof Doc\LocalDoc)
-      $path = "/".$this->dbName."/".self::LOCAL_DOC_PATH.$doc->getId();
+      $path = "/".$this->dbName."/".Enum\DocPath::LOCAL.$doc->getId();
     else
       $path = "/".$this->dbName."/".$doc->getId();
 
@@ -1126,17 +1086,14 @@ class ElephantOnCouch extends Client {
   //! @details To delete a document you must provide the document identifier and the revision number.
   //! @param[in] string $docId The document's identifier you want delete.
   //! @param[in] string $rev The document's revision number you want delete.
-  //! @param[in] string $docPath The document type. You need to specify a document type only when you want delete a
-  //! document. Allowed values: <i>ElephantOnCouch::STD_DOC</i>, <i>ElephantOnCouch::LOCAL_DOC</i>, <i>ElephantOnCouch::DESIGN_DOC</i>.
+  //! @param[in] string $path The document path.
   //! @exception Exception <c>Message: <i>No database selected.</i></c>
   //! @exception Exception <c>Message: <i>You must provide a valid \$docId.</i></c>
-  //! @exception Exception <c>Message: <i>\$docPath is not a valid document type.</i></c>
-  public function deleteDoc($docPath, $docId, $rev) {
+  public function deleteDoc(Enum\DocPath $path, $docId, $rev) {
     $this->checkForDb();
-    $this->validateDocPath($docPath);
     $this->validateAndEncodeDocId($docId);
 
-    $path = "/".$this->dbName."/".$docPath.rawurlencode($docId);
+    $path = "/".$this->dbName."/".$path.rawurlencode($docId);
 
     $request = $this->newRequest(Request::DELETE_METHOD, $path);
     $request->setQueryParam("rev", (string)$rev);
@@ -1154,17 +1111,16 @@ class ElephantOnCouch extends Client {
   //! @param[in] string $sourceDocId The source document id.
   //! @param[in] string $targetDocId The destination document id.
   //! @param[in] string $rev Needed when you want override an existent document.
-  //! @param[in] string $docPath The document type. Allowed values: <i>ElephantOnCouch::STD_DOC</i>, <i>ElephantOnCouch::LOCAL_DOC</i>, <i>ElephantOnCouch::DESIGN_DOC</i>.
+  //! @param[in] string $path The document path.
   //! @exception Exception <c>Message: <i>No database selected.</i></c>
   //! @exception Exception <c>Message: <i>You must provide a valid \$docId.</i></c>
-  //! @exception Exception <c>Message: <i>\$docPath is not a valid document type.</i></c>
-  public function copyDoc($docPath, $sourceDocId, $targetDocId, $rev = NULL) {
+  public function copyDoc(Enum\DocPath $path, $sourceDocId, $targetDocId, $rev = NULL) {
     $this->checkForDb();
-    $this->validateDocPath($docPath);
+
     $this->validateAndEncodeDocId($sourceDocId);
     $this->validateAndEncodeDocId($targetDocId);
 
-    $path = "/".$this->dbName."/".$docPath.$sourceDocId;
+    $path = "/".$this->dbName."/".$path.$sourceDocId;
 
     // This request uses the special method COPY.
     $request = $this->newRequest(self::COPY_METHOD, $path);
@@ -1230,12 +1186,12 @@ class ElephantOnCouch extends Client {
 
   //! @brief Retrieves the attachment from the specified document.
   //! @todo document parameters and exceptions
-  public function getAttachment($fileName, $docPath, $docId, $rev = NULL) {
+  public function getAttachment($fileName, Enum\DocPath $path, $docId, $rev = NULL) {
     $this->checkForDb();
-    $this->validateDocPath($docPath);
+
     $this->validateAndEncodeDocId($docId);
 
-    $path = "/".$this->dbName."/".$docPath.$docId."/".$fileName;
+    $path = "/".$this->dbName."/".$path.$docId."/".$fileName;
 
     $request = $this->newRequest(Request::GET_METHOD, $path);
 
@@ -1249,14 +1205,14 @@ class ElephantOnCouch extends Client {
 
   //! @brief Inserts or updates an attachment to the specified document.
   //! @todo document parameters and exceptions
-  public function putAttachment($fileName, $docPath, $docId, $rev = NULL) {
+  public function putAttachment($fileName, Enum\DocPath $path, $docId, $rev = NULL) {
     $this->checkForDb();
-    $this->validateDocPath($docPath);
+
     $this->validateAndEncodeDocId($docId);
 
     $attachment = Attachment::fromFile($fileName);
 
-    $path = "/".$this->dbName."/".$docPath.$docId."/".rawurlencode($attachment->getName());
+    $path = "/".$this->dbName."/".$path.$docId."/".rawurlencode($attachment->getName());
 
     $request = $this->newRequest(Request::PUT_METHOD, $path);
     $request->setHeaderField(Request::CONTENT_LENGTH_HF, $attachment->getContentLength());
@@ -1273,12 +1229,12 @@ class ElephantOnCouch extends Client {
 
   //! @brief Deletes an attachment from the document.
   //! @todo document parameters and exceptions
-  public function deleteAttachment($fileName, $docPath, $docId, $rev) {
+  public function deleteAttachment($fileName, Enum\DocPath $path, $docId, $rev) {
     $this->checkForDb();
-    $this->validateDocPath($docPath);
+
     $this->validateAndEncodeDocId($docId);
 
-    $path = "/".$this->dbName."/".$docPath.$docId."/".rawurlencode($fileName);
+    $path = "/".$this->dbName."/".$path.$docId."/".rawurlencode($fileName);
 
     $request = $this->newRequest(Request::DELETE_METHOD, $path);
     $request->setQueryParam("rev", (string)$rev);
@@ -1298,6 +1254,7 @@ class ElephantOnCouch extends Client {
   //! @exception Exception <c>Message: <i>No database selected.</i></c>
   public function getDesignDocInfo($docName) {
     $this->checkForDb();
+
     $this->validateAndEncodeDocId($docName);
 
     $path = "/".$this->dbName."/".self::DESIGN_DOC_PATH.$docName."/_info";
