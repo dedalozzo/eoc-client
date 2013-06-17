@@ -11,19 +11,15 @@ namespace ElephantOnCouch\Opt;
 
 
 //! @brief To set the query arguments you must create an instance of this class. Use it when you query a CouchDB View with
-//! the methods <i>queryView</i> and <i>queryTempView</i>.
+//! the methods <i>queryAllDocs</i>, <i>queryView</i> and <i>queryTempView</i>.
 //! @nosubgrouping
 //! @todo Add 'list' and 'callback' properties.
 class ViewQueryOpts {
 
   private $options;
 
-  //! @brief An URL encode JSON value indicating the key at which to start the range.
+  //! @brief Returns only documents that match the specified key.
   private $key = "";
-
-  //! @brief Used to retrieve just the view rows matching that set of keys. Rows are returned in the order of the
-  //! specified keys. Combining this feature with include_docs=true results in the so-called multi-document-fetch feature.
-  private $keys = []; // TODO Verify if it still used or not.
 
   //! @name Key Range
   //! @brief Those are used to return documents in a key range.
