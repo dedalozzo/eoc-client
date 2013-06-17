@@ -6,27 +6,45 @@
 //! @author Filippo F. Fadda
 
 
-//! @brief The CouchDB's options namespace.
 namespace ElephantOnCouch\Opt;
+
+
+use ElephantOnCouch\Opt\AbstractOpts;
 
 
 //! @brief To set the query arguments you must create an instance of this class. Use it when you query a CouchDB View with
 //! the methods <i>queryAllDocs</i>, <i>queryView</i> and <i>queryTempView</i>.
 //! @nosubgrouping
-//! @todo Add 'list' and 'callback' properties.
-class ViewQueryOpts {
+//! @todo Add 'list' and 'callback' properties. Also review all the key methods.
+class ViewQueryOpts extends AbstractOpts {
 
-  private $options;
+  //! Returns only documents that match the specified key.
+  //! @param[in] string $value An URL encoded JSON value indicating the the key.
+  public function setKey($value) {
+    $this->options["key"] = $value;
+  }
 
-  //! @brief Returns only documents that match the specified key.
-  private $key = "";
 
   //! @name Key Range
   //! @brief Those are used to return documents in a key range.
   //@{
-  private $startKey = ""; //!< An URL encoded JSON value indicating the the key at which to start the range.
-  private $endKey = ""; //!< An URL encoded JSON value indicating the the key at which to end the range.
+
+  //! @brief
+  //! @param[in] string $value An URL encoded JSON value indicating the the key at which to start the range.
+  // todo
+  public function setStartKey($value) {
+    $this->options["startkey"] = $value;
+  }
+
+  //! @brief
+  //! @param[in] string $value An URL encoded JSON value indicating the the key at which to end the range.
+  // todo
+  public function setEndKey($value) {
+    $this->options["endkey"] = $value;
+  }
+
   //@}
+
 
   //! @name First and Last Documents Identifiers
   //! @brief First and last documents to be included in the output.
@@ -37,8 +55,20 @@ class ViewQueryOpts {
   //! redefine the beginning of the range if multiple potential staring rows have the same key but different document IDs.
   //! Same thing for the <i>endDocId</i>.
   //@{
-  private $startDocId = ""; //!< The ID of the document with which to start the range.
-  private $endDocId = ""; //!< The ID of the document with which to end the range.
+
+  //! @brief Sets the ID of the document with which to start the range.
+  //! @param[in] string $value The ID of the document with which to start the range.
+  public function setEndDocId($value) {
+    $this->options["endkey_docid"] = $value;
+  }
+
+
+  //! @brief Sets the ID of the document with which to end the range.
+  //! @param[in] string $value The ID of the document with which to end the range.
+  public function setStartDocId($value) {
+    $this->options["start_docid"] = $value;
+  }
+
   //@}
 
 
@@ -167,43 +197,6 @@ class ViewQueryOpts {
   //! @brief Includes conflict documents.
   public function includeConflicts() {
     $this->options["conflicts"] = "true";
-  }
-
-
-  //! @brief Reset default options.
-  public function reset() {
-    unset($this->options);
-    $this->options = [];
-  }
-
-
-  public function asArray() {
-    return $this->options;
-  }
-
-
-  public function setStartDocId($startDocId) {
-    $this->startDocId = $startDocId;
-  }
-
-
-  public function setStartKey($startKey) {
-    $this->startKey = $startKey;
-  }
-
-
-  public function setEndDocId($endDocId) {
-    $this->endDocId = $endDocId;
-  }
-
-
-  public function setEndKey($endKey) {
-    $this->endKey = $endKey;
-  }
-
-
-  public function setKey($key) {
-    $this->key = $key;
   }
 
 }
