@@ -1,7 +1,7 @@
 <?php
 
-//! @file ViewQueryArgs.php
-//! @brief This file contains the ViewQueryArgs class.
+//! @file ViewQueryOpts.php
+//! @brief This file contains the ViewQueryOpts class.
 //! @details
 //! @author Filippo F. Fadda
 
@@ -14,7 +14,7 @@ namespace ElephantOnCouch\Opt;
 //! the methods <i>queryView</i> and <i>queryTempView</i>.
 //! @nosubgrouping
 //! @todo Add 'list' and 'callback' properties.
-class ViewQueryArgs {
+class ViewQueryOpts {
 
   private $options;
 

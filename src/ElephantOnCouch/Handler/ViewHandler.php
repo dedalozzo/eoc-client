@@ -155,7 +155,7 @@ final class ViewHandler extends DesignHandler {
   //! @brief Sets the reduce function to the built-in <i>_sum</i> function provided by CouchDB.
   //! @details The built-in <i>_sum</i> reduce function will return a sum of mapped values. As with all reductions, you
   //! can either get a sum of all values grouped by keys or part of keys. You can control this behaviour when you query
-  //! the view, using an instance of <i>ViewQueryArgs</i> class, in particular with methods <i>groupReults</i> and <i>setGroupLevel</i>.
+  //! the view, using an instance of <i>ViewQueryOpts</i> class, in particular with methods <i>groupReults</i> and <i>setGroupLevel</i>.
   //! @warning The buil-in <i>_sum</i> reduce function requires all mapped values to be numbers.
     public function useBuiltInReduceFnSum() {
     $this->reduceFn = "_sum";

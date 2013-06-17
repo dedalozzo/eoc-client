@@ -18,7 +18,7 @@ use ElephantOnCouch\Exception\ServerErrorException;
 use ElephantOnCouch\Doc\AbstractDoc;
 use ElephantOnCouch\Handler\ViewHandler;
 use ElephantOnCouch\Attachment;
-use ElephantOnCouch\Opt\ViewQueryArgs;
+use ElephantOnCouch\Opt\ViewQueryOpts;
 use ElephantOnCouch\Opt\DocOpts;
 
 
@@ -806,10 +806,10 @@ class ElephantOnCouch extends Client {
 
       // queryParams option
       if (!is_null($queryArgs)) {
-        if ($queryArgs instanceof ViewQueryArgs)
+        if ($queryArgs instanceof ViewQueryOpts)
           $body["queryParams"] = get_object_vars($queryArgs);
         else
-          throw new \Exception("\$queryParams must be an instance of ViewQueryArgs class.");
+          throw new \Exception("\$queryParams must be an instance of ViewQueryOpts class.");
       }
     }
     elseif ($callerMethod == "cancelDbReplication") {
@@ -876,7 +876,7 @@ class ElephantOnCouch extends Client {
 
   //! @brief Executes the given view and returns the result.
   //! @todo document parameters
-  public function queryView($designDocName, $viewName, ViewQueryArgs $args = NULL) {
+  public function queryView($designDocName, $viewName, ViewQueryOpts $args = NULL) {
     $this->checkForDb();
     $this->validateAndEncodeDocId($designDocName);
     if (empty($viewName))
@@ -894,7 +894,7 @@ class ElephantOnCouch extends Client {
   //! @details Map and Reduce functions are provided by the programmer.
   //! @attention Requires admin privileges.
   //! @todo document parameters
-  public function queryTempView($mapFn, $reduceFn = "", ViewQueryArgs $args = NULL) {
+  public function queryTempView($mapFn, $reduceFn = "", ViewQueryOpts $args = NULL) {
     $this->checkForDb();
 
     $handler = new ViewHandler("temp");
