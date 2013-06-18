@@ -232,7 +232,7 @@ class ElephantOnCouch extends Client {
   //! }
   //! @endcode
   //! @return an Info object.
-  //! @see http://wiki.apache.org/couchdb/HttpGetRoot
+  //! @see http://docs.couchdb.org/en/latest/api/misc.html#get
   public function getSvrInfo() {
     $response = $this->sendRequest($this->newRequest(Request::GET_METHOD, "/"));
     $info = $response->getBodyAsArray();
@@ -244,7 +244,7 @@ class ElephantOnCouch extends Client {
   //! @details The favicon is a part of the admin interface, but the handler for it is special as CouchDB tries to make
   //! sure that the favicon is cached for one year. Returns a string that represents the icon.
   //! @return string
-  //! @see http://wiki.apache.org/couchdb/HttpGetFavicon
+  //! @see http://docs.couchdb.org/en/latest/api/misc.html#get-favicon-ico
   public function getFavicon() {
     $response = $this->sendRequest($this->newRequest(Request::GET_METHOD, "/favicon.ico"));
 
@@ -257,6 +257,7 @@ class ElephantOnCouch extends Client {
 
   //! @brief Returns server statistics.
   //! @return associative array
+  //! @see http://docs.couchdb.org/en/latest/api/misc.html#get-stats
   public function getStats() {
     return $this->sendRequest($this->newRequest(Request::GET_METHOD, "/_stats"))->getBodyAsArray();
   }
@@ -264,7 +265,7 @@ class ElephantOnCouch extends Client {
 
   //! @brief Returns a list of all databases on this server.
   //! @return array of string
-  //! @see http://wiki.apache.org/couchdb/HttpGetAllDbs
+  //! @see http://docs.couchdb.org/en/latest/api/misc.html#get-all-dbs
   public function getAllDbs() {
     return $this->sendRequest($this->newRequest(Request::GET_METHOD, "/_all_dbs"))->getBodyAsArray();
   }
@@ -277,7 +278,7 @@ class ElephantOnCouch extends Client {
   //! <c>Code: <i>401 Unauthorized</i></c>\n
   //! <c>Error: <i>unauthorized</i></c>\n
   //! <c>Reason: <i>You are not a server admin.</i></c>
-  //! @see http://wiki.apache.org/couchdb/HttpGetActiveTasks
+  //! @see http://docs.couchdb.org/en/latest/api/misc.html#get-active-tasks
   public function getActiveTasks() {
     return $this->sendRequest($this->newRequest(Request::GET_METHOD, "/_active_tasks"))->getBodyAsArray();
   }
@@ -291,7 +292,7 @@ class ElephantOnCouch extends Client {
   //! <c>Code: <i>401 Unauthorized</i></c>\n
   //! <c>Error: <i>unauthorized</i></c>\n
   //! <c>Reason: <i>You are not a server admin.</i></c>
-  //! @see http://wiki.apache.org/couchdb/HttpGetLog
+  //! @see http://docs.couchdb.org/en/latest/api/misc.html#get-log
   public function getLogTail($bytes = 1000) {
     if (is_int($bytes) and ($bytes > 0)) {
       $request = $this->newRequest(Request::GET_METHOD, "/_log");
@@ -306,7 +307,7 @@ class ElephantOnCouch extends Client {
   //! @brief Returns a list of generated UUIDs.
   //! @param[in] integer $count Requested UUIDs number.
   //! @return string|array If <i>$count = 1</i> (default) returns a string else returns an array of strings.
-  //! @see http://wiki.apache.org/couchdb/HttpGetUuids
+  //! @see http://docs.couchdb.org/en/latest/api/misc.html#get-uuids
   public function getUuids($count = 1) {
     if (is_int($count) and ($count > 0)) {
       $request = $this->newRequest(Request::GET_METHOD, "/_uuids");
@@ -333,6 +334,9 @@ class ElephantOnCouch extends Client {
   //! @param[in] string $section Requested section.
   //! @param[in] string $key Requested key.
   //! @return string|array An array with the configuration keys or a simple string in case of a single key.
+  //! @see http://docs.couchdb.org/en/latest/api/configuration.html#get-config
+  //! @see http://docs.couchdb.org/en/latest/api/configuration.html#get-config-section
+  //! @see http://docs.couchdb.org/en/latest/api/configuration.html#get-config-section-key
   public function getConfig($section = "", $key = "") {
     $path = "/_config";
 
@@ -351,6 +355,7 @@ class ElephantOnCouch extends Client {
   //! @param[in] string $section The configuration section.
   //! @param[in] string $key The key.
   //! @param[in] string $value The value for the key.
+  //! @see http://docs.couchdb.org/en/latest/api/configuration.html#put-config-section-key
   public function setConfigKey($section, $key, $value) {
     if (!is_string($section) or empty($section))
       throw new \InvalidArgumentException("\$section must be a not empty string.");
@@ -371,6 +376,7 @@ class ElephantOnCouch extends Client {
   //! @brief Deletes a single configuration value from a given section in server configuration.
   //! @param[in] string $section The configuration section.
   //! @param[in] string $key The key.
+  //! @see http://docs.couchdb.org/en/latest/api/configuration.html#delete-config-section-key
   public function deleteConfigKey($section, $key) {
     if (!is_string($section) or empty($section))
       throw new \InvalidArgumentException("\$section must be a not empty string.");
@@ -389,6 +395,7 @@ class ElephantOnCouch extends Client {
 
   //! @brief Returns cookie based login user information.
   //! @return TODO
+  //! @see http://wiki.apache.org/couchdb/Session_API
   public function getSession() {
     return $this->sendRequest($this->newRequest(Request::GET_METHOD, "/_session"));
   }
@@ -396,6 +403,7 @@ class ElephantOnCouch extends Client {
 
   //! @brief Makes cookie based user login.
   //! @return TODO
+  //! @see http://wiki.apache.org/couchdb/Session_API
   public function setSession($userName, $password) {
     if (!is_string($userName) or empty($userName))
       throw new \InvalidArgumentException("\$userName must be a not empty string.");
@@ -417,24 +425,28 @@ class ElephantOnCouch extends Client {
 
   //! @brief Makes user logout.
   //! @return a Response object
+  //! @see http://wiki.apache.org/couchdb/Session_API
   public function deleteSession() {
     return $this->sendRequest($this->newRequest(Request::DELETE_METHOD, "/_session"));
   }
 
 
   //! @brief TODO
+  //! @see http://wiki.apache.org/couchdb/Session_API
   public function getAccessToken() {
     return $this->sendRequest($this->newRequest(Request::GET_METHOD, "/_oauth/access_token"));
   }
 
 
-  // @brief TODO
+  //! @brief TODO
+  //! @see http://wiki.apache.org/couchdb/Security_Features_Overview#Authorization
   public function getAuthorize() {
     return $this->sendRequest($this->newRequest(Request::GET_METHOD, "/_oauth/authorize"));
   }
 
 
-  // @brief TODO
+  //! @brief TODO
+  //! http://wiki.apache.org/couchdb/Security_Features_Overview#Authorization
   public function setAuthorize() {
     return $this->sendRequest($this->newRequest(Request::POST_METHOD, "/_oauth/authorize"));
   }
@@ -482,8 +494,7 @@ class ElephantOnCouch extends Client {
   //! <c>Code: <i>400 Bad Request</i></c>\n
   //! <c>Error: <i>illegal_database_name</i></c>\n
   //! <c>Reason: <i>Only lowercase characters (a-z), digits (0-9), and any of the characters _, $, (, ), +, -, and / are allowed. Must begin with a letter.</i></c>\n
-  //! @see http://docs.couchone.com/couchdb-api/couchdb-api-db.html#couchdb-api-db_db_put
-  //! @bug <a href="https://issues.apache.org/jira/browse/COUCHDB-967" target="_blank">COUCHDB-967</a>
+  //! @see http://docs.couchdb.org/en/latest/api/database.html#put-db
   public function createDb($name, $autoSelect = TRUE) {
     $this->validateAndEncodeDbName($name);
 
@@ -507,7 +518,7 @@ class ElephantOnCouch extends Client {
   //! <c>Code: <i>404 Not Found</i></c>\n
   //! <c>Error: <i>not_found</i></c>\n
   //! <c>Reason: <i>missing</i></c>
-  //! @see http://docs.couchone.com/couchdb-api/couchdb-api-db.html#couchdb-api-db_db_delete
+  //! @see http://docs.couchdb.org/en/latest/api/database.html#delete-db
   //! @bug <a href="https://issues.apache.org/jira/browse/COUCHDB-967" target="_blank">COUCHDB-967</a>
   public function deleteDb($name) {
     $this->validateAndEncodeDbName($name);
@@ -526,7 +537,7 @@ class ElephantOnCouch extends Client {
   //! <c>Code: <i>404 Not Found</i></c>\n
   //! <c>Error: <i>not_found</i></c>\n
   //! <c>Reason: <i>no_db_file</i></c>
-  //! @see http://docs.couchone.com/couchdb-api/couchdb-api-db.html#couchdb-api-db_db_get
+  //! @see http://docs.couchdb.org/en/latest/api/database.html#get-db
   public function getDbInfo() {
     $this->checkForDb();
 
@@ -539,6 +550,7 @@ class ElephantOnCouch extends Client {
   //! @return A Response object.
   //! @todo Exceptions should be documented here.
   //! @todo This function is not complete.
+  //! @see http://docs.couchdb.org/en/latest/api/database.html#get-db-changes
   public function getDbChanges(Opt\ChangesFeedOpts $opts = NULL) {
     $this->checkForDb();
 
@@ -569,7 +581,7 @@ class ElephantOnCouch extends Client {
   //! <c>Error: <i>not_found</i></c>\n
   //! <c>Reason: <i>no_db_file</i></c>
   //! @attention Requires admin privileges.
-  //! @see http://wiki.apache.org/couchdb/Compaction#Database_Compaction
+  //! @see http://docs.couchdb.org/en/latest/api/database.html#post-db-compact
   public function compactDb() {
     $this->checkForDb();
 
@@ -588,7 +600,7 @@ class ElephantOnCouch extends Client {
   //! @param[in] string $designDocName Name of the design document where is stored the view.
   //! @exception Exception <c>Message: <i>No database selected.</i></c>
   //! @attention Requires admin privileges.
-  //! @see http://wiki.apache.org/couchdb/Compaction#View_compaction
+  //! @see http://docs.couchdb.org/en/latest/api/database.html#post-db-compact-design-doc
   public function compactView($designDocName) {
     $this->checkForDb();
 
@@ -607,7 +619,7 @@ class ElephantOnCouch extends Client {
   //! @details Old views files remain on disk until you explicitly run cleanup.
   //! @exception Exception <c>Message: <i>No database selected.</i></c>
   //! @attention Requires admin privileges.
-  //! @see http://wiki.apache.org/couchdb/Compaction#View_compaction
+  //! @see http://docs.couchdb.org/en/latest/api/database.html#post-db-view-cleanup
   public function cleanupViews() {
     $this->checkForDb();
 
@@ -633,7 +645,7 @@ class ElephantOnCouch extends Client {
   //! <c>Code: <i>404 Not Found</i></c>\n
   //! <c>Error: <i>not_found</i></c>\n
   //! <c>Reason: <i>no_db_file</i></c>
-  //! @see http://docs.couchone.com/couchdb-api/couchdb-api-db.html#couchdb-api-db_db-ensure-full-commit_post
+  //! @see http://docs.couchdb.org/en/latest/api/database.html#post-db-ensure-full-commit
   public function ensureFullCommit() {
     $this->checkForDb();
 
@@ -654,7 +666,7 @@ class ElephantOnCouch extends Client {
   //! <c>Code: <i>404 Not Found</i></c>\n
   //! <c>Error: <i>not_found</i></c>\n
   //! <c>Reason: <i>no_db_file</i></c>
-  //! @see http://docs.couchone.com/couchdb-api/couchdb-api-db.html#couchdb-api-db_db-security_get
+  //! @see http://docs.couchdb.org/en/latest/api/database.html#get-db-security
   //! @todo This function is not complete.
   public function getSecurityObj() {
     $this->checkForDb();
@@ -671,7 +683,7 @@ class ElephantOnCouch extends Client {
   //! <c>Code: <i>404 Not Found</i></c>\n
   //! <c>Error: <i>not_found</i></c>\n
   //! <c>Reason: <i>no_db_file</i></c>
-  //! @see http://docs.couchone.com/couchdb-api/couchdb-api-db.html#couchdb-api-db_db-security_put
+  //! @see http://docs.couchdb.org/en/latest/api/database.html#put-db-security
   //! @todo This function is not complete.
   public function setSecurityObj() {
     $this->checkForDb();
@@ -767,6 +779,7 @@ class ElephantOnCouch extends Client {
   //! permanent continuous replications that survive a server restart without you having to do anything.
   //! @param[in] string|array $filter TODO
   //! @param[in] QueryArgs $queryArgs TODO
+  //! @see http://docs.couchdb.org/en/latest/api/misc.html#post-replicate
   //! @todo document parameters
   public function startDbReplication($sourceDbUrl, $targetDbUrl, $createTargetDb = TRUE,
                                      $continuous = FALSE, $filter = NULL, $queryArgs = NULL) {
@@ -775,6 +788,7 @@ class ElephantOnCouch extends Client {
 
 
   //! @brief Cancels replication.
+  //! @see http://docs.couchdb.org/en/latest/api/misc.html#post-replicate
   //! @todo document parameters
   public function cancelDbReplication($sourceDbUrl, $targetDbUrl, $continuous = FALSE) {
     return $this->realDbReplication($sourceDbUrl, $targetDbUrl, $continuous);
@@ -806,6 +820,8 @@ class ElephantOnCouch extends Client {
   //! @return associative array
   //! @exception Exception <c>Message: <i>No database selected.</i></c>
   //! @exception Exception <c>Message: <i>You must provide a valid \$docId.</i></c>
+  //! @see http://docs.couchdb.org/en/latest/api/database.html#get-db-all-docs
+  //! @see http://docs.couchdb.org/en/latest/api/database.html#post-db-all-docs
   public function queryAllDocs(\ArrayIterator $keys = NULL, Opt\ViewQueryOpts $opts = NULL) {
     $this->checkForDb();
 
@@ -834,6 +850,8 @@ class ElephantOnCouch extends Client {
   //! @return associative array
   //! @exception Exception <c>Message: <i>No database selected.</i></c>
   //! @exception Exception <c>Message: <i>You must provide a valid \$docId.</i></c>
+  //! @see http://docs.couchdb.org/en/latest/api/design.html#get-db-design-design-doc-view-view-name
+  //! @see http://docs.couchdb.org/en/latest/api/design.html#post-db-design-design-doc-view-view-name
   public function queryView($designDocName, $viewName, \ArrayIterator $keys = NULL, Opt\ViewQueryOpts $opts = NULL) {
     $this->checkForDb();
 
@@ -869,6 +887,7 @@ class ElephantOnCouch extends Client {
   //! @return associative array
   //! @exception Exception <c>Message: <i>No database selected.</i></c>
   //! @exception Exception <c>Message: <i>You must provide a valid \$docId.</i></c>
+  //! @see http://docs.couchdb.org/en/latest/api/database.html#post-db-temp-view
   public function queryTempView($mapFn, $reduceFn = "", \ArrayIterator $keys = NULL, Opt\ViewQueryOpts $opts = NULL) {
     $this->checkForDb();
 
@@ -900,6 +919,7 @@ class ElephantOnCouch extends Client {
   // @{
 
   //! @brief Given a list of document revisions, returns the document revisions that do not exist in the database.
+  //! @see http://docs.couchdb.org/en/latest/api/database.html#post-db-missing-revs
   public function getMissingRevs() {
     $this->checkForDb();
 
@@ -911,6 +931,7 @@ class ElephantOnCouch extends Client {
 
   //! @brief Given a list of document revisions, returns differences between the given revisions and ones that are in
   //! the database.
+  //! @see http://docs.couchdb.org/en/latest/api/database.html#post-db-revs-diff
   public function getRevsDiff() {
     $this->checkForDb();
 
@@ -921,6 +942,7 @@ class ElephantOnCouch extends Client {
 
 
   //! @brief Gets the limit of historical revisions to store for a single document in the database.
+  //! @see http://docs.couchdb.org/en/latest/api/database.html#get-db-revs-limit
   public function getRevsLimit() {
     $this->checkForDb();
 
@@ -935,6 +957,7 @@ class ElephantOnCouch extends Client {
   //! Must be a positive integer.
   //! @return a Response object
   //! @exception Exception <c>Message: <i>\$revsLimit must be a positive integer.</i></c>
+  //! @see http://docs.couchdb.org/en/latest/api/database.html#put-db-revs-limit
   public function setRevsLimit($revsLimit = self::REVS_LIMIT) {
     $this->checkForDb();
 
@@ -962,6 +985,7 @@ class ElephantOnCouch extends Client {
   //! @return string The document's revision.
   //! @exception Exception <c>Message: <i>No database selected.</i></c>
   //! @exception Exception <c>Message: <i>You must provide a valid \$docId.</i></c>
+  //! @see http://docs.couchdb.org/en/latest/api/documents.html#head-db-doc
   public function getDocEtag($docId) {
     $this->checkForDb();
 
@@ -986,6 +1010,7 @@ class ElephantOnCouch extends Client {
   //! @return associative array
   //! @exception Exception <c>Message: <i>No database selected.</i></c>
   //! @exception Exception <c>Message: <i>You must provide a valid \$docId.</i></c>
+  //! @see http://docs.couchdb.org/en/latest/api/documents.html#get-db-doc
   public function getDoc(Enum\DocPath $path, $docId, $rev = NULL, Opt\DocOpts $opts = NULL) {
     $this->checkForDb();
 
@@ -1049,7 +1074,7 @@ class ElephantOnCouch extends Client {
   //! <c>Code: <i>409 Conflict</i></c>\n
   //! <c>Error: <i>not_found</i></c>\n TODO this is wrong
   //! <c>Reason: <i>no_db_file</i></c> TODO this is wrong
-  //! @see http://wiki.apache.org/couchdb/HTTP_Document_API#PUT
+  //! @see http://docs.couchdb.org/en/latest/api/documents.html#put-db-doc
   // TODO support the new_edits=true|false option http://wiki.apache.org/couchdb/HTTP_Bulk_Document_API#Posting_Existing_Revisions
   public function saveDoc(Doc\AbstractDoc $doc, $batchMode = FALSE) {
     $this->checkForDb();
@@ -1089,6 +1114,7 @@ class ElephantOnCouch extends Client {
   //! @param[in] string $path The document path.
   //! @exception Exception <c>Message: <i>No database selected.</i></c>
   //! @exception Exception <c>Message: <i>You must provide a valid \$docId.</i></c>
+  //! @see http://docs.couchdb.org/en/latest/api/documents.html#delete-db-doc
   public function deleteDoc(Enum\DocPath $path, $docId, $rev) {
     $this->checkForDb();
     $this->validateAndEncodeDocId($docId);
@@ -1114,6 +1140,7 @@ class ElephantOnCouch extends Client {
   //! @param[in] string $path The document path.
   //! @exception Exception <c>Message: <i>No database selected.</i></c>
   //! @exception Exception <c>Message: <i>You must provide a valid \$docId.</i></c>
+  //! @see http://docs.couchdb.org/en/latest/api/documents.html#copy-db-doc
   public function copyDoc(Enum\DocPath $path, $sourceDocId, $targetDocId, $rev = NULL) {
     $this->checkForDb();
 
@@ -1148,7 +1175,7 @@ class ElephantOnCouch extends Client {
   //! @exception Exception <c>Message: <i>No database selected.</i></c>
   //! @todo  This function is not complete.
   //! @todo document paremeters
-  //! @see http://docs.couchone.com/couchdb-api/couchdb-api-db.html#couchdb-api-db_db-purge_post
+  //! @see http://docs.couchdb.org/en/latest/api/database.html#post-db-purge
   public function purgeDocs(array $docs) {
     $this->checkForDb();
 
@@ -1185,6 +1212,7 @@ class ElephantOnCouch extends Client {
   // @{
 
   //! @brief Retrieves the attachment from the specified document.
+  //! @see http://docs.couchdb.org/en/latest/api/documents.html#get-db-doc-attachment
   //! @todo document parameters and exceptions
   public function getAttachment($fileName, Enum\DocPath $path, $docId, $rev = NULL) {
     $this->checkForDb();
@@ -1204,6 +1232,7 @@ class ElephantOnCouch extends Client {
 
 
   //! @brief Inserts or updates an attachment to the specified document.
+  //! @see http://docs.couchdb.org/en/latest/api/documents.html#put-db-doc-attachment
   //! @todo document parameters and exceptions
   public function putAttachment($fileName, Enum\DocPath $path, $docId, $rev = NULL) {
     $this->checkForDb();
@@ -1228,6 +1257,7 @@ class ElephantOnCouch extends Client {
 
 
   //! @brief Deletes an attachment from the document.
+  //! @see http://docs.couchdb.org/en/latest/api/documents.html#delete-db-doc-attachment
   //! @todo document parameters and exceptions
   public function deleteAttachment($fileName, Enum\DocPath $path, $docId, $rev) {
     $this->checkForDb();
@@ -1252,6 +1282,7 @@ class ElephantOnCouch extends Client {
   //! @param[in] string $docName The design document's name.
   //! @return associative array
   //! @exception Exception <c>Message: <i>No database selected.</i></c>
+  //! @see http://docs.couchdb.org/en/latest/api/design.html#get-db-design-design-doc-info
   public function getDesignDocInfo($docName) {
     $this->checkForDb();
 
@@ -1274,6 +1305,8 @@ class ElephantOnCouch extends Client {
   // GET /db/_design/examples/_show/people/otherdocid?format=xml&details=true
   // public function showDoc($designDocName, $funcName, $docId, $format, $details = FALSE) {
   //! @todo this function is not complete
+  //! @see http://docs.couchdb.org/en/latest/api/design.html#get-db-design-design-doc-show-show-name
+  //! @see http://docs.couchdb.org/en/latest/api/design.html#post-db-design-design-doc-show-show-name-doc
   public function showDoc($designDocName, $listName, $docId = NULL) {
   }
 
