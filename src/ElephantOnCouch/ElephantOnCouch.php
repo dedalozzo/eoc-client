@@ -141,7 +141,7 @@ class ElephantOnCouch extends Client {
   //! @brief This is a factory method to create a new Request.
   //! @details This method is used to create a Request object. You can still create a Request instance using the appropriate
   //! constructor, but I recommend you to use this factory method, because it does a lot of dirty work. You should use
-  //! this method combined with sendRequest.
+  //! this method combined with send() method.
   private function newRequest($method, $path) {
     $request = new Request($method, $path);
     $request->setHeaderField(Request::ACCEPT_HF, "application/json"); // default accept header value
@@ -196,7 +196,7 @@ class ElephantOnCouch extends Client {
     // There is a bug in CouchDB, sometimes it doesn't return the 200 Status Code because it closes the connection
     // before the client has received the entire response. To avoid problems, we trap the exception and we go on.
     try {
-      $this->sendRequest($request);
+      $this->send($request);
     }
     catch (\Exception $e) {
       if ($e->getCode() > 0)
@@ -234,7 +234,7 @@ class ElephantOnCouch extends Client {
   //! @return an Info object.
   //! @see http://docs.couchdb.org/en/latest/api/misc.html#get
   public function getSvrInfo() {
-    $response = $this->sendRequest($this->newRequest(Request::GET_METHOD, "/"));
+    $response = $this->send($this->newRequest(Request::GET_METHOD, "/"));
     $info = $response->getBodyAsArray();
     return new SvrInfo($info["couchdb"], $info["version"]);
   }
@@ -246,7 +246,7 @@ class ElephantOnCouch extends Client {
   //! @return string
   //! @see http://docs.couchdb.org/en/latest/api/misc.html#get-favicon-ico
   public function getFavicon() {
-    $response = $this->sendRequest($this->newRequest(Request::GET_METHOD, "/favicon.ico"));
+    $response = $this->send($this->newRequest(Request::GET_METHOD, "/favicon.ico"));
 
     if ($response->getHeaderField(Request::CONTENT_TYPE_HF) == "image/x-icon")
       return $response->getBody();
@@ -259,7 +259,7 @@ class ElephantOnCouch extends Client {
   //! @return associative array
   //! @see http://docs.couchdb.org/en/latest/api/misc.html#get-stats
   public function getStats() {
-    return $this->sendRequest($this->newRequest(Request::GET_METHOD, "/_stats"))->getBodyAsArray();
+    return $this->send($this->newRequest(Request::GET_METHOD, "/_stats"))->getBodyAsArray();
   }
 
 
@@ -267,7 +267,7 @@ class ElephantOnCouch extends Client {
   //! @return array of string
   //! @see http://docs.couchdb.org/en/latest/api/misc.html#get-all-dbs
   public function getAllDbs() {
-    return $this->sendRequest($this->newRequest(Request::GET_METHOD, "/_all_dbs"))->getBodyAsArray();
+    return $this->send($this->newRequest(Request::GET_METHOD, "/_all_dbs"))->getBodyAsArray();
   }
 
 
@@ -280,7 +280,7 @@ class ElephantOnCouch extends Client {
   //! <c>Reason: <i>You are not a server admin.</i></c>
   //! @see http://docs.couchdb.org/en/latest/api/misc.html#get-active-tasks
   public function getActiveTasks() {
-    return $this->sendRequest($this->newRequest(Request::GET_METHOD, "/_active_tasks"))->getBodyAsArray();
+    return $this->send($this->newRequest(Request::GET_METHOD, "/_active_tasks"))->getBodyAsArray();
   }
 
 
@@ -297,7 +297,7 @@ class ElephantOnCouch extends Client {
     if (is_int($bytes) and ($bytes > 0)) {
       $request = $this->newRequest(Request::GET_METHOD, "/_log");
       $request->setQueryParam("bytes", $bytes);
-      return $this->sendRequest($request)->getBody();
+      return $this->send($request)->getBody();
     }
     else
       throw new \InvalidArgumentException("\$bytes must be a positive integer.");
@@ -313,7 +313,7 @@ class ElephantOnCouch extends Client {
       $request = $this->newRequest(Request::GET_METHOD, "/_uuids");
       $request->setQueryParam("count", $count);
 
-      $response = $this->sendRequest($request);
+      $response = $this->send($request);
 
       if ($count == 1) // We don't need to use === operator because, just above, we made a type checking.
         return $response->getBodyAsArray()['uuids'][0];
@@ -347,7 +347,7 @@ class ElephantOnCouch extends Client {
         $path .= "/".$key;
     }
 
-    return $this->sendRequest($this->newRequest(Request::GET_METHOD, $path))->getBodyAsArray();
+    return $this->send($this->newRequest(Request::GET_METHOD, $path))->getBodyAsArray();
   }
 
 
@@ -369,7 +369,7 @@ class ElephantOnCouch extends Client {
     $request = $this->newRequest(Request::PUT_METHOD, "/_config/".$section."/".$key);
     $request->setHeaderField(Request::CONTENT_TYPE_HF, "application/json");
     $request->setBody(json_encode(utf8_encode($value)));
-    $this->sendRequest($request);
+    $this->send($request);
   }
 
 
@@ -384,7 +384,7 @@ class ElephantOnCouch extends Client {
     if (!is_string($key) or empty($key))
       throw new \InvalidArgumentException("\$key must be a not empty string.");
 
-    $this->sendRequest($this->newRequest(Request::DELETE_METHOD, "/_config/".$section."/".$key));
+    $this->send($this->newRequest(Request::DELETE_METHOD, "/_config/".$section."/".$key));
   }
 
   //@}
@@ -397,7 +397,7 @@ class ElephantOnCouch extends Client {
   //! @return TODO
   //! @see http://wiki.apache.org/couchdb/Session_API
   public function getSession() {
-    return $this->sendRequest($this->newRequest(Request::GET_METHOD, "/_session"));
+    return $this->send($this->newRequest(Request::GET_METHOD, "/_session"));
   }
 
 
@@ -419,7 +419,7 @@ class ElephantOnCouch extends Client {
     $request->setQueryParam("name", $userName);
     $request->setQueryParam("password", $password);
 
-    return $this->sendRequest($request);
+    return $this->send($request);
   }
 
 
@@ -427,34 +427,34 @@ class ElephantOnCouch extends Client {
   //! @return a Response object
   //! @see http://wiki.apache.org/couchdb/Session_API
   public function deleteSession() {
-    return $this->sendRequest($this->newRequest(Request::DELETE_METHOD, "/_session"));
+    return $this->send($this->newRequest(Request::DELETE_METHOD, "/_session"));
   }
 
 
   //! @brief TODO
   //! @see http://wiki.apache.org/couchdb/Session_API
   public function getAccessToken() {
-    return $this->sendRequest($this->newRequest(Request::GET_METHOD, "/_oauth/access_token"));
+    return $this->send($this->newRequest(Request::GET_METHOD, "/_oauth/access_token"));
   }
 
 
   //! @brief TODO
   //! @see http://wiki.apache.org/couchdb/Security_Features_Overview#Authorization
   public function getAuthorize() {
-    return $this->sendRequest($this->newRequest(Request::GET_METHOD, "/_oauth/authorize"));
+    return $this->send($this->newRequest(Request::GET_METHOD, "/_oauth/authorize"));
   }
 
 
   //! @brief TODO
   //! http://wiki.apache.org/couchdb/Security_Features_Overview#Authorization
   public function setAuthorize() {
-    return $this->sendRequest($this->newRequest(Request::POST_METHOD, "/_oauth/authorize"));
+    return $this->send($this->newRequest(Request::POST_METHOD, "/_oauth/authorize"));
   }
 
 
   // @brief TODO
   public function requestToken() {
-    return $this->sendRequest($this->newRequest(Request::GET_METHOD, "/_oauth/request_token"));
+    return $this->send($this->newRequest(Request::GET_METHOD, "/_oauth/request_token"));
   }
 
   //@}
@@ -499,7 +499,7 @@ class ElephantOnCouch extends Client {
     $this->validateAndEncodeDbName($name);
 
     if ($name != $this->dbName) {
-      $this->sendRequest($this->newRequest(Request::PUT_METHOD, "/".rawurlencode($name)."/"));
+      $this->send($this->newRequest(Request::PUT_METHOD, "/".rawurlencode($name)."/"));
 
       if ($autoSelect)
         $this->dbName = $name;
@@ -524,7 +524,7 @@ class ElephantOnCouch extends Client {
     $this->validateAndEncodeDbName($name);
 
     if ($name != $this->dbName)
-      $this->sendRequest($this->newRequest(Request::DELETE_METHOD, "/".$name));
+      $this->send($this->newRequest(Request::DELETE_METHOD, "/".$name));
     else
       throw new \UnexpectedValueException("You can't delete the selected database.");
   }
@@ -541,7 +541,7 @@ class ElephantOnCouch extends Client {
   public function getDbInfo() {
     $this->checkForDb();
 
-    return new Dbinfo($this->sendRequest($this->newRequest(Request::GET_METHOD, "/".$this->dbName."/"))->getBodyAsArray());
+    return new Dbinfo($this->send($this->newRequest(Request::GET_METHOD, "/".$this->dbName."/"))->getBodyAsArray());
   }
 
 
@@ -559,7 +559,7 @@ class ElephantOnCouch extends Client {
     if (isset($opts))
       $request->setMultipleQueryParamsAtOnce($opts->asArray());
 
-    return $this->sendRequest($request)->getBodyAsArray();
+    return $this->send($request)->getBodyAsArray();
   }
 
 
@@ -590,7 +590,7 @@ class ElephantOnCouch extends Client {
     // A POST method requires Content-Type header.
     $request->setHeaderField(Request::CONTENT_TYPE_HF, "application/json");
 
-    $this->sendRequest($request);
+    $this->send($request);
   }
 
 
@@ -611,7 +611,7 @@ class ElephantOnCouch extends Client {
     // A POST method requires Content-Type header.
     $request->setHeaderField(Request::CONTENT_TYPE_HF, "application/json");
 
-    $this->sendRequest($request);
+    $this->send($request);
   }
 
 
@@ -628,7 +628,7 @@ class ElephantOnCouch extends Client {
     // A POST method requires Content-Type header.
     $request->setHeaderField(Request::CONTENT_TYPE_HF, "application/json");
 
-    $this->sendRequest($request);
+    $this->send($request);
   }
 
 
@@ -654,7 +654,7 @@ class ElephantOnCouch extends Client {
     // A POST method requires Content-Type header.
     $request->setHeaderField(Request::CONTENT_TYPE_HF, "application/json");
 
-    return $this->sendRequest($request)->getBodyAsArray()["instance_start_time"];
+    return $this->send($request)->getBodyAsArray()["instance_start_time"];
   }
 
 
@@ -671,7 +671,7 @@ class ElephantOnCouch extends Client {
   public function getSecurityObj() {
     $this->checkForDb();
 
-    return $this->sendRequest($this->newRequest(Request::GET_METHOD, "/".$this->dbName."/_security"));
+    return $this->send($this->newRequest(Request::GET_METHOD, "/".$this->dbName."/_security"));
   }
 
 
@@ -688,7 +688,7 @@ class ElephantOnCouch extends Client {
   public function setSecurityObj() {
     $this->checkForDb();
 
-    return $this->sendRequest($this->newRequest(Request::PUT_METHOD, "/".$this->dbName."/_security"));
+    return $this->send($this->newRequest(Request::PUT_METHOD, "/".$this->dbName."/_security"));
   }
 
   //@}
@@ -762,7 +762,7 @@ class ElephantOnCouch extends Client {
     else
       throw new \Exception("realDbReplication can be called only from startDbReplication and cancelDbReplication methods.");
 
-    return $this->sendRequest(Request::POST_METHOD, "/_replicate", NULL, NULL, $body);
+    return $this->send(Request::POST_METHOD, "/_replicate", NULL, NULL, $body);
   }
 
 
@@ -835,7 +835,7 @@ class ElephantOnCouch extends Client {
     if (isset($opts))
       $request->setMultipleQueryParamsAtOnce($opts->asArray());
 
-    return $this->sendRequest($request);
+    return $this->send($request);
   }
 
 
@@ -870,7 +870,7 @@ class ElephantOnCouch extends Client {
     if (isset($opts))
       $request->setMultipleQueryParamsAtOnce($opts->asArray());
 
-    return $this->sendRequest($request);
+    return $this->send($request);
   }
 
 
@@ -909,7 +909,7 @@ class ElephantOnCouch extends Client {
     if (isset($opts))
       $request->setMultipleQueryParamsAtOnce($opts->asArray());
 
-    return $this->sendRequest($request);
+    return $this->send($request);
   }
 
   //@}
@@ -925,7 +925,7 @@ class ElephantOnCouch extends Client {
 
     $request = $this->newRequest(Request::POST_METHOD, "/".$this->dbName."/_missing_revs");
 
-    return $this->sendRequest($request);
+    return $this->send($request);
   }
 
 
@@ -937,7 +937,7 @@ class ElephantOnCouch extends Client {
 
     $request = $this->newRequest(Request::POST_METHOD, "/".$this->dbName."/_missing_revs");
 
-    return $this->sendRequest($request);
+    return $this->send($request);
   }
 
 
@@ -948,7 +948,7 @@ class ElephantOnCouch extends Client {
 
     $request = $this->newRequest(Request::GET_METHOD, "/".$this->dbName."/_revs_limit");
 
-    return $this->sendRequest($request);
+    return $this->send($request);
   }
 
 
@@ -968,7 +968,7 @@ class ElephantOnCouch extends Client {
     $request->setHeaderField(Request::CONTENT_TYPE_HF, "application/json");
     $request->setBody(json_encode($revsLimit));
 
-    return $this->sendRequest($request);
+    return $this->send($request);
   }
 
   //@}
@@ -996,7 +996,7 @@ class ElephantOnCouch extends Client {
     $request = $this->newRequest(Request::HEAD_METHOD, $path);
 
     // CouchDB ETag is included between quotation marks.
-    return trim($this->sendRequest($request)->getHeaderField(Response::ETAG_HF), '"');
+    return trim($this->send($request)->getHeaderField(Response::ETAG_HF), '"');
   }
 
 
@@ -1032,7 +1032,7 @@ class ElephantOnCouch extends Client {
     else
       $ignoreClassName = FALSE;
 
-    $body = $this->sendRequest($request)->getBodyAsArray();
+    $body = $this->send($request)->getBodyAsArray();
 
     // We use 'doc_class' metadata to store an instance of a specialized document class. We can have Article and Book classes,
     // both derived from Doc, with special properties and methods. Instead to convert them, we store the class type in a
@@ -1088,9 +1088,9 @@ class ElephantOnCouch extends Client {
       $doc->setid(UUID::generate(UUID::UUID_RANDOM, UUID::FMT_STRING));
 
     // Sets the path according to the document type.
-    if ($doc instanceof Doc\DesignDoc)
+    if ($doc instanceof \ElephantOnCouch\Doc\DesignDoc)
       $path = "/".$this->dbName."/".Enum\DocPath::DESIGN.$doc->getId();
-    elseif ($doc instanceof Doc\LocalDoc)
+    elseif ($doc instanceof \ElephantOnCouch\Doc\LocalDoc)
       $path = "/".$this->dbName."/".Enum\DocPath::LOCAL.$doc->getId();
     else
       $path = "/".$this->dbName."/".$doc->getId();
@@ -1103,7 +1103,7 @@ class ElephantOnCouch extends Client {
     if ($batchMode)
       $request->setQueryParam("batch", "ok");
 
-    return $this->sendRequest($request);
+    return $this->send($request);
   }
 
 
@@ -1127,7 +1127,7 @@ class ElephantOnCouch extends Client {
     // We could use another technique to send the revision number. Here just for documentation.
     // $request->setHeader(Request::IF_MATCH_HEADER, (string)$rev);
 
-    return $this->sendRequest($request);
+    return $this->send($request);
   }
 
 
@@ -1157,7 +1157,7 @@ class ElephantOnCouch extends Client {
     else
       $request->setHeaderField(self::DESTINATION_HF, $targetDocId."?rev=".(string)$rev);
 
-    $this->sendRequest($request);
+    $this->send($request);
   }
 
 
@@ -1179,7 +1179,7 @@ class ElephantOnCouch extends Client {
   public function purgeDocs(array $docs) {
     $this->checkForDb();
 
-    return $this->sendRequest($this->newRequest(Request::POST_METHOD, "/".$this->dbName));
+    return $this->send($this->newRequest(Request::POST_METHOD, "/".$this->dbName));
   }
 
 
@@ -1201,7 +1201,7 @@ class ElephantOnCouch extends Client {
       else
         $request->setHeaderField(self::X_COUCHDB_FULL_COMMIT_HF, "delay_commit");
 
-      $this->sendRequest($request);
+      $this->send($request);
     }
   }
 
@@ -1227,7 +1227,7 @@ class ElephantOnCouch extends Client {
     if (!empty($rev))
       $request->setQueryParam("rev", (string)$rev);
 
-    return $this->sendRequest($request)->getBody();
+    return $this->send($request)->getBody();
   }
 
 
@@ -1252,7 +1252,7 @@ class ElephantOnCouch extends Client {
     if (!empty($rev))
       $request->setQueryParam("rev", (string)$rev);
 
-    return $this->sendRequest($request);
+    return $this->send($request);
   }
 
 
@@ -1269,7 +1269,7 @@ class ElephantOnCouch extends Client {
     $request = $this->newRequest(Request::DELETE_METHOD, $path);
     $request->setQueryParam("rev", (string)$rev);
 
-    return $this->sendRequest($request);
+    return $this->send($request);
   }
 
   //@}
@@ -1292,7 +1292,7 @@ class ElephantOnCouch extends Client {
 
     $request = $this->newRequest(Request::GET_METHOD, $path);
 
-    return $this->sendRequest($request)->getBodyAsArray();
+    return $this->send($request)->getBodyAsArray();
   }
 
 
