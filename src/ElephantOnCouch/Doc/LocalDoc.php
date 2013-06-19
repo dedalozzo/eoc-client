@@ -12,6 +12,4 @@ namespace ElephantOnCouch\Doc;
 //! @brief TODO
 //! @details Local documents don't have attachments.
 //! @nosubgrouping
-class LocalDoc extends AbstractDoc {
-
-}
+class LocalDoc extends AbstractDoc {}
