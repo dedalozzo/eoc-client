@@ -9,7 +9,7 @@
 namespace ElephantOnCouch\Handler;
 
 
-//! @brief TODO
+//! @brief todo
 final class RewriteHandler extends DesignHandler {
   const REWRITES = "rewrites";
 
@@ -39,12 +39,12 @@ final class RewriteHandler extends DesignHandler {
 
 
   public function isConsistent() {
-    // TODO: Implement isConsistent() method.
+    // todo Implement isConsistent() method.
   }
 
 
   public function asArray() {
-    // TODO: Implement getAttributes() method.
+    // todo Implement getAttributes() method.
   }
 
 }

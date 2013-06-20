@@ -9,11 +9,8 @@
 namespace ElephantOnCouch\Opt;
 
 
-use ElephantOnCouch\Opt\AbstractOpts;
-
-
 //! @brief To set the query arguments you must create an instance of this class. Use it when you query a CouchDB View with
-//! the methods <i>queryAllDocs</i>, <i>queryView</i> and <i>queryTempView</i>.
+//! the methods Couch.queryAllDocs(), Couch.queryView() and Couch.queryTempView().
 //! @nosubgrouping
 //! @todo Add 'list' and 'callback' properties. Also review all the key methods.
 class ViewQueryOpts extends AbstractOpts {

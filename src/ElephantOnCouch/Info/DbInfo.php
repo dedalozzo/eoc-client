@@ -6,20 +6,17 @@
 //! @author Filippo F. Fadda
 
 
-namespace ElephantOnCouch;
+namespace ElephantOnCouch\Info;
 
 
-use Rest\Helper;
+use ElephantOnCouch\Helper;
 
 
-//! @brief This is an information only purpose class. It's used by src.getDbInfo() method.
-//! @details Since this class uses the <b>Properties</b> trait, you don't need to call the getter methods to obtain information
-//! about database. You can just refer to the following properties: <b>name</b>, <b>diskSize</b>, <b>dataSize</b>,
-//! <b>diskFormatVersion</b>, <b>instanceStartTime</b>, <b>docCount</b>, <b>docDelCount</b>, <b>updateSeq</b>,
-//! <b>purgeSeq</b>, <b>compactRunning</b>, <b>committedUpdateSeq</b>. For the properties meaning see the Member Function
-//! Documentation below.
+//! @brief This is an information only purpose class. It's used by Couch.getDbInfo() method.
+//! @details Since this class uses the <i>Properties</i> trait, you don't need to call the getter methods to obtain information
+//! about database.
 class DbInfo {
-  use Properties;
+  use Helper\Properties;
 
   private $name;
   private $diskSize;

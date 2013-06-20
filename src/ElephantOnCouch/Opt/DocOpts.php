@@ -9,14 +9,14 @@
 namespace ElephantOnCouch\Opt;
 
 
-use ElephantOnCouch\Opt\AbstractOpts;
+use ElephantOnCouch\Helper\Properties;
 
 
 //! @brief To retrieve additional information about document, you can create a DocOpts instance and pass it as parameter
-//! to the ElephantOnCouch <i>getDoc</i> method.
+//! to the Couch.getDoc() method.
 //! @nosubgrouping
 class DocOpts extends AbstractOpts {
-  use \ElephantOnCouch\Properties;
+  use Properties;
 
   //! @name Properties
   //@{

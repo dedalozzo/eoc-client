@@ -6,10 +6,16 @@
 //! @author Filippo F. Fadda
 
 
-namespace ElephantOnCouch;
+//! @brief The CouchDB's information namespace.
+namespace ElephantOnCouch\Info;
 
 
-//! @brief This class contains the CouchDB's version and MOTD. It's used by getSvrInfo() method.
+use ElephantOnCouch\Helper\Properties;
+
+
+//! @brief This class contains the CouchDB's version and MOTD. It's used by Couch.getSvrInfo() method.
+//! @details Since this class uses the <i>Properties</i> trait, you don't need to call the getter methods to obtain information
+//! about server.
 class SvrInfo {
   use Properties;
 

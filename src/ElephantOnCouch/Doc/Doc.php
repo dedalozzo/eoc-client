@@ -9,8 +9,6 @@
 namespace ElephantOnCouch\Doc;
 
 
-//! @brief TODO
+//! @brief todo
 //! @nosubgrouping
-class Doc extends ReplicableDoc {
-
-}
+class Doc extends ReplicableDoc {}

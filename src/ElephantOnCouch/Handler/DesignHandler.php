@@ -10,12 +10,15 @@
 namespace ElephantOnCouch\Handler;
 
 
+use ElephantOnCouch\Helper\Properties;
+
+
 //! @brief This class defines the interface for all the concrete CouchDB's handlers.
 //! @details To create a new handler you must inherit from this class. This is the only extension point for handlers.
 //! In case of CouchDB design documents' structure changes, you just need to create a new handler, starting from here.
 //! @nosubgrouping
 abstract class DesignHandler {
-  use \ElephantOnCouch\Properties; // This is a trait, not a namespace or a class.
+  use Properties; // This is a trait, not a namespace or a class.
 
 
   //! @brief Returns the handler's section.

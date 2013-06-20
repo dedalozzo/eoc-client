@@ -32,7 +32,7 @@ const DISCUSSION = 31;
 
 const COUCH_USER = "pippo";
 const COUCH_PASSWORD = "calippo";
-const COUCH_DATABASE = "test_blog";
+const COUCH_DATABASE = "elephantoncouch_test";
 
 const USE_CURL = TRUE;
 const FIRST_RUN = FALSE;
@@ -62,12 +62,18 @@ try {
     $item->body = utf8_encode($item->body);
     $item->contributorName = utf8_encode($item->contributorName);
 
-    if ($item->stereotype == ARTICLE)
+    if ($item->stereotype == ARTICLE) {
       $doc = new Article;
-    elseif ($item->stereotype == BOOK)
+      $doc->docClass = '\PitPress\Model\Article';
+    }
+    elseif ($item->stereotype == BOOK) {
       $doc = new Book;
-    else
+      $doc->docClass = '\PitPress\Model\Book';
+    }
+    else {
       $doc = new Item;
+      $doc->docClass = '\PitPress\Model\Item';
+    }
 
     $doc->assignObject($item);
 

@@ -10,14 +10,14 @@
 namespace ElephantOnCouch\Doc;
 
 
-use Rest\Helper\ArrayHelper;
+use ElephantOnCouch\Helper;
 
 
 //! @brief The abstract document is the ancestor of the other document classes. This class encapsulates common
 //! properties and methods of every CouchDB document. Since it's an abstract class, you can't create an instance of it.
 //! @nosubgrouping
 abstract class AbstractDoc {
-  use \ElephantOnCouch\Properties;
+  use Helper\Properties; // This is a trait, not a namespace or a class.
 
   //! @name Document's Special Attributes
   //! @brief Those are special CouchDB document's attributes.
@@ -85,9 +85,8 @@ abstract class AbstractDoc {
 
   //! Assigns the given associative array to the <i>$meta</i> array, the array that stores the document's metadata..
   //! @param[in] array $array An associative array.
-  //! @exception Exception <c>Message: <i>\$array must be an associative array.</i></c>
   public function assignArray(array $array) {
-    if (ArrayHelper::isAssociative($array)) {
+    if (Helper\ArrayHelper::isAssociative($array)) {
       $this->meta = array_merge($array, $this->meta);
       $this->fixDocId();
     }
@@ -105,7 +104,7 @@ abstract class AbstractDoc {
 
 
   //! @brief Returns the document representation as a JSON object.
-  //! @return A JSON object.
+  //! @return JSON object
   public function asJson() {
     return json_encode($this->meta);
   }
@@ -113,7 +112,6 @@ abstract class AbstractDoc {
 
   //! @brief Adds a non standard reserved word.
   //! @param[in] string $word A reserved word.
-  //! @exception Exception <c>Message: <i>The '\$word' reserved word is supported and already exists.</i></c>
   public static function addCustomReservedWord($word) {
     if (array_key_exists($word, static::$reservedWords))
       throw new \Exception("The '$word' reserved word is supported and already exists.");
@@ -140,7 +138,7 @@ abstract class AbstractDoc {
 
 
   public function setDocClass($value) {
-    // TODO add regex
+    // todo Add regex.
     if (!empty($value))
       $this->meta[self::DOC_CLASS] = (string)$value;
     else

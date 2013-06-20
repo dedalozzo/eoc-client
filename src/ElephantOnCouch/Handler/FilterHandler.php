@@ -9,7 +9,7 @@
 namespace ElephantOnCouch\Handler;
 
 
-//! @brief TODO
+//! @brief todo
 final class FilterHandler extends DesignHandler {
   const FILTERS = "filters";
 
@@ -39,12 +39,12 @@ final class FilterHandler extends DesignHandler {
 
 
   public function isConsistent() {
-    // TODO: Implement isConsistent() method.
+    // todo Implement isConsistent() method.
   }
 
 
   public function asArray() {
-    // TODO: Implement getAttributes() method.
+    // todo Implement getAttributes() method.
   }
 
 }

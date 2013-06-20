@@ -9,7 +9,6 @@
 namespace ElephantOnCouch\Doc;
 
 
-use ElephantOnCouch\Handler;
 use ElephantOnCouch\Handler\DesignHandler;
 
 
@@ -96,8 +95,6 @@ final class DesignDoc extends ReplicableDoc {
   //! the handler couldn't have a name), returns the
   //! @param[in] string $section The section name.
   //! @param[in] string $name (optional) The handler name.
-  //! @exception Exception <c>Message: <i>Can't find handler in the design document.</i></c>
-  //! @exception Exception <c>Message: <i>Can't find handler in the design document section.</i></c>
   public function getHandlerAttributes($section, $name = "") {
     if (empty($name)) { // The handler doesn't have a name.
       if (array_key_exists($section, $this->meta))
@@ -119,8 +116,6 @@ final class DesignDoc extends ReplicableDoc {
   //! multiple handlers, but in some cases there is one and only one handler per section, so that handler doesn't have a
   //! name.
   //! @param[in] DesignHandler $handler An instance of a subclass of the abstract class DesignHandler.
-  //! @exception Exception <c>Message: <i>The handler is not consistent.</i></c>
-  //! @exception Exception <c>Message: <i>The handler already exists.</i></c>
   public function addHandler(DesignHandler $handler) {
     $section = $handler->getSection();
 
@@ -151,7 +146,6 @@ final class DesignDoc extends ReplicableDoc {
   //! implementation.
   //! @param[in] string $section The section's name (views, updates, shows, filters, etc).
   //! @param[in] string $name (optional) The handler's name.
-  //! @exception Exception <c>Message: <i>Can't find the handler.</i></c>
   public function removeHandler($section, $name = "") {
     if (empty($name)) { // The handler doesn't have a name.
       if (array_key_exists($section, $this->meta))

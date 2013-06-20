@@ -1,7 +1,7 @@
 <?php
 
-//! @file ElephantOnCouch.php
-//! @brief This file contains the ElephantOnCouch class.
+//! @file Couch.php
+//! @brief This file contains the Couch class.
 //! @details
 //! @author Filippo F. Fadda
 
@@ -10,18 +10,30 @@
 namespace ElephantOnCouch;
 
 
-use Rest\Client;
-use Rest\Request;
-use Rest\Response;
-use ElephantOnCouch\Exception\ClientErrorException;
-use ElephantOnCouch\Exception\ServerErrorException;
+// If PHP is not properly recognizing the line endings when reading files either on or created by a Macintosh computer,
+// enabling the auto_detect_line_endings run-time configuration option may help resolve the problem.
+ini_set("auto_detect_line_endings", TRUE);
 
 
-//! @brief This class is the main class of ElephantOnCouch library. You need an instance of this class to interact with
-//! CouchDB.
-//! @todo add memcached
+use ElephantOnCouch\Message\Message;
+use ElephantOnCouch\Message\Request;
+use ElephantOnCouch\Message\Response;
+
+
+//! @brief The CouchDB's client. You need an instance of this class to interact with CouchDB.
 //! @nosubgrouping
-class ElephantOnCouch extends Client {
+//! @todo Improve Protocol Version support: let the user choose between RFC 1738 and RFC 3986. In the first case we use
+//! urlencode() and http_build_query with enc_type as PHP_QUERY_RFC1738, in the second one rawurlencode and enc_type as
+//! PHP_QUERY_RFC3986.
+//! I think this also will affect cURL, so check through his options. Checks also ISO-8859-1 because CouchDB use it, in
+//! particular utf8_encode().
+//! See http://it1.php.net/manual/en/function.http-build-query.php
+//! @todo Add Proxy support.
+//! @todo Add SSL support.
+//! @todo Add Post File support.
+//! @todo Add Chunked Transfer-Encoding support.
+//! @todo Add Memcached support.
+final class Couch {
 
   //! @name User Agent
   //! @brief User agent's information.
@@ -32,6 +44,27 @@ class ElephantOnCouch extends Client {
 
   //! Default server.
   const DEFAULT_SERVER = "127.0.0.1:5984";
+
+  //! HTTP protocol version.
+  const HTTP_VERSION_1_1 = 1;
+
+  //! CR+LF (0x0D 0x0A). A Carriage Return followed by a Line Feed. We don't use PHP_EOL because HTTP wants CR+LF.
+  const CRLF = "\r\n";
+
+  //! Maximum period to wait before the response is sent.
+  const DEFAULT_TIMEOUT = 60000;
+
+  const SOCKET_TRANSPORT = 0;
+  const CURL_TRANSPORT = 1;
+
+  const SCHEME_HOST_PORT_URI = '/^
+	        (?P<scheme>tcp:\/\/|ssl:\/\/|tls:\/\/)?          # Scheme
+	        # Authority
+	        (?P<host>[a-z0-9\-._~%]+                         # Named host
+	        |     \[[a-f0-9:.]+\]                            # IPv6 host
+	        |     \[v[a-f0-9][a-z0-9\-._~%!$&\'()*+,;=:]+\]) # IPvFuture host
+	        (?P<port>:[0-9]+)?                               # Port
+	        $/ix'; 
 
   //! @name Custom Request Header Fields
   // @{
@@ -48,15 +81,71 @@ class ElephantOnCouch extends Client {
   //! Default CouchDB revisions limit number.
   const REVS_LIMIT = 1000;
 
+  //! @name Document Paths
+  // @{
+  const STD_DOC_PATH = ""; //!< Path for standard documents.
+  const LOCAL_DOC_PATH = "_local/"; //!< Path for local documents.
+  const DESIGN_DOC_PATH = "_design/"; //!< Path for design documents.
+  //@}
+
+  // Stores the document paths supported by CouchDB.
+  private static $supportedDocPaths = [
+    self::STD_DOC_PATH => NULL,
+    self::LOCAL_DOC_PATH => NULL,
+    self::DESIGN_DOC_PATH => NULL
+  ];
+
+  private $scheme;
+  private $host;
+  private $port;
+
+  private $userName;
+  private $password;
+
   // Current selected rawencoded database name.
   private $dbName;
+
+  // URI specifying address of proxy server. (e.g. tcp://proxy.example.com:5100).
+  private $proxy = NULL;
+
+  // When set to TRUE, the entire URI will be used when constructing the request. While this is a non-standard request
+  // format, some proxy servers require it.
+  // todo not used actually.
+  private $requestFullUri = FALSE;
+
+  // Socket connection timeout in seconds, specified by a float. By default the default_socket_timeout php.ini setting
+  // is used.
+  private $timeout;
+
+  // Stores the transport mode. This library can use cURL or sockets.
+  private static $transport = self::SOCKET_TRANSPORT;
 
   // Used to know if the constructor has been already called.
   private static $initialized = FALSE;
 
 
+  //! @brief Creates a Couch class instance.
+  //! @param[in] string $server Server must be expressed as host:port as defined by RFC 3986. It's also possible specify
+  //! a scheme like tcp://, ssl:// or tls://; if no scheme is present, tcp:// will be used.
+  //! @param[in] string $userName (optional) User name.
+  //! @param[in] string $password (optional) Password.
+  //! @see http://www.ietf.org/rfc/rfc3986.txt
   public function __construct($server = self::DEFAULT_SERVER, $userName = "", $password = "") {
-    parent::__construct($server, $userName, $password);
+
+    // Parses the URI string '$server' to retrieve scheme, host and port and assigns matches to the relative class members.
+    if (preg_match(self::SCHEME_HOST_PORT_URI, $server, $matches)) {
+      $this->scheme = isset($matches['scheme']) ? $matches['scheme'] : "tcp://";
+      $this->host = isset($matches['host']) ? $matches['host'] : "localhost";
+      $this->port = isset($matches['port']) ? substr($matches['port'], 1) : "80";
+    }
+    else // Match attempt failed.
+      throw new \InvalidArgumentException(sprintf("'%s' is not a valid URI.", $server));
+
+    $this->userName = (string)$userName;
+    $this->password = (string)$password;
+
+    // Uses the default socket's timeout.
+    $this->timeout = ini_get("default_socket_timeout");
 
     // We can avoid to call the following code every time a ElephantOnCouch instance is created, testing a static property.
     // Because the static nature of self::$initialized, this code will be executed only one time, even multiple ElephantOnCouch
@@ -87,18 +176,249 @@ class ElephantOnCouch extends Client {
   }
 
 
-  //! @brief Check if a database has been selected. This function is used internally.
-  //! @exception Exception <c>Message: <i>No database selected.</i></c>
-  private function checkForDb() {
-    if (empty($this->dbName))
-      throw new \Exception("No database selected.");
+  // This method executes the provided request, using sockets.
+  private function socketSend(Request $request) {
+    $command = $request->getMethod()." ".$request->getPath().$request->getQueryString()." HTTP/1.1".self::CRLF;
+
+    $request->setHeaderField(Request::HOST_HF, $this->host.":".$this->port);
+
+    if (!empty($this->userName))
+      $request->setBasicAuth($this->userName, $this->password);
+
+    // Sets the Content-Length header only when the given request has a message body.
+    if ($request->hasBody())
+      $request->setHeaderField(Message::CONTENT_LENGTH_HF, $request->getBodyLength());
+
+    $socket = @fsockopen($this->scheme.$this->host, $this->port, $errno, $errstr, $this->timeout);
+
+    if (!is_resource($socket))
+      throw new \ErrorException($errstr, $errno);
+
+    // Writes the request over the socket.
+    fputs($socket, $command);
+    fputs($socket, $request->getHeaderAsString().self::CRLF.self::CRLF);
+    fputs($socket, $request->getBody());
+    fputs($socket, self::CRLF);
+
+    // Reads the response.
+    $buffer = "";
+    while (!feof($socket)) {
+      $buffer .= fgets($socket);
+    }
+
+    @fclose($socket);
+
+    return new Response($buffer);
   }
 
 
-  //! This method raise an exception when a user provide an invalid database name.
-  //! @param[in] string $name Database name.
-  //! @exception Exception <c>Message: <i>Invalid database name.</i></c>
-  private function validateAndEncodeDbName(&$name) {
+  // This method executes the provided request, using cURL library. To use it, cURL must be installed on server.
+  private function curlSend(Request $request) {
+    $opts = [];
+
+    // Sets the methods and its related options.
+    switch ($request->getMethod()) {
+
+      // GET method.
+      case Request::GET_METHOD:
+        $opts[CURLOPT_HTTPGET] = TRUE;
+        break;
+
+      // POST method.
+      case Request::POST_METHOD:
+        // @bug The following instruction doesn't work; might be a cURL bug. We use, instead, CURLOPT_CUSTOMREQUEST.
+        //$opts[CURLOPT_POST] = TRUE;
+
+        $opts[CURLOPT_CUSTOMREQUEST] = Request::POST_METHOD;
+
+        // The full data to post in a HTTP "POST" operation. To post a file, prepend a filename with @ and use the full
+        // path. This can either be passed as a urlencoded string like 'para1=val1&para2=val2&...' or as an array with
+        // the field name as key and field data as value. If value is an array, the Content-Type header will be set to
+        // multipart/form-data.
+        $opts[CURLOPT_POSTFIELDS] = ltrim($request->getQueryString(), "?");
+        break;
+
+      // PUT method.
+      case Request::PUT_METHOD:
+        $opts[CURLOPT_PUT] = TRUE;
+
+        // Often a request contains data in the form of a JSON object. Since cURL is just able to read data from a file,
+        // but we can't create a temporary file because it's a too much expensive operation, the code below uses a faster
+        // and efficient memory stream.
+        if ($request->hasBody()) {
+          if ($fd = fopen("php://memory", "r+")) { // Try to create a temporary file in memory.
+            fputs($fd, $request->getBody()); // Writes the message body.
+            rewind($fd); // Sets the pointer to the beginning of the file stream.
+
+            $opts[CURLOPT_INFILE] = $fd;
+            $opts[CURLOPT_INFILESIZE] = $request->getBodyLength();
+          }
+          else
+            throw new \RuntimeException("Cannot create the stream.");
+        }
+
+        break;
+
+      // DELETE method.
+      case Request::DELETE_METHOD:
+        $opts[CURLOPT_CUSTOMREQUEST] = Request::DELETE_METHOD;
+        break;
+
+      // HEAD, TRACE, OPTIONS, CONNECT or any other custom method.
+      default:
+        $opts[CURLOPT_CUSTOMREQUEST] = $request->getMethod();
+
+    } // switch
+
+    // Sets the request Uniform Resource Locator.
+    $opts[CURLOPT_URL] = "http://".$this->host.":".$this->port.$request->getPath().$request->getQueryString();
+
+    // Sets the request's header.
+    $opts[CURLOPT_HTTPHEADER] = $request->getHeaderAsArray();
+
+    // Includes the header in the output. We need this because our Response object will parse them.
+    $opts[CURLOPT_HEADER] = TRUE;
+
+    // Returns the transfer as a string of the return value of curl_exec() instead of outputting it out directly.
+    $opts[CURLOPT_RETURNTRANSFER] = TRUE;
+
+    // Sets the protocol version to be used. cURL constants have different values.
+    $opts[CURLOPT_HTTP_VERSION] = CURL_HTTP_VERSION_1_1;
+
+    // Sets basic authentication.
+    if (!empty($this->userName)) {
+      $opts[CURLOPT_HTTPAUTH] = CURLAUTH_BASIC;
+      $opts[CURLOPT_USERPWD] = $this->userName.":".$this->password;
+    }
+
+    $curl = curl_init();
+    curl_setopt_array($curl, $opts);
+
+    // This fix a known cURL bug: see http://the-stickman.com/web-development/php-and-curl-disabling-100-continue-header/
+    // cURL sets the Expect header field automatically, ignoring the fact that a client may not need it for the specific
+    // request.
+    if (!$request->hasHeaderField(Request::EXPECT_HF))
+      curl_setopt($curl, CURLOPT_HTTPHEADER, array("Expect:"));
+
+    if ($result = curl_exec($curl)) {
+      curl_close($curl);
+      return new Response($result);
+    }
+    else {
+      $error = curl_error($curl);
+      curl_close($curl);
+      throw new \RuntimeException($error);
+    }
+  }
+
+
+  //! @brief This method is used to send a Request to the server.
+  public function send(Request $request) {
+    // Sets user agent information.
+    $request->setHeaderField(Request::USER_AGENT_HF, self::USER_AGENT_NAME." ".self::USER_AGENT_VERSION);
+
+    // We accept JSON.
+    $request->setHeaderField(Request::ACCEPT_HF, "application/json");
+
+    // We close the connection after read the response.
+    $request->setHeaderField(Message::CONNECTION_HF, "close");
+
+    if (self::$transport === self::SOCKET_TRANSPORT)
+      $response = $this->socketSend($request);
+    else
+      $response = $this->curlSend($request);
+
+    // 1xx - Informational Status Codes
+    // 2xx - Success Status Codes
+    // 3xx - Redirection Status Codes
+    // 4xx - Client Error Status Codes
+    // 5xx - Server Error Status Codes
+    $statusCode = (int)$response->getStatusCode();
+
+    switch ($statusCode) {
+      case ($statusCode >= 200 && $statusCode < 300):
+        break;
+      case ($statusCode < 200):
+        //$this->handleInformational($request, $response);
+        break;
+      case ($statusCode < 300):
+        //$this->handleRedirection($request, $response);
+        break;
+      case ($statusCode < 400):
+        throw new Exception\ClientErrorException($request, $response);
+      case ($statusCode < 500):
+        throw new Exception\ServerErrorException($request, $response);
+      default:
+        throw new Exception\UnknownResponseException($request, $response);
+        break;
+    }
+
+    return $response;
+  }
+
+
+  //! @name Transport Mode Selection Methods
+  //@{
+
+  //! @brief Selects the cURL transport method.
+  public function useCurl() {
+    if (extension_loaded("curl"))
+      self::$transport = self::CURL_TRANSPORT;
+    else
+      throw new \RuntimeException("The cURL extension is not loaded.");
+  }
+
+
+  //! @brief Selects socket transport method. This is the default transport method.
+  public function useSocket() {
+    self::$transport = self::SOCKET_TRANSPORT;
+  }
+
+  //! @}
+
+
+  //! @name Proxy Selection Methods
+  //@{
+
+  //! @brief Uses the specified proxy.
+  public function setProxy($proxyAddress) {
+    if (!empty($proxyAddress)) // todo Add a regex.
+    $this->proxy = $proxyAddress;
+    else
+      throw new \InvalidArgumentException("The \$proxy is not valid.");
+  }
+
+
+  //! @brief Don't use any proxy.
+  public function unsetProxy() {
+    $this->proxy = NULL;
+  }
+
+  //! @}
+
+
+  //! @name Validation and Encoding Methods
+  // @{
+
+  //! @brief This method raise an exception when a user provide an invalid document path.
+  //! @details This method is called by any other methods that interacts with CouchDB. You don't need to call, unless
+  //! you are making a not supported call to CouchDB.
+  //! @param[in] string $path Document path.
+  //! @param[in] boolean $excludeLocal Document path.
+  public function validateDocPath($path, $excludeLocal = FALSE) {
+    if (!array_key_exists($path, self::$supportedDocPaths))
+      throw new \InvalidArgumentException("Invalid document path.");
+
+    if ($excludeLocal && ($path == self::LOCAL_DOC_PATH))
+      throw new \InvalidArgumentException("Local document doesn't have attachments.");
+  }
+
+
+  //! @brief This method raise an exception when a user provide an invalid database name.
+  //! @details This method is called by any other methods that interacts with CouchDB. You don't need to call, unless
+  //! you are making a not supported call to CouchDB.
+  //! @param string $name Database name.
+  public function validateAndEncodeDbName(&$name) {
     # \A[a-z][a-z\d_$()+-/]++\z
     #
     # Assert position at the beginning of the string «\A»
@@ -118,8 +438,10 @@ class ElephantOnCouch extends Client {
 
 
   //! @brief This method raise an exception when the user provides an invalid document identifier.
-  //! @exception Exception <c>Message: <i>You must provide a valid \$docId.</i></c>
-  private function validateAndEncodeDocId(&$docId) {
+  //! @details This method is called by any other methods that interacts with CouchDB. You don't need to call, unless
+  //! you are making a not supported call to CouchDB.
+  //! @param string $docId Document id.
+  public function validateAndEncodeDocId(&$docId) {
     # \A[\w_-]++\z
     #
     # Options: case insensitive
@@ -137,50 +459,14 @@ class ElephantOnCouch extends Client {
       throw new \InvalidArgumentException("You must provide a valid \$docId.");
   }
 
-
-  //! @brief This is a factory method to create a new Request.
-  //! @details This method is used to create a Request object. You can still create a Request instance using the appropriate
-  //! constructor, but I recommend you to use this factory method, because it does a lot of dirty work. You should use
-  //! this method combined with send() method.
-  private function newRequest($method, $path) {
-    $request = new Request($method, $path);
-    $request->setHeaderField(Request::ACCEPT_HF, "application/json"); // default accept header value
-    $request->setHeaderField(Request::USER_AGENT_HF, self::USER_AGENT_NAME." ".self::USER_AGENT_VERSION);
-    return $request;
-  }
-
-
-  protected function handleSuccess(Request $request, Response $response) {
-  }
-
-
-  protected function handleInformational(Request $request, Response $response) {
-  }
-
-
-  protected function handleRedirection(Request $request, Response $response) {
-  }
-
-
-  protected function handleClientError(Request $request, Response $response) {
-    throw new ClientErrorException($request, $response);
-  }
-
-
-  protected function handleServerError(Request $request, Response $response) {
-    throw new ServerErrorException($request, $response);
-  }
-
-
-  protected function handleUnknown(Request $request, Response $response) {
-  }
+  //! @}
 
 
   //! @name Server-level Miscellaneous Methods
   // @{
 
   //! @brief Creates the admin user.
-  // TODO
+  // todo
   public function createAdminUser() {
 
   }
@@ -190,7 +476,7 @@ class ElephantOnCouch extends Client {
   //! @attention Requires admin privileges.
   //! @bug <a href="https://issues.apache.org/jira/browse/COUCHDB-947" target="_blank">COUCHDB-947</a>
   public function restartServer() {
-    $request = $this->newRequest(Request::POST_METHOD, "/_restart");
+    $request = new Request(Request::POST_METHOD, "/_restart");
     $request->setHeaderField(Request::CONTENT_TYPE_HF, "application/json");
 
     // There is a bug in CouchDB, sometimes it doesn't return the 200 Status Code because it closes the connection
@@ -209,10 +495,11 @@ class ElephantOnCouch extends Client {
   //! @details The MOTD can be specified in CouchDB configuration files. This function returns more information
   //! compared to the CouchDB standard REST call.
   //! @code
-  //! use ElephantOnCouch\Client;
-  //! use ElephantOnCouch\ResponseException;
+  //! <?php
   //!
-  //! $couch = new ElephantOnCouch(ElephantOnCouch::DEFAULT_SERVER, "user", "password");
+  //! use Couch\Client;
+  //!
+  //! $couch = new Couch(Couch::DEFAULT_SERVER, "user", "password");
   //! $couch->selectDb("database");
   //!
   //! try {
@@ -220,23 +507,15 @@ class ElephantOnCouch extends Client {
   //!   print_r($info);
   //! }
   //! catch (Exception $e) {
-  //!   if ($e instanceof ResponseException) {
-  //!     echo ">>> Code: ".$e->getStatusCode()."\r\n";
-  //!     echo ">>> CouchDB Error: ".$e->getError()."\r\n";
-  //!     echo ">>> CouchDB Reason: ".$e->getReason()."\r\n";
-  //!   }
-  //!   else {
-  //!     echo "Error code: ".$e->getCode()."\r\n";
-  //!     echo "Message: ".$e->getMessage()."\r\n";
-  //!   }
+  //!   echo $e;
   //! }
   //! @endcode
-  //! @return an Info object.
+  //! @return SvrInfo
   //! @see http://docs.couchdb.org/en/latest/api/misc.html#get
   public function getSvrInfo() {
-    $response = $this->send($this->newRequest(Request::GET_METHOD, "/"));
+    $response = $this->send(new Request(Request::GET_METHOD, "/"));
     $info = $response->getBodyAsArray();
-    return new SvrInfo($info["couchdb"], $info["version"]);
+    return new Info\SvrInfo($info["couchdb"], $info["version"]);
   }
 
 
@@ -246,7 +525,7 @@ class ElephantOnCouch extends Client {
   //! @return string
   //! @see http://docs.couchdb.org/en/latest/api/misc.html#get-favicon-ico
   public function getFavicon() {
-    $response = $this->send($this->newRequest(Request::GET_METHOD, "/favicon.ico"));
+    $response = $this->send(new Request(Request::GET_METHOD, "/favicon.ico"));
 
     if ($response->getHeaderField(Request::CONTENT_TYPE_HF) == "image/x-icon")
       return $response->getBody();
@@ -259,7 +538,7 @@ class ElephantOnCouch extends Client {
   //! @return associative array
   //! @see http://docs.couchdb.org/en/latest/api/misc.html#get-stats
   public function getStats() {
-    return $this->send($this->newRequest(Request::GET_METHOD, "/_stats"))->getBodyAsArray();
+    return $this->send(new Request(Request::GET_METHOD, "/_stats"))->getBodyAsArray();
   }
 
 
@@ -267,20 +546,16 @@ class ElephantOnCouch extends Client {
   //! @return array of string
   //! @see http://docs.couchdb.org/en/latest/api/misc.html#get-all-dbs
   public function getAllDbs() {
-    return $this->send($this->newRequest(Request::GET_METHOD, "/_all_dbs"))->getBodyAsArray();
+    return $this->send(new Request(Request::GET_METHOD, "/_all_dbs"))->getBodyAsArray();
   }
 
 
   //! @brief Returns a list of running tasks.
   //! @attention Requires admin privileges.
   //! @return associative array
-  //! @exception ResponseException
-  //! <c>Code: <i>401 Unauthorized</i></c>\n
-  //! <c>Error: <i>unauthorized</i></c>\n
-  //! <c>Reason: <i>You are not a server admin.</i></c>
   //! @see http://docs.couchdb.org/en/latest/api/misc.html#get-active-tasks
   public function getActiveTasks() {
-    return $this->send($this->newRequest(Request::GET_METHOD, "/_active_tasks"))->getBodyAsArray();
+    return $this->send(new Request(Request::GET_METHOD, "/_active_tasks"))->getBodyAsArray();
   }
 
 
@@ -288,14 +563,10 @@ class ElephantOnCouch extends Client {
   //! @attention Requires admin privileges.
   //! @param[in] integer $bytes How many bytes to return from the end of the log file.
   //! @return string
-  //! @exception ResponseException
-  //! <c>Code: <i>401 Unauthorized</i></c>\n
-  //! <c>Error: <i>unauthorized</i></c>\n
-  //! <c>Reason: <i>You are not a server admin.</i></c>
   //! @see http://docs.couchdb.org/en/latest/api/misc.html#get-log
   public function getLogTail($bytes = 1000) {
     if (is_int($bytes) and ($bytes > 0)) {
-      $request = $this->newRequest(Request::GET_METHOD, "/_log");
+      $request = new Request(Request::GET_METHOD, "/_log");
       $request->setQueryParam("bytes", $bytes);
       return $this->send($request)->getBody();
     }
@@ -310,7 +581,7 @@ class ElephantOnCouch extends Client {
   //! @see http://docs.couchdb.org/en/latest/api/misc.html#get-uuids
   public function getUuids($count = 1) {
     if (is_int($count) and ($count > 0)) {
-      $request = $this->newRequest(Request::GET_METHOD, "/_uuids");
+      $request = new Request(Request::GET_METHOD, "/_uuids");
       $request->setQueryParam("count", $count);
 
       $response = $this->send($request);
@@ -347,7 +618,7 @@ class ElephantOnCouch extends Client {
         $path .= "/".$key;
     }
 
-    return $this->send($this->newRequest(Request::GET_METHOD, $path))->getBodyAsArray();
+    return $this->send(new Request(Request::GET_METHOD, $path))->getBodyAsArray();
   }
 
 
@@ -366,7 +637,7 @@ class ElephantOnCouch extends Client {
     if (is_null($value))
       throw new \InvalidArgumentException("\$value cannot be null.");
 
-    $request = $this->newRequest(Request::PUT_METHOD, "/_config/".$section."/".$key);
+    $request = new Request(Request::PUT_METHOD, "/_config/".$section."/".$key);
     $request->setHeaderField(Request::CONTENT_TYPE_HF, "application/json");
     $request->setBody(json_encode(utf8_encode($value)));
     $this->send($request);
@@ -384,7 +655,7 @@ class ElephantOnCouch extends Client {
     if (!is_string($key) or empty($key))
       throw new \InvalidArgumentException("\$key must be a not empty string.");
 
-    $this->send($this->newRequest(Request::DELETE_METHOD, "/_config/".$section."/".$key));
+    $this->send(new Request(Request::DELETE_METHOD, "/_config/".$section."/".$key));
   }
 
   //@}
@@ -394,15 +665,15 @@ class ElephantOnCouch extends Client {
   // @{
 
   //! @brief Returns cookie based login user information.
-  //! @return TODO
+  //! @return todo
   //! @see http://wiki.apache.org/couchdb/Session_API
   public function getSession() {
-    return $this->send($this->newRequest(Request::GET_METHOD, "/_session"));
+    return $this->send(new Request(Request::GET_METHOD, "/_session"));
   }
 
 
   //! @brief Makes cookie based user login.
-  //! @return TODO
+  //! @return todo
   //! @see http://wiki.apache.org/couchdb/Session_API
   public function setSession($userName, $password) {
     if (!is_string($userName) or empty($userName))
@@ -411,7 +682,7 @@ class ElephantOnCouch extends Client {
     if (!is_string($password) or empty($password))
       throw new \InvalidArgumentException("\$password must be a not empty string.");
 
-    $request = $this->newRequest(Request::POST_METHOD, "/_session");
+    $request = new Request(Request::POST_METHOD, "/_session");
 
     $request->setHeaderField(self::X_COUCHDB_WWW_AUTHENTICATE_HF, "Cookie");
     $request->setHeaderField(Request::CONTENT_TYPE_HF, "application/x-www-form-urlencoded");
@@ -427,34 +698,34 @@ class ElephantOnCouch extends Client {
   //! @return a Response object
   //! @see http://wiki.apache.org/couchdb/Session_API
   public function deleteSession() {
-    return $this->send($this->newRequest(Request::DELETE_METHOD, "/_session"));
+    return $this->send(new Request(Request::DELETE_METHOD, "/_session"));
   }
 
 
-  //! @brief TODO
+  //! @brief todo
   //! @see http://wiki.apache.org/couchdb/Session_API
   public function getAccessToken() {
-    return $this->send($this->newRequest(Request::GET_METHOD, "/_oauth/access_token"));
+    return $this->send(new Request(Request::GET_METHOD, "/_oauth/access_token"));
   }
 
 
-  //! @brief TODO
+  //! @brief todo
   //! @see http://wiki.apache.org/couchdb/Security_Features_Overview#Authorization
   public function getAuthorize() {
-    return $this->send($this->newRequest(Request::GET_METHOD, "/_oauth/authorize"));
+    return $this->send(new Request(Request::GET_METHOD, "/_oauth/authorize"));
   }
 
 
-  //! @brief TODO
+  //! @brief todo
   //! http://wiki.apache.org/couchdb/Security_Features_Overview#Authorization
   public function setAuthorize() {
-    return $this->send($this->newRequest(Request::POST_METHOD, "/_oauth/authorize"));
+    return $this->send(new Request(Request::POST_METHOD, "/_oauth/authorize"));
   }
 
 
-  // @brief TODO
+  // @brief todo
   public function requestToken() {
-    return $this->send($this->newRequest(Request::GET_METHOD, "/_oauth/request_token"));
+    return $this->send(new Request(Request::GET_METHOD, "/_oauth/request_token"));
   }
 
   //@}
@@ -474,9 +745,17 @@ class ElephantOnCouch extends Client {
   //! @attention Only lowercase characters (a-z), digits (0-9), and any of the characters _, $, (, ), +, -, and / are
   //! allowed. Must begin with a letter.</i></c>\n
   //! @param[in] string $name Database name.
-  //! @exception Exception <c>Message: <i>Invalid database name.</i></c>
   public function selectDb($name) {
     $this->dbName = $this->validateAndEncodeDbName($name);
+  }
+
+
+  //! @brief Check if a database has been selected.
+  //! @details This method is called by any other methods that interacts with CouchDB. You don't need to call, unless
+  //! you are making a not supported call to CouchDB.
+  public function checkForDb() {
+    if (empty($this->dbName))
+      throw new \RuntimeException("No database selected.");
   }
 
 
@@ -484,22 +763,13 @@ class ElephantOnCouch extends Client {
   //! @param[in] string $name The database name. A database must be named with all lowercase letters (a-z),
   //! digits (0-9), or any of the _$()+-/ characters and must end with a slash in the URL. The name has to start with a
   //! lowercase letter (a-z).
-  //! @param[in] bool $autoSelect If <b>TRUE</b> selects the created database.
-  //! @exception Exception <c>Message: <i>You can't create a database with the same name of the selected database.</i></c>
-  //! @exception ResponseException
-  //! <c>Code: <i>412 Precondition Failed</i></c>\n
-  //! <c>Error: <i>file_exists</i></c>\n
-  //! <c>Reason: <i>The database could not be created, the file already exists.</i></c>
-  //! @exception ResponseException
-  //! <c>Code: <i>400 Bad Request</i></c>\n
-  //! <c>Error: <i>illegal_database_name</i></c>\n
-  //! <c>Reason: <i>Only lowercase characters (a-z), digits (0-9), and any of the characters _, $, (, ), +, -, and / are allowed. Must begin with a letter.</i></c>\n
+  //! @param[in] bool $autoSelect Selects the created database by default.
   //! @see http://docs.couchdb.org/en/latest/api/database.html#put-db
   public function createDb($name, $autoSelect = TRUE) {
     $this->validateAndEncodeDbName($name);
 
     if ($name != $this->dbName) {
-      $this->send($this->newRequest(Request::PUT_METHOD, "/".rawurlencode($name)."/"));
+      $this->send(new Request(Request::PUT_METHOD, "/".rawurlencode($name)."/"));
 
       if ($autoSelect)
         $this->dbName = $name;
@@ -513,48 +783,35 @@ class ElephantOnCouch extends Client {
   //! @param[in] string $name The database name. A database must be named with all lowercase letters (a-z),
   //! digits (0-9), or any of the _$()+-/ characters and must end with a slash in the URL. The name has to start with a
   //! lowercase letter (a-z).
-  //! @exception Exception <c>Message: <i>You can't delete the selected database.</i>
-  //! @exception ResponseException
-  //! <c>Code: <i>404 Not Found</i></c>\n
-  //! <c>Error: <i>not_found</i></c>\n
-  //! <c>Reason: <i>missing</i></c>
   //! @see http://docs.couchdb.org/en/latest/api/database.html#delete-db
-  //! @bug <a href="https://issues.apache.org/jira/browse/COUCHDB-967" target="_blank">COUCHDB-967</a>
   public function deleteDb($name) {
     $this->validateAndEncodeDbName($name);
 
     if ($name != $this->dbName)
-      $this->send($this->newRequest(Request::DELETE_METHOD, "/".$name));
+      $this->send(new Request(Request::DELETE_METHOD, "/".$name));
     else
       throw new \UnexpectedValueException("You can't delete the selected database.");
   }
 
 
   //! @brief Returns information about the selected database.
-  //! @return a DbInfo object
-  //! @exception Exception <c>Message: <i>No database selected.</i></c>
-  //! @exception ResponseException
-  //! <c>Code: <i>404 Not Found</i></c>\n
-  //! <c>Error: <i>not_found</i></c>\n
-  //! <c>Reason: <i>no_db_file</i></c>
-  //! @see http://docs.couchdb.org/en/latest/api/database.html#get-db
+  //! @return DbInfo
   public function getDbInfo() {
     $this->checkForDb();
 
-    return new Dbinfo($this->send($this->newRequest(Request::GET_METHOD, "/".$this->dbName."/"))->getBodyAsArray());
+    return new Info\Dbinfo($this->send(new Request(Request::GET_METHOD, "/".$this->dbName."/"))->getBodyAsArray());
   }
 
 
   //! @brief Obtains a list of the changes made to the database. This can be used to monitor for update and modifications
   //! to the database for post processing or synchronization.
   //! @return A Response object.
-  //! @todo Exceptions should be documented here.
   //! @todo This function is not complete.
   //! @see http://docs.couchdb.org/en/latest/api/database.html#get-db-changes
   public function getDbChanges(Opt\ChangesFeedOpts $opts = NULL) {
     $this->checkForDb();
 
-    $request = $this->newRequest(Request::GET_METHOD, "/".$this->dbName."/_changes");
+    $request = new Request(Request::GET_METHOD, "/".$this->dbName."/_changes");
 
     if (isset($opts))
       $request->setMultipleQueryParamsAtOnce($opts->asArray());
@@ -566,26 +823,21 @@ class ElephantOnCouch extends Client {
   //! @brief Starts a compaction for the current selected database.
   //! @details Writes a new version of the database file, removing any unused sections from the new version during write.
   //! Because a new file is temporary created for this purpose, you will need twice the current storage space of the
-  //! specified database in order for the compaction routine to complete.
-  //! Removes old revisions of documents from the database, up to the per-database limit specified by the <b>_revs_limit</b>
-  //! database setting.
+  //! specified database in order for the compaction routine to complete.<br />
+  //! Removes old revisions of documents from the database, up to the per-database limit specified by the <i>_revs_limit</i>
+  //! database setting.<br />
   //! Compaction can only be requested on an individual database; you cannot compact all the databases for a CouchDB
-  //! instance. The compaction process runs as a background process. You can determine if the compaction process is
-  //! operating on a database by obtaining the database meta information, the <b>compact_running</b> value of the returned
-  //! database structure will be set to true.
-  //! You can also obtain a list of running processes to determine whether compaction is currently running, using the
-  //! <i>getActiveTasks</i> method.
-  //! @exception Exception <c>Message: <i>No database selected.</i></c>
-  //! @exception ResponseException
-  //! <c>Code: <i>404 Not Found</i></c>\n
-  //! <c>Error: <i>not_found</i></c>\n
-  //! <c>Reason: <i>no_db_file</i></c>
+  //! instance.<br />
+  //! The compaction process runs as a background process. You can determine if the compaction process is operating on a
+  //! database by obtaining the database meta information, the <i>compact_running</i> value of the returned database
+  //! structure will be set to true. You can also obtain a list of running processes to determine whether compaction is
+  //! currently running, using getActiveTasks().
   //! @attention Requires admin privileges.
   //! @see http://docs.couchdb.org/en/latest/api/database.html#post-db-compact
   public function compactDb() {
     $this->checkForDb();
 
-    $request = $this->newRequest(Request::POST_METHOD, "/".$this->dbName."/_compact");
+    $request = new Request(Request::POST_METHOD, "/".$this->dbName."/_compact");
 
     // A POST method requires Content-Type header.
     $request->setHeaderField(Request::CONTENT_TYPE_HF, "application/json");
@@ -598,15 +850,13 @@ class ElephantOnCouch extends Client {
   //! @details If you have very large views or are tight on space, you might consider compaction as well. To run compact
   //! for a particular view on a particular database, use this method.
   //! @param[in] string $designDocName Name of the design document where is stored the view.
-  //! @exception Exception <c>Message: <i>No database selected.</i></c>
-  //! @attention Requires admin privileges.
   //! @see http://docs.couchdb.org/en/latest/api/database.html#post-db-compact-design-doc
   public function compactView($designDocName) {
     $this->checkForDb();
 
     $path = "/".$this->dbName."/_compact/".$designDocName;
 
-    $request = $this->newRequest(Request::POST_METHOD, $path);
+    $request = new Request(Request::POST_METHOD, $path);
 
     // A POST method requires Content-Type header.
     $request->setHeaderField(Request::CONTENT_TYPE_HF, "application/json");
@@ -617,13 +867,12 @@ class ElephantOnCouch extends Client {
 
   //! @brief Removes all outdated view indexes.
   //! @details Old views files remain on disk until you explicitly run cleanup.
-  //! @exception Exception <c>Message: <i>No database selected.</i></c>
   //! @attention Requires admin privileges.
   //! @see http://docs.couchdb.org/en/latest/api/database.html#post-db-view-cleanup
   public function cleanupViews() {
     $this->checkForDb();
 
-    $request =  $this->newRequest(Request::POST_METHOD, "/".$this->dbName."/_view_cleanup");
+    $request =  new Request(Request::POST_METHOD, "/".$this->dbName."/_view_cleanup");
 
     // A POST method requires Content-Type header.
     $request->setHeaderField(Request::CONTENT_TYPE_HF, "application/json");
@@ -636,20 +885,15 @@ class ElephantOnCouch extends Client {
   //! @details Default CouchDB configuration use delayed commit to improve performances. So CouchDB allows operations to
   //! be run against the disk without an explicit fsync after each operation. Synchronization takes time (the disk may
   //! have to seek, on some platforms the hard disk cache buffer is flushed, etc.), so requiring an fsync for each update
-  //! deeply limits CouchDB's performance for non-bulk writers.
+  //! deeply limits CouchDB's performance for non-bulk writers.<br />
   //! Delayed commit should be left set to true in the configuration settings. Anyway, you can still tell CouchDB to make
   //! an fsync, calling the ensure_full_commit method.
   //! @return string A timestamp when the server instance was started.
-  //! @exception Exception <c>Message: <i>No database selected.</i></c>
-  //! @exception ResponseException
-  //! <c>Code: <i>404 Not Found</i></c>\n
-  //! <c>Error: <i>not_found</i></c>\n
-  //! <c>Reason: <i>no_db_file</i></c>
   //! @see http://docs.couchdb.org/en/latest/api/database.html#post-db-ensure-full-commit
   public function ensureFullCommit() {
     $this->checkForDb();
 
-    $request = $this->newRequest(Request::POST_METHOD, "/".$this->dbName."/_ensure_full_commit");
+    $request = new Request(Request::POST_METHOD, "/".$this->dbName."/_ensure_full_commit");
 
     // A POST method requires Content-Type header.
     $request->setHeaderField(Request::CONTENT_TYPE_HF, "application/json");
@@ -659,36 +903,26 @@ class ElephantOnCouch extends Client {
 
 
   //! @brief Returns the special security object for the database.
-  //! @details TODO
-  //! @return TODO
-  //! @exception Exception <c>Message: <i>No database selected.</i></c>
-  //! @exception ResponseException
-  //! <c>Code: <i>404 Not Found</i></c>\n
-  //! <c>Error: <i>not_found</i></c>\n
-  //! <c>Reason: <i>no_db_file</i></c>
+  //! @details todo
+  //! @return todo
   //! @see http://docs.couchdb.org/en/latest/api/database.html#get-db-security
   //! @todo This function is not complete.
   public function getSecurityObj() {
     $this->checkForDb();
 
-    return $this->send($this->newRequest(Request::GET_METHOD, "/".$this->dbName."/_security"));
+    return $this->send(new Request(Request::GET_METHOD, "/".$this->dbName."/_security"));
   }
 
 
   //! @brief Sets the special security object for the database.
-  //! @details TODO
-  //! @return TODO
-  //! @exception Exception <c>Message: <i>No database selected.</i></c>
-  //! @exception ResponseException
-  //! <c>Code: <i>404 Not Found</i></c>\n
-  //! <c>Error: <i>not_found</i></c>\n
-  //! <c>Reason: <i>no_db_file</i></c>
+  //! @details todo
+  //! @return todo
   //! @see http://docs.couchdb.org/en/latest/api/database.html#put-db-security
   //! @todo This function is not complete.
   public function setSecurityObj() {
     $this->checkForDb();
 
-    return $this->send($this->newRequest(Request::PUT_METHOD, "/".$this->dbName."/_security"));
+    return $this->send(new Request(Request::PUT_METHOD, "/".$this->dbName."/_security"));
   }
 
   //@}
@@ -698,11 +932,11 @@ class ElephantOnCouch extends Client {
   //! @details The replication is an incremental one way process involving two databases (a source and a destination).
   //! The aim of the replication is that at the end of the process, all active documents on the source database are also
   //! in the destination database and all documents that were deleted in the source databases are also deleted (if
-  //! exists) on the destination database.
+  //! exists) on the destination database.<br />
   //! The replication process only copies the last revision of a document, so all previous revisions that were only on
-  //! the source database are not copied to the destination database.
+  //! the source database are not copied to the destination database.<br />
   //! Changes on the master will not automatically replicate to the slaves. To make replication continuous, you must set
-  //! <b>\$continuous = TRUE</b>. At this time, CouchDB does not remember continuous replications over a server restart.
+  //! <i>\$continuous = TRUE</i>. At this time, CouchDB does not remember continuous replications over a server restart.
   //! Specifying a local source database and a remote target database is called push replication and a remote source and
   //! local target is called pull replication. As of CouchDB 0.9, pull replication is a lot more efficient and resistant
   //! to errors, and it is suggested that you use pull replication in most cases, especially if your documents are large
@@ -768,19 +1002,19 @@ class ElephantOnCouch extends Client {
 
   //! @brief Starts replication.
   //! @code start_db_replication("sourcedbname", "http://example.org/targetdbname", TRUE, TRUE); @endcode
-  //! @param[in] string $sourceDbUrl TODO
+  //! @param[in] string $sourceDbUrl todo
   //! @param[in] string $targetDbUrl
   //! @param[in] boolean $createTargetDb The target database has to exist and is not implicitly created. You can force
-  //! the creation setting <b>\$createTargetDb = TRUE</b>.
-  //! @param[in] boolean $continuous When you set <b>\$continuous = TRUE</b> CouchDB will not stop after replicating all
-  //! missing documents from the source to the target.
+  //! the creation setting <i>\$createTargetDb = TRUE</i>.<br />
+  //! @param[in] boolean $continuous When you set <i>\$continuous = TRUE</i> CouchDB will not stop after replicating all
+  //! missing documents from the source to the target.<br />
   //! At the time of writing, CouchDB doesn't remember continuous replications over a server restart. For the time being,
   //! you are required to trigger them again when you restart CouchDB. In the future, CouchDB will allow you to define
   //! permanent continuous replications that survive a server restart without you having to do anything.
-  //! @param[in] string|array $filter TODO
-  //! @param[in] QueryArgs $queryArgs TODO
+  //! @param[in] string|array $filter todo
+  //! @param[in] QueryArgs $queryArgs todo
   //! @see http://docs.couchdb.org/en/latest/api/misc.html#post-replicate
-  //! @todo document parameters
+  //! @todo Document parameters.
   public function startDbReplication($sourceDbUrl, $targetDbUrl, $createTargetDb = TRUE,
                                      $continuous = FALSE, $filter = NULL, $queryArgs = NULL) {
     return $this->realDbReplication($sourceDbUrl, $targetDbUrl, $createTargetDb, $continuous, $filter, $queryArgs);
@@ -789,16 +1023,18 @@ class ElephantOnCouch extends Client {
 
   //! @brief Cancels replication.
   //! @see http://docs.couchdb.org/en/latest/api/misc.html#post-replicate
-  //! @todo document parameters
+  //! @todo Document parameters.
   public function cancelDbReplication($sourceDbUrl, $targetDbUrl, $continuous = FALSE) {
     return $this->realDbReplication($sourceDbUrl, $targetDbUrl, $continuous);
   }
 
 
-  //! @todo this function is not complete
+  //! @brief todo
+  //! @details todo
   //! @see http://wiki.apache.org/couchdb/Replication#Replicator_database
   //! @see http://docs.couchbase.org/couchdb-release-1.1/index.html#couchb-release-1.1-replicatordb
   //! @see https://gist.github.com/832610
+  //! @todo This function is not complete.
   public function getReplicator() {
 
   }
@@ -818,17 +1054,15 @@ class ElephantOnCouch extends Client {
   //! @param[in] ViewQueryOpts $opts (optional) Query options to get additional information, grouping results, include
   //! docs, etc.
   //! @return associative array
-  //! @exception Exception <c>Message: <i>No database selected.</i></c>
-  //! @exception Exception <c>Message: <i>You must provide a valid \$docId.</i></c>
   //! @see http://docs.couchdb.org/en/latest/api/database.html#get-db-all-docs
   //! @see http://docs.couchdb.org/en/latest/api/database.html#post-db-all-docs
   public function queryAllDocs(\ArrayIterator $keys = NULL, Opt\ViewQueryOpts $opts = NULL) {
     $this->checkForDb();
 
     if (is_null($keys))
-      $request = $this->newRequest(Request::GET_METHOD, "/".$this->dbName."/_all_docs");
+      $request = new Request(Request::GET_METHOD, "/".$this->dbName."/_all_docs");
     else {
-      $request = $this->newRequest(Request::POST_METHOD, "/".$this->dbName."/_all_docs");
+      $request = new Request(Request::POST_METHOD, "/".$this->dbName."/_all_docs");
       $request->setBody(json_encode(utf8_encode(['keys' => $keys])));
     }
 
@@ -848,8 +1082,6 @@ class ElephantOnCouch extends Client {
   //! @param[in] ViewQueryOpts $opts (optional) Query options to get additional information, grouping results, include
   //! docs, etc.
   //! @return associative array
-  //! @exception Exception <c>Message: <i>No database selected.</i></c>
-  //! @exception Exception <c>Message: <i>You must provide a valid \$docId.</i></c>
   //! @see http://docs.couchdb.org/en/latest/api/design.html#get-db-design-design-doc-view-view-name
   //! @see http://docs.couchdb.org/en/latest/api/design.html#post-db-design-design-doc-view-view-name
   public function queryView($designDocName, $viewName, \ArrayIterator $keys = NULL, Opt\ViewQueryOpts $opts = NULL) {
@@ -861,9 +1093,9 @@ class ElephantOnCouch extends Client {
       throw new \InvalidArgumentException("You must provide a valid \$viewName.");
 
     if (is_null($keys))
-      $request = $this->newRequest(Request::GET_METHOD, "/".$this->dbName."/_design/".$designDocName."/_view/".$viewName);
+      $request = new Request(Request::GET_METHOD, "/".$this->dbName."/_design/".$designDocName."/_view/".$viewName);
     else {
-      $request = $this->newRequest(Request::POST_METHOD, "/".$this->dbName."/_design/".$designDocName."/_view/".$viewName);
+      $request = new Request(Request::POST_METHOD, "/".$this->dbName."/_design/".$designDocName."/_view/".$viewName);
       $request->setBody(json_encode(utf8_encode(['keys' => $keys])));
     }
 
@@ -885,8 +1117,6 @@ class ElephantOnCouch extends Client {
   //! @param[in] ViewQueryOpts $opts (optional) Query options to get additional information, grouping results, include
   //! docs, etc.
   //! @return associative array
-  //! @exception Exception <c>Message: <i>No database selected.</i></c>
-  //! @exception Exception <c>Message: <i>You must provide a valid \$docId.</i></c>
   //! @see http://docs.couchdb.org/en/latest/api/database.html#post-db-temp-view
   public function queryTempView($mapFn, $reduceFn = "", \ArrayIterator $keys = NULL, Opt\ViewQueryOpts $opts = NULL) {
     $this->checkForDb();
@@ -896,7 +1126,7 @@ class ElephantOnCouch extends Client {
     if (!empty($reduce))
       $handler->reduceFn = $reduceFn;
 
-    $request = $this->newRequest(Request::POST_METHOD, "/".$this->dbName."/_temp_view");
+    $request = new Request(Request::POST_METHOD, "/".$this->dbName."/_temp_view");
 
     if (is_null($keys))
       $request->setBody(json_encode($handler->asArray()));
@@ -919,11 +1149,12 @@ class ElephantOnCouch extends Client {
   // @{
 
   //! @brief Given a list of document revisions, returns the document revisions that do not exist in the database.
+  //! @return todo
   //! @see http://docs.couchdb.org/en/latest/api/database.html#post-db-missing-revs
   public function getMissingRevs() {
     $this->checkForDb();
 
-    $request = $this->newRequest(Request::POST_METHOD, "/".$this->dbName."/_missing_revs");
+    $request = new Request(Request::POST_METHOD, "/".$this->dbName."/_missing_revs");
 
     return $this->send($request);
   }
@@ -931,22 +1162,24 @@ class ElephantOnCouch extends Client {
 
   //! @brief Given a list of document revisions, returns differences between the given revisions and ones that are in
   //! the database.
+  //! @return todo
   //! @see http://docs.couchdb.org/en/latest/api/database.html#post-db-revs-diff
   public function getRevsDiff() {
     $this->checkForDb();
 
-    $request = $this->newRequest(Request::POST_METHOD, "/".$this->dbName."/_missing_revs");
+    $request = new Request(Request::POST_METHOD, "/".$this->dbName."/_missing_revs");
 
     return $this->send($request);
   }
 
 
   //! @brief Gets the limit of historical revisions to store for a single document in the database.
+  //! @return todo
   //! @see http://docs.couchdb.org/en/latest/api/database.html#get-db-revs-limit
   public function getRevsLimit() {
     $this->checkForDb();
 
-    $request = $this->newRequest(Request::GET_METHOD, "/".$this->dbName."/_revs_limit");
+    $request = new Request(Request::GET_METHOD, "/".$this->dbName."/_revs_limit");
 
     return $this->send($request);
   }
@@ -955,8 +1188,6 @@ class ElephantOnCouch extends Client {
   //! @brief Sets the limit of historical revisions for a single document in the database.
   //! @param[in] integer $revsLimit (optional) Maximum number historical revisions for a single document in the database.
   //! Must be a positive integer.
-  //! @return a Response object
-  //! @exception Exception <c>Message: <i>\$revsLimit must be a positive integer.</i></c>
   //! @see http://docs.couchdb.org/en/latest/api/database.html#put-db-revs-limit
   public function setRevsLimit($revsLimit = self::REVS_LIMIT) {
     $this->checkForDb();
@@ -964,11 +1195,11 @@ class ElephantOnCouch extends Client {
     if (!is_int($revsLimit) or ($revsLimit <= 0))
       throw new \InvalidArgumentException("\$revsLimit must be a positive integer.");
 
-    $request = $this->newRequest(Request::PUT_METHOD, "/".$this->dbName."/_revs_limit");
+    $request = new Request(Request::PUT_METHOD, "/".$this->dbName."/_revs_limit");
     $request->setHeaderField(Request::CONTENT_TYPE_HF, "application/json");
     $request->setBody(json_encode($revsLimit));
 
-    return $this->send($request);
+    $this->send($request);
   }
 
   //@}
@@ -983,8 +1214,6 @@ class ElephantOnCouch extends Client {
   //! the special function getDesignDocInfo().
   //! @param[in] string $docId The document's identifier.
   //! @return string The document's revision.
-  //! @exception Exception <c>Message: <i>No database selected.</i></c>
-  //! @exception Exception <c>Message: <i>You must provide a valid \$docId.</i></c>
   //! @see http://docs.couchdb.org/en/latest/api/documents.html#head-db-doc
   public function getDocEtag($docId) {
     $this->checkForDb();
@@ -993,7 +1222,7 @@ class ElephantOnCouch extends Client {
 
     $path = "/".$this->dbName."/".$docId;
 
-    $request = $this->newRequest(Request::HEAD_METHOD, $path);
+    $request = new Request(Request::HEAD_METHOD, $path);
 
     // CouchDB ETag is included between quotation marks.
     return trim($this->send($request)->getHeaderField(Response::ETAG_HF), '"');
@@ -1007,18 +1236,16 @@ class ElephantOnCouch extends Client {
   //! @param[in] string $path The document's path.
   //! @param[in] string $rev (optional) The document's revision.
   //! @param[in] DocOpts $opts Query options to get additional document information, like conflicts, attachments, etc.
-  //! @return associative array
-  //! @exception Exception <c>Message: <i>No database selected.</i></c>
-  //! @exception Exception <c>Message: <i>You must provide a valid \$docId.</i></c>
+  //! @return object An instance of Doc, LocalDoc, DesignDoc or any subclass of Doc.
   //! @see http://docs.couchdb.org/en/latest/api/documents.html#get-db-doc
-  public function getDoc(Enum\DocPath $path, $docId, $rev = NULL, Opt\DocOpts $opts = NULL) {
+  public function getDoc($path, $docId, $rev = NULL, Opt\DocOpts $opts = NULL) {
     $this->checkForDb();
-
+    $this->validateDocPath($path);
     $this->validateAndEncodeDocId($docId);
 
-    $path = "/".$this->dbName."/".$path.$docId;
+    $requestPath = "/".$this->dbName."/".$path.$docId;
 
-    $request = $this->newRequest(Request::GET_METHOD, $path);
+    $request = new Request(Request::GET_METHOD, $requestPath);
 
     // Retrieves the specific revision of the document.
     if (!empty($rev))
@@ -1042,11 +1269,11 @@ class ElephantOnCouch extends Client {
       $type = "\\".$body[Doc\AbstractDoc::DOC_CLASS];
       $doc = new $type;
     }
-    elseif ($path == Enum\DocPath::LOCAL)   // Local document.
+    elseif ($path == self::LOCAL_DOC_PATH)   // Local document.
       $doc = new Doc\LocalDoc;
-    elseif ($path == Enum\DocPath::DESIGN)  // Design document.
+    elseif ($path == self::DESIGN_DOC_PATH)  // Design document.
       $doc = new Doc\DesignDoc;
-    else                                        // Standard document.
+    else                                     // Standard document.
       $doc = new Doc\Doc;
 
     $doc->assignArray($body);
@@ -1056,7 +1283,7 @@ class ElephantOnCouch extends Client {
 
 
   //! @brief Inserts or updates a document into the selected database.
-  //! @details Whether the <b>\$doc</b> has an id we use a different HTTP method. Using POST CouchDB generates an id for the doc,
+  //! @details Whether the <i>\$doc</i> has an id we use a different HTTP method. Using POST CouchDB generates an id for the doc,
   //! using PUT instead we need to specify one. We can still use the function getUuids() to ask CouchDB for some ids.
   //! This is an internal detail. You have only to know that CouchDB can generate the document id for you.
   //! @param[in] Doc $doc The document you want insert or update.
@@ -1064,18 +1291,8 @@ class ElephantOnCouch extends Client {
   //! collects document writes together in memory (on a user-by-user basis) before they are committed to disk.
   //! This increases the risk of the documents not being stored in the event of a failure, since the documents are not
   //! written to disk immediately.
-  //! @return A Response object.
-  //! @exception Exception <c>Message: <i>No database selected.</i></c>
-  //! @exception ResponseException
-  //! <c>Code: <i>404 Not Found</i></c>\n
-  //! <c>Error: <i>not_found</i></c>\n
-  //! <c>Reason: <i>no_db_file</i></c>
-  //! @exception ResponseException
-  //! <c>Code: <i>409 Conflict</i></c>\n
-  //! <c>Error: <i>not_found</i></c>\n TODO this is wrong
-  //! <c>Reason: <i>no_db_file</i></c> TODO this is wrong
   //! @see http://docs.couchdb.org/en/latest/api/documents.html#put-db-doc
-  // TODO support the new_edits=true|false option http://wiki.apache.org/couchdb/HTTP_Bulk_Document_API#Posting_Existing_Revisions
+  // todo support the new_edits=true|false option http://wiki.apache.org/couchdb/HTTP_Bulk_Document_API#Posting_Existing_Revisions
   public function saveDoc(Doc\AbstractDoc $doc, $batchMode = FALSE) {
     $this->checkForDb();
 
@@ -1085,17 +1302,17 @@ class ElephantOnCouch extends Client {
     // Whether the document has an id we use a different HTTP method. Using POST CouchDB generates an id for the doc
     // using PUT we need to specify one. We can still use the function getUuids() to ask CouchDB for some ids.
     if (!$doc->issetId())
-      $doc->setid(UUID::generate(UUID::UUID_RANDOM, UUID::FMT_STRING));
+      $doc->setid(Generator\UUID::generate(Generator\UUID::UUID_RANDOM, Generator\UUID::FMT_STRING));
 
     // Sets the path according to the document type.
     if ($doc instanceof \ElephantOnCouch\Doc\DesignDoc)
-      $path = "/".$this->dbName."/".Enum\DocPath::DESIGN.$doc->getId();
+      $path = "/".$this->dbName."/".self::DESIGN_DOC_PATH.$doc->getId();
     elseif ($doc instanceof \ElephantOnCouch\Doc\LocalDoc)
-      $path = "/".$this->dbName."/".Enum\DocPath::LOCAL.$doc->getId();
+      $path = "/".$this->dbName."/".self::LOCAL_DOC_PATH.$doc->getId();
     else
       $path = "/".$this->dbName."/".$doc->getId();
 
-    $request = $this->newRequest($method, $path);
+    $request = new Request($method, $path);
     $request->setHeaderField(Request::CONTENT_TYPE_HF, "application/json");
     $request->setBody($doc->asJson());
 
@@ -1103,7 +1320,7 @@ class ElephantOnCouch extends Client {
     if ($batchMode)
       $request->setQueryParam("batch", "ok");
 
-    return $this->send($request);
+    $this->send($request);
   }
 
 
@@ -1112,37 +1329,35 @@ class ElephantOnCouch extends Client {
   //! @param[in] string $docId The document's identifier you want delete.
   //! @param[in] string $rev The document's revision number you want delete.
   //! @param[in] string $path The document path.
-  //! @exception Exception <c>Message: <i>No database selected.</i></c>
-  //! @exception Exception <c>Message: <i>You must provide a valid \$docId.</i></c>
   //! @see http://docs.couchdb.org/en/latest/api/documents.html#delete-db-doc
-  public function deleteDoc(Enum\DocPath $path, $docId, $rev) {
+  public function deleteDoc($path, $docId, $rev) {
     $this->checkForDb();
+    $this->validateDocPath($path);
     $this->validateAndEncodeDocId($docId);
 
     $path = "/".$this->dbName."/".$path.rawurlencode($docId);
 
-    $request = $this->newRequest(Request::DELETE_METHOD, $path);
+    $request = new Request(Request::DELETE_METHOD, $path);
     $request->setQueryParam("rev", (string)$rev);
 
     // We could use another technique to send the revision number. Here just for documentation.
     // $request->setHeader(Request::IF_MATCH_HEADER, (string)$rev);
 
-    return $this->send($request);
+    $this->send($request);
   }
 
 
   //! @brief Makes a duplicate of the specified document. If you want to overwrite an existing document, you need to
-  //! specify the target document's revision with a <b>\$rev</b> parameter.
+  //! specify the target document's revision with a <i>\$rev</i> parameter.
   //! @details If you want copy a special document you must specify his type.
   //! @param[in] string $sourceDocId The source document id.
   //! @param[in] string $targetDocId The destination document id.
   //! @param[in] string $rev Needed when you want override an existent document.
   //! @param[in] string $path The document path.
-  //! @exception Exception <c>Message: <i>No database selected.</i></c>
-  //! @exception Exception <c>Message: <i>You must provide a valid \$docId.</i></c>
   //! @see http://docs.couchdb.org/en/latest/api/documents.html#copy-db-doc
-  public function copyDoc(Enum\DocPath $path, $sourceDocId, $targetDocId, $rev = NULL) {
+  public function copyDoc($path, $sourceDocId, $targetDocId, $rev = NULL) {
     $this->checkForDb();
+    $this->validateDocPath($path);
 
     $this->validateAndEncodeDocId($sourceDocId);
     $this->validateAndEncodeDocId($targetDocId);
@@ -1150,7 +1365,7 @@ class ElephantOnCouch extends Client {
     $path = "/".$this->dbName."/".$path.$sourceDocId;
 
     // This request uses the special method COPY.
-    $request = $this->newRequest(self::COPY_METHOD, $path);
+    $request = new Request(self::COPY_METHOD, $path);
 
     if (empty($rev))
       $request->setHeaderField(self::DESTINATION_HF, $targetDocId);
@@ -1166,35 +1381,33 @@ class ElephantOnCouch extends Client {
   //! document within CouchDB does not actually remove the document from the database, instead, the document is marked as
   //! a deleted (and a new revision is created). This is to ensure that deleted documents are replicated to other
   //! databases as having been deleted. This also means that you can check the status of a document and identify that
-  //! the document has been deleted.
+  //! the document has been deleted.<br />
   //! The purging of old documents is not replicated to other databases. If you are replicating between databases and
-  //! have deleted a large number of documents you should run purge on each database.
-  //! Purging documents does not remove the space used by them on disk. To reclaim disk space, you should run compact_db().
-  //! @return a Response object
-  //! @todo Exceptions should be documented here.
-  //! @exception Exception <c>Message: <i>No database selected.</i></c>
-  //! @todo  This function is not complete.
-  //! @todo document paremeters
+  //! have deleted a large number of documents you should run purge on each database.<br />
+  //! Purging documents does not remove the space used by them on disk. To reclaim disk space, you should run compactDb().
+  //! @return Response
+  //! @todo Document paremeters.
   //! @see http://docs.couchdb.org/en/latest/api/database.html#post-db-purge
+  //! @todo  This function is not complete.
   public function purgeDocs(array $docs) {
     $this->checkForDb();
 
-    return $this->send($this->newRequest(Request::POST_METHOD, "/".$this->dbName));
+    return $this->send(new Request(Request::POST_METHOD, "/".$this->dbName));
   }
 
 
   //! @brief Inserts, updates and deletes documents in a bulk.
-  //! @details Documents that are updated or deleted must contain the 'rev' number. To delete a document, you should set
-  //! 'delete = true'.
-  //! @todo document parameters
-  //! @todo this function is not complete
+  //! @details Documents that are updated or deleted must contain the <i>rev</i> number. To delete a document, you should set
+  //! <i>delete = true</i>.
+  //! @todo Document parameters.
+  //! @todo This function is not complete.
   public function performBulkOperations(array $docs, $fullCommit = FALSE) {
     $this->checkForDb();
 
     $path = "/".$this->dbName."/_bulk_docs";
 
     foreach ($docs as $doc) {
-      $request = $this->newRequest(Request::POST_METHOD, $path);
+      $request = new Request(Request::POST_METHOD, $path);
 
       if ($fullCommit)
         $request->setHeaderField(self::X_COUCHDB_FULL_COMMIT_HF, "full_commit");
@@ -1213,15 +1426,15 @@ class ElephantOnCouch extends Client {
 
   //! @brief Retrieves the attachment from the specified document.
   //! @see http://docs.couchdb.org/en/latest/api/documents.html#get-db-doc-attachment
-  //! @todo document parameters and exceptions
-  public function getAttachment($fileName, Enum\DocPath $path, $docId, $rev = NULL) {
+  //! @todo Document parameters.
+  public function getAttachment($fileName, $path, $docId, $rev = NULL) {
     $this->checkForDb();
-
+    $this->validateDocPath($path, TRUE);
     $this->validateAndEncodeDocId($docId);
 
     $path = "/".$this->dbName."/".$path.$docId."/".$fileName;
 
-    $request = $this->newRequest(Request::GET_METHOD, $path);
+    $request = new Request(Request::GET_METHOD, $path);
 
     // In case we want retrieve a specific document revision.
     if (!empty($rev))
@@ -1233,17 +1446,17 @@ class ElephantOnCouch extends Client {
 
   //! @brief Inserts or updates an attachment to the specified document.
   //! @see http://docs.couchdb.org/en/latest/api/documents.html#put-db-doc-attachment
-  //! @todo document parameters and exceptions
-  public function putAttachment($fileName, Enum\DocPath $path, $docId, $rev = NULL) {
+  //! @todo Document parameters.
+  public function putAttachment($fileName, $path, $docId, $rev = NULL) {
     $this->checkForDb();
-
+    $this->validateDocPath($path, TRUE);
     $this->validateAndEncodeDocId($docId);
 
-    $attachment = Attachment::fromFile($fileName);
+    $attachment = Attachment\Attachment::fromFile($fileName);
 
     $path = "/".$this->dbName."/".$path.$docId."/".rawurlencode($attachment->getName());
 
-    $request = $this->newRequest(Request::PUT_METHOD, $path);
+    $request = new Request(Request::PUT_METHOD, $path);
     $request->setHeaderField(Request::CONTENT_LENGTH_HF, $attachment->getContentLength());
     $request->setHeaderField(Request::CONTENT_TYPE_HF, $attachment->getContentType());
     $request->setBody(base64_encode($attachment->getData()));
@@ -1258,15 +1471,15 @@ class ElephantOnCouch extends Client {
 
   //! @brief Deletes an attachment from the document.
   //! @see http://docs.couchdb.org/en/latest/api/documents.html#delete-db-doc-attachment
-  //! @todo document parameters and exceptions
-  public function deleteAttachment($fileName, Enum\DocPath $path, $docId, $rev) {
+  //! @todo Document parameters.
+  public function deleteAttachment($fileName, $path, $docId, $rev) {
     $this->checkForDb();
-
+    $this->validateDocPath($path, TRUE);
     $this->validateAndEncodeDocId($docId);
 
     $path = "/".$this->dbName."/".$path.$docId."/".rawurlencode($fileName);
 
-    $request = $this->newRequest(Request::DELETE_METHOD, $path);
+    $request = new Request(Request::DELETE_METHOD, $path);
     $request->setQueryParam("rev", (string)$rev);
 
     return $this->send($request);
@@ -1281,55 +1494,59 @@ class ElephantOnCouch extends Client {
   //! @brief Returns basic information about the design document and his views.
   //! @param[in] string $docName The design document's name.
   //! @return associative array
-  //! @exception Exception <c>Message: <i>No database selected.</i></c>
   //! @see http://docs.couchdb.org/en/latest/api/design.html#get-db-design-design-doc-info
   public function getDesignDocInfo($docName) {
     $this->checkForDb();
-
     $this->validateAndEncodeDocId($docName);
 
-    $path = "/".$this->dbName."/".Enum\DocPath::DESIGN.$docName."/_info";
+    $path = "/".$this->dbName."/".self::DESIGN_DOC_PATH.$docName."/_info";
 
-    $request = $this->newRequest(Request::GET_METHOD, $path);
+    $request = new Request(Request::GET_METHOD, $path);
 
     return $this->send($request)->getBodyAsArray();
   }
 
 
-  // Invokes the show handler without a document
-  // /db/_design/design-doc/_show/show-name
-  // Invokes the show handler for the given document
-  // /db/_design/design-doc/_show/show-name/doc
-  // GET /db/_design/examples/_show/posts/somedocid
-  // GET /db/_design/examples/_show/people/otherdocid
-  // GET /db/_design/examples/_show/people/otherdocid?format=xml&details=true
-  // public function showDoc($designDocName, $funcName, $docId, $format, $details = FALSE) {
-  //! @todo this function is not complete
+  //! @brief todo
+  //! @details todo
   //! @see http://docs.couchdb.org/en/latest/api/design.html#get-db-design-design-doc-show-show-name
   //! @see http://docs.couchdb.org/en/latest/api/design.html#post-db-design-design-doc-show-show-name-doc
-  public function showDoc($designDocName, $listName, $docId = NULL) {
+  //! @todo This function is not complete.
+  public function showDoc($designDocName, $showName, $docId = NULL) {
+    // Invokes the show handler without a document
+    // /db/_design/design-doc/_show/show-name
+    // Invokes the show handler for the given document
+    // /db/_design/design-doc/_show/show-name/doc
+    // GET /db/_design/examples/_show/posts/somedocid
+    // GET /db/_design/examples/_show/people/otherdocid
+    // GET /db/_design/examples/_show/people/otherdocid?format=xml&details=true
+    // public function showDoc($designDocName, $funcName, $docId, $format, $details = FALSE) {
+  }
+
+  //! @brief todo
+  //! @details todo
+  //! @see todo
+  //! @todo This function is not complete.
+  public function listDocs($designDocName, $listName, $docId = NULL) {
+    // Invokes the list handler to translate the given view results
+    // Invokes the list handler to translate the given view results for certain documents
+    // GET /db/_design/examples/_list/index-posts/posts-by-date?descending=true&limit=10
+    // GET /db/_design/examples/_list/index-posts/posts-by-tag?key="howto"
+    // GET /db/_design/examples/_list/browse-people/people-by-name?startkey=["a"]&limit=10
+    // GET /db/_design/examples/_list/index-posts/other_ddoc/posts-by-tag?key="howto"
+    // public function listDocs($designDocName, $funcName, $viewName, $queryArgs, $keys = "") {
   }
 
 
-  // Invokes the list handler to translate the given view results
-  // Invokes the list handler to translate the given view results for certain documents
-  // GET /db/_design/examples/_list/index-posts/posts-by-date?descending=true&limit=10
-  // GET /db/_design/examples/_list/index-posts/posts-by-tag?key="howto"
-  // GET /db/_design/examples/_list/browse-people/people-by-name?startkey=["a"]&limit=10
-  // GET /db/_design/examples/_list/index-posts/other_ddoc/posts-by-tag?key="howto"
-  // public function listDocs($designDocName, $funcName, $viewName, $queryArgs, $keys = "") {
-  //! @todo this function is not complete
-  public function listDocs($docId = NULL) {
-
-  }
-
-
-  // Invokes the update handler without a document
-  // /db/_design/design-doc/_update/update-name
-  // Invokes the update handler for the given document
-  // /db/_design/design-doc/_update/update-name/doc
-  //! @todo this function is not complete
+  //! @brief todo
+  //! @details todo
+  //! @see todo
+  //! @todo This function is not complete.
   public function callUpdateDocFunc($designDocName, $funcName) {
+    // Invokes the update handler without a document
+    // /db/_design/design-doc/_update/update-name
+    // Invokes the update handler for the given document
+    // /db/_design/design-doc/_update/update-name/doc
     // a PUT request against the handler function with a document id: /<database>/_design/<design>/_update/<function>/<docid>
     // a POST request against the handler function without a document id: /<database>/_design/<design>/_update/<function>
   }

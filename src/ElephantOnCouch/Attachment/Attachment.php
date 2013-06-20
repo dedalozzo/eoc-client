@@ -6,15 +6,16 @@
 //! @author Filippo F. Fadda
 
 
-namespace ElephantOnCouch;
+//! @brief The CouchDB's attachments namespace.
+namespace ElephantOnCouch\Attachment;
 
 
-use Rest\Response;
+use ElephantOnCouch\Helper\Properties;
 
 
-//! @brief TODO
+//! @brief todo
 final class Attachment {
-  use Properties;
+  use Properties; // This is a trait, not a namespace or a class.
 
   // Default CouchDB attachment content type. Here just for documentation.
   //const DEFAULT_ATTACHMENT_CONTENT_TYPE = "application/octet-stream";

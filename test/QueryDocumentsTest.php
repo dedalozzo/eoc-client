@@ -6,21 +6,21 @@ $start = microtime(true);
 
 $loader = require_once __DIR__ . "/../vendor/autoload.php";
 
-use ElephantOnCouch\ElephantOnCouch;
+use ElephantOnCouch\Couch;
 use ElephantOnCouch\Doc\DesignDoc;
 use ElephantOnCouch\Handler\ViewHandler;
-use ElephantOnCouch\ViewQueryArgs;
+use ElephantOnCouch\Opt\ViewQueryOpts;
 
 const COUCH_USER = "pippo";
 const COUCH_PASSWORD = "calippo";
-const COUCH_DATABASE = "programmazione";
+const COUCH_DATABASE = "elephantoncouch_test";
 
-const USE_CURL = TRUE;
+const USE_CURL = FALSE;
 const FIRST_RUN = FALSE;
 
 
 try {
-  $couch = new ElephantOnCouch(ElephantOnCouch::DEFAULT_SERVER, COUCH_USER, COUCH_PASSWORD);
+  $couch = new Couch(Couch::DEFAULT_SERVER, COUCH_USER, COUCH_PASSWORD);
 
   if (USE_CURL)
     $couch->useCurl();
@@ -33,7 +33,7 @@ try {
   if (FIRST_RUN)
     $doc = DesignDoc::create("articles");
   else {
-    $doc = $couch->getDoc(ElephantOnCouch::DESIGN_DOC_PATH, "articles");
+    $doc = $couch->getDoc(Couch::DESIGN_DOC_PATH, "articles");
     $doc->resetHandlers();
   }
 
@@ -54,7 +54,7 @@ try {
 
   $handler = new ViewHandler("articles_by_id");
   $handler->mapFn = $map;
-  $handler->reduceFn = $reduce;
+  //$handler->reduceFn = $reduce;
   //$handler->useBuiltInReduceFnCount();
   $doc->addHandler($handler);
 
@@ -97,7 +97,7 @@ try {
   if (FIRST_RUN)
     $doc = DesignDoc::create("books");
   else {
-    $doc = $couch->getDoc(ElephantOnCouch::DESIGN_DOC_PATH, "books");
+    $doc = $couch->getDoc(Couch::DESIGN_DOC_PATH, "books");
     $doc->resetHandlers();
   }
 
@@ -135,13 +135,14 @@ try {
   // ===================================================================================================================
   // QUERY THE VIEWS
   // ===================================================================================================================
-  echo $couch->queryView("articles", "articles_by_id");
+  echo $couch->queryAllDocs();
+  /*echo $couch->queryView("articles", "articles_by_id");
   echo $couch->queryView("articles", "domenichini");
   echo $couch->queryView("books", "books");
-  echo $couch->queryView("books", "draft_books");
+  echo $couch->queryView("books", "draft_books");*/
 
-  $queryArgs = new ViewQueryArgs();
-  $queryArgs->groupResults();
+  $queryArgs = new ViewQueryOpts();
+  //$queryArgs->groupResults();
   //$couch->queryView("articles", "items_by_stereotype", $queryArgs);
 }
 catch (Exception $e) {
@@ -166,6 +167,3 @@ echo "\r\n\r\nElapsed time: $time";
 //define('BOOK', 11); // no square
 //define('DISCUSSION_DRAFT', 30); // brown
 //define('DISCUSSION', 31); // no square
-
-?>
-

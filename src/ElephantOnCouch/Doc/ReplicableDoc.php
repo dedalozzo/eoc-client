@@ -9,7 +9,7 @@
 namespace ElephantOnCouch\Doc;
 
 
-use ElephantOnCouch\Attachment;
+use ElephantOnCouch\Attachment\Attachment;
 
 
 //! @brief Standard documents and Design documents are both replicable documents.

@@ -56,9 +56,13 @@
 //! @author Fredrik Lindberg
 
 
-namespace ElephantOnCouch;
+//! @brief The CouchDB's generators namespace.
+namespace ElephantOnCouch\Generator;
 
 
+//! @brief Universally Unique IDentifier (RFC4122) %Generator.
+//! @details Implements version 1, 3, 4 and 5.
+//! @see http://tools.ietf.org/html/rfc4122
 class UUID {
   /* UUID versions */
   const UUID_TIME	 = 1;	/* Time based UUID */

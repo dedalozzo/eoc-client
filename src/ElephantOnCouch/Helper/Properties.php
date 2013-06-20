@@ -6,7 +6,7 @@
 //! @author Filippo F. Fadda
 
 
-namespace ElephantOnCouch;
+namespace ElephantOnCouch\Helper;
 
 
 //! @brief This trait can be used by a class to emulate the C# properties.
