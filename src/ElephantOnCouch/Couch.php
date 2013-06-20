@@ -33,6 +33,21 @@ use ElephantOnCouch\Message\Response;
 //! @todo Add Post File support.
 //! @todo Add Chunked Transfer-Encoding support.
 //! @todo Add Memcached support.
+//! @todo Implement getDbChanges().
+//! @todo Implement getSecurityObj().
+//! @todo Implement setSecurityObj().
+//! @todo Implement cancelDbReplication().
+//! @todo Implement getReplicator().
+//! @todo Implement purgeDocs().
+//! @todo Implement performBulkOperations().
+//! @todo Implement showDoc().
+//! @todo Implement listDocs().
+//! @todo Implement callUpdateDocFunc().
+//! @todo Implement createAdminUser().
+//! @todo Implement getAccessToken().
+//! @todo Implement getAuthorize().
+//! @todo Implement setAuthorize().
+//! @todo Implement requestToken().
 final class Couch {
 
   //! @name User Agent
@@ -110,7 +125,7 @@ final class Couch {
 
   // When set to TRUE, the entire URI will be used when constructing the request. While this is a non-standard request
   // format, some proxy servers require it.
-  // todo not used actually.
+  // todo Not used actually.
   private $requestFullUri = FALSE;
 
   // Socket connection timeout in seconds, specified by a float. By default the default_socket_timeout php.ini setting
@@ -466,7 +481,6 @@ final class Couch {
   // @{
 
   //! @brief Creates the admin user.
-  // todo
   public function createAdminUser() {
 
   }
@@ -665,7 +679,7 @@ final class Couch {
   // @{
 
   //! @brief Returns cookie based login user information.
-  //! @return todo
+  //! @return Response
   //! @see http://wiki.apache.org/couchdb/Session_API
   public function getSession() {
     return $this->send(new Request(Request::GET_METHOD, "/_session"));
@@ -673,7 +687,7 @@ final class Couch {
 
 
   //! @brief Makes cookie based user login.
-  //! @return todo
+  //! @return Response
   //! @see http://wiki.apache.org/couchdb/Session_API
   public function setSession($userName, $password) {
     if (!is_string($userName) or empty($userName))
@@ -702,28 +716,28 @@ final class Couch {
   }
 
 
-  //! @brief todo
+  //! @brief
   //! @see http://wiki.apache.org/couchdb/Session_API
   public function getAccessToken() {
     return $this->send(new Request(Request::GET_METHOD, "/_oauth/access_token"));
   }
 
 
-  //! @brief todo
+  //! @brief
   //! @see http://wiki.apache.org/couchdb/Security_Features_Overview#Authorization
   public function getAuthorize() {
     return $this->send(new Request(Request::GET_METHOD, "/_oauth/authorize"));
   }
 
 
-  //! @brief todo
+  //! @brief
   //! http://wiki.apache.org/couchdb/Security_Features_Overview#Authorization
   public function setAuthorize() {
     return $this->send(new Request(Request::POST_METHOD, "/_oauth/authorize"));
   }
 
 
-  // @brief todo
+  // @brief
   public function requestToken() {
     return $this->send(new Request(Request::GET_METHOD, "/_oauth/request_token"));
   }
@@ -806,7 +820,6 @@ final class Couch {
   //! @brief Obtains a list of the changes made to the database. This can be used to monitor for update and modifications
   //! to the database for post processing or synchronization.
   //! @return A Response object.
-  //! @todo This function is not complete.
   //! @see http://docs.couchdb.org/en/latest/api/database.html#get-db-changes
   public function getDbChanges(Opt\ChangesFeedOpts $opts = NULL) {
     $this->checkForDb();
@@ -903,10 +916,9 @@ final class Couch {
 
 
   //! @brief Returns the special security object for the database.
-  //! @details todo
-  //! @return todo
+  //! @details
+  //! @return
   //! @see http://docs.couchdb.org/en/latest/api/database.html#get-db-security
-  //! @todo This function is not complete.
   public function getSecurityObj() {
     $this->checkForDb();
 
@@ -915,10 +927,9 @@ final class Couch {
 
 
   //! @brief Sets the special security object for the database.
-  //! @details todo
-  //! @return todo
+  //! @details
+  //! @return
   //! @see http://docs.couchdb.org/en/latest/api/database.html#put-db-security
-  //! @todo This function is not complete.
   public function setSecurityObj() {
     $this->checkForDb();
 
@@ -1029,12 +1040,11 @@ final class Couch {
   }
 
 
-  //! @brief todo
-  //! @details todo
+  //! @brief
+  //! @details
   //! @see http://wiki.apache.org/couchdb/Replication#Replicator_database
   //! @see http://docs.couchbase.org/couchdb-release-1.1/index.html#couchb-release-1.1-replicatordb
   //! @see https://gist.github.com/832610
-  //! @todo This function is not complete.
   public function getReplicator() {
 
   }
@@ -1149,7 +1159,7 @@ final class Couch {
   // @{
 
   //! @brief Given a list of document revisions, returns the document revisions that do not exist in the database.
-  //! @return todo
+  //! @return Response
   //! @see http://docs.couchdb.org/en/latest/api/database.html#post-db-missing-revs
   public function getMissingRevs() {
     $this->checkForDb();
@@ -1162,7 +1172,7 @@ final class Couch {
 
   //! @brief Given a list of document revisions, returns differences between the given revisions and ones that are in
   //! the database.
-  //! @return todo
+  //! @return Response
   //! @see http://docs.couchdb.org/en/latest/api/database.html#post-db-revs-diff
   public function getRevsDiff() {
     $this->checkForDb();
@@ -1292,7 +1302,7 @@ final class Couch {
   //! This increases the risk of the documents not being stored in the event of a failure, since the documents are not
   //! written to disk immediately.
   //! @see http://docs.couchdb.org/en/latest/api/documents.html#put-db-doc
-  // todo support the new_edits=true|false option http://wiki.apache.org/couchdb/HTTP_Bulk_Document_API#Posting_Existing_Revisions
+  /// @todo Support the new_edits=true|false option, see http://wiki.apache.org/couchdb/HTTP_Bulk_Document_API#Posting_Existing_Revisions
   public function saveDoc(Doc\AbstractDoc $doc, $batchMode = FALSE) {
     $this->checkForDb();
 
@@ -1386,9 +1396,7 @@ final class Couch {
   //! have deleted a large number of documents you should run purge on each database.<br />
   //! Purging documents does not remove the space used by them on disk. To reclaim disk space, you should run compactDb().
   //! @return Response
-  //! @todo Document paremeters.
   //! @see http://docs.couchdb.org/en/latest/api/database.html#post-db-purge
-  //! @todo  This function is not complete.
   public function purgeDocs(array $docs) {
     $this->checkForDb();
 
@@ -1399,8 +1407,6 @@ final class Couch {
   //! @brief Inserts, updates and deletes documents in a bulk.
   //! @details Documents that are updated or deleted must contain the <i>rev</i> number. To delete a document, you should set
   //! <i>delete = true</i>.
-  //! @todo Document parameters.
-  //! @todo This function is not complete.
   public function performBulkOperations(array $docs, $fullCommit = FALSE) {
     $this->checkForDb();
 
@@ -1507,11 +1513,10 @@ final class Couch {
   }
 
 
-  //! @brief todo
-  //! @details todo
+  //! @brief
+  //! @details
   //! @see http://docs.couchdb.org/en/latest/api/design.html#get-db-design-design-doc-show-show-name
   //! @see http://docs.couchdb.org/en/latest/api/design.html#post-db-design-design-doc-show-show-name-doc
-  //! @todo This function is not complete.
   public function showDoc($designDocName, $showName, $docId = NULL) {
     // Invokes the show handler without a document
     // /db/_design/design-doc/_show/show-name
@@ -1523,10 +1528,9 @@ final class Couch {
     // public function showDoc($designDocName, $funcName, $docId, $format, $details = FALSE) {
   }
 
-  //! @brief todo
-  //! @details todo
-  //! @see todo
-  //! @todo This function is not complete.
+  //! @brief
+  //! @details
+  //! @see
   public function listDocs($designDocName, $listName, $docId = NULL) {
     // Invokes the list handler to translate the given view results
     // Invokes the list handler to translate the given view results for certain documents
@@ -1538,10 +1542,9 @@ final class Couch {
   }
 
 
-  //! @brief todo
-  //! @details todo
-  //! @see todo
-  //! @todo This function is not complete.
+  //! @brief
+  //! @details
+  //! @see
   public function callUpdateDocFunc($designDocName, $funcName) {
     // Invokes the update handler without a document
     // /db/_design/design-doc/_update/update-name
