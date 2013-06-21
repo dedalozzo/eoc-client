@@ -145,10 +145,6 @@ final class Response extends Message {
   //! @details After sending this, the server must respond after receiving the body request.
   const CONTINUE_SC = 100;
 
-  //! @brief Indicates that the server is changing protocols, as specified by the client, to one listed in the Upgrade header.
-  // todo To be implemented. Not supported yet.
-  const SWITCHING_PROTOCOLS_SC = 101;
-
   //! @}
 
   //! @name Success Status Codes
@@ -167,33 +163,18 @@ final class Response extends Message {
   //! looked valid when accepted.
   const ACCEPTED_SC = 202;
 
-  //! @brief The information contained in the entity headers came not from the origin server but from a copy of the resource.
-  //! @details This could happen if an intermediary had a copy of a resource but could not or did not validate the
-  //! meta-information (headers) it sent about the resource.
-  const NONAUTHORITATIVE_INFORMATION_SC = 203;
-
   //! @brief The response message contains headers and a status line, but no entity body.
   //! @details Primarily used to update browsers without having them move to a new document.
   const NO_CONTENT_SC = 204;
 
-  //! @brief Another code primarily for browsers. Tells the browser to clear any HTML form elements on the current page.
-  const RESET_CONTENT_SC = 205;
-
   //! @brief A partial or range request was successful.
-  //! @details Later, we will see that clients can request part or a range of a document by using special headers�this
-  //! status code indicates that the range request was successful.
-  //! A 206 response must include a Content-Range, Date, and either ETag or Content-Location header.
+  //! @details A 206 response must include a Content-Range, Date, and either ETag or Content-Location header.
   const PARTIAL_CONTENT_SC = 206;
 
   //! @}
 
   //! @name Redirection Status Codes
   //@{
-
-  //! @brief Returned when a client has requested a URL that actually refers to multiple resources.
-  //! @details Multiple resources such as a server hosting an English and French version of an HTML document.
-  //! This code is returned along with a list of options; the user can then select which one he wants.
-  const MULTIPLE_CHOICES_SC = 300;
 
   //! @brief Used when the requested URL has been moved.
   //! @details The response should contain in the Location header the URL where the resource now resides.
@@ -204,31 +185,11 @@ final class Response extends Message {
   //! Future requests should use the old URL.
   const FOUND_SC = 302;
 
-  //! @brief Used to tell the client that the resource should be fetched using a different URL.
-  //! @details This new URL is in the Location header of the response message. Its main purpose is to allow responses to
-  //! POST requests to direct a client to a resource.
-  const SEE_OTHER_SC = 303;
-
   //! @brief Clients can make their requests conditional by the request headers they include.
   //! @details If a client makes a conditional request, such as a GET if the resource has not been changed recently,
   //! this code is used to indicate that the resource has not changed. Responses with this status code should not
   //! contain an entity body.
   const NOT_MODIFIED_SC = 304;
-
-  //! @brief Used to indicate that the resource must be accessed through a proxy.
-  //! @details The location of the proxy is given in the Location header. It's important that clients interpret
-  //! this response relative to a specific resource and do not assume that this proxy should be used for all
-  //! requests or even all requests to the server holding the requested resource.
-  //! This could lead to broken behavior if the proxy mistakenly interfered with a request, and it poses a security hole.
-  const USE_PROXY_SC = 305;
-
-  //! @brief Not currently used.
-  const UNUSED_SC = 306;
-
-  //! @brief Like the 301 status code.
-  //! @details However, the client should use the URL given in the Location header to locate the resource temporarily.
-  //! Future requests should use the old URL.
-  const TEMPORARY_REDIRECT_SC = 307;
 
   //! @}
 
@@ -241,9 +202,6 @@ final class Response extends Message {
   //! @brief Returned along with appropriate headers that ask the client to authenticate itself before it can gain access
   //! to the resource.
   const UNAUTHORIZED_SC = 401;
-
-  //! @brief Currently this status code is not used, but it has been set aside for future use.
-  const PAYMENT_REQUIRED_SC = 402;
 
   //! @brief Used to indicate that the request was refused by the server.
   //! @details If the server wants to indicate why the request was denied, it can include an entity body describing the
@@ -264,27 +222,10 @@ final class Response extends Message {
   //! Often, servers include headers that allow the client to figure out why the request could not be satisfied.
   const NOT_ACCEPTABLE_SC = 406;
 
-  //! @brief Like the 401 status code, but used for proxy servers that require authentication for a resource.
-  const PROXY_AUTHENTICATION_REQUIRED_SC = 407;
-
-  //! @brief If a client takes too long to complete its request, a server can send back this status code and close down
-  //! the connection.
-  //! @details The length of this timeout varies from server to server but generally is long enough to accommodate any
-  //! legitimate request.
-  const REQUEST_TIMEOUT_SC = 408;
-
   //! @brief Used to indicate some conflict that the request may be causing on a resource.
   //! @details Servers might send this code when they fear that a request could cause a conflict. The response should
   //! contain a body describing the conflict.
   const CONFLICT_SC = 409;
-
-  //! @brief Similar to 404, except that the server once held the resource.
-  //! @details Used mostly for web site maintenance, so a server's administrator can notify clients when a resource has
-  //! been removed.
-  const GONE_SC = 410;
-
-  //! @brief Used when the server requires a Content-Length header in the request message.
-  const LENGTH_REQUIRED_SC = 411;
 
   //! @brief Used if a client makes a conditional request and one of the conditions fails.
   //! @details Conditional requests occur when a client includes an unexpected header.
@@ -292,9 +233,6 @@ final class Response extends Message {
 
   //! @brief Used when a client sends an entity body that is larger than the server can or wants to process.
   const REQUEST_ENTITY_TOO_LARGE_SC = 413;
-
-  //! @brief Used when a client sends a request with a request URL that is larger than the server can or wants to process.
-  const REQUESTURI_TOO_LONG_SC = 414;
 
   //! @brief Used when a client sends an entity of a content type that the server does not understand or support.
   const UNSUPPORTED_MEDIA_TYPE_SC = 415;
@@ -314,77 +252,37 @@ final class Response extends Message {
   //! @brief Used when the server encounters an error that prevents it from servicing the request.
   const INTERNAL_SERVER_ERROR_SC = 500;
 
-  //! @brief Used when a client makes a request that is beyond the server's capabilities (e.g., using a request method
-  //! that the server does not support).
-  const NOT_IMPLEMENTED_SC = 501;
-
-  //! @brief Used when a server acting as a proxy or gateway encounters a bogus response from the next link in
-  //! the request response chain (e.g., if it is unable to connect to its parent gateway).
-  const BAD_GATEWAY_SC = 502;
-
-  //! @brief Used to indicate that the server currently cannot service the request but will be able to in the future.
-  //! @details If the server knows when the resource will become available, it can include a Retry-After header in the
-  //! response.
-  const SERVICE_UNAVAILABLE_SC = 503;
-
-  //! @brief Similar to status code 408, except that the response is coming from a gateway or proxy that has
-  //! timed out waiting for a response to its request from another server.
-  const GATEWAY_TIMEOUT_SC = 504;
-
-  //! @brief Used when a server receives a request in a version of the protocol that it can't or won't support.
-  //! @details Some server applications elect not to support older versions of the protocol.
-  const VERSION_NOT_SUPPORTED_SC = 505;
-  
   //! @}
 
   // Array of HTTP Status Codes
   private static $supportedStatusCodes = [
       // Informational Status Codes
       self::CONTINUE_SC => "Continue",
-      self::SWITCHING_PROTOCOLS_SC => "Switching Protocols",
       // Success Status Codes
       self::OK_SC => "OK",
       self::CREATED_SC => "Created",
       self::ACCEPTED_SC => "Accepted",
-      self::NONAUTHORITATIVE_INFORMATION_SC => "Non-Authoritative Information",
       self::NO_CONTENT_SC => "No Content",
-      self::RESET_CONTENT_SC => "Reset Content",
       self::PARTIAL_CONTENT_SC => "Partial Content",
       // Redirection Status Codes
-      self::MULTIPLE_CHOICES_SC => "Multiple Choices",
       self::MOVED_PERMANENTLY_SC => "Moved Permanently",
       self::FOUND_SC => "Found",
-      self::SEE_OTHER_SC => "See Other",
       self::NOT_MODIFIED_SC => "Not Modified",
-      self::USE_PROXY_SC => "Use Proxy",
-      self::UNUSED_SC => "(Unused)",
-      self::TEMPORARY_REDIRECT_SC => "Temporary Redirect",
       // Client Error Status Codes
       self::BAD_REQUEST_SC => "Bad Request",
       self::UNAUTHORIZED_SC => "Unauthorized",
-      self::PAYMENT_REQUIRED_SC => "Payment Required",
       self::FORBIDDEN_SC => "Forbidden",
       self::NOT_FOUND_SC => "Not Found",
       self::METHOD_NOT_ALLOWED_SC => "Method Not Allowed",
       self::NOT_ACCEPTABLE_SC => "Not Acceptable",
-      self::PROXY_AUTHENTICATION_REQUIRED_SC => "Proxy Authentication Required",
-      self::REQUEST_TIMEOUT_SC => "Request Timeout",
       self::CONFLICT_SC => "Conflict",
-      self::GONE_SC => "Gone",
-      self::LENGTH_REQUIRED_SC => "Length Required",
       self::PRECONDITION_FAILED_SC => "Precondition Failed",
       self::REQUEST_ENTITY_TOO_LARGE_SC => "Request Entity Too Large",
-      self::REQUESTURI_TOO_LONG_SC => "Request-URI Too Long",
       self::UNSUPPORTED_MEDIA_TYPE_SC => "Unsupported Media Type",
       self::REQUESTED_RANGE_NOT_SATISFIABLE_SC => "Requested Range Not Satisfiable",
       self::EXPECTATION_FAILED_SC => "Expectation Failed",
       // Server Error Status Codes
       self::INTERNAL_SERVER_ERROR_SC => "Internal Server Error",
-      self::NOT_IMPLEMENTED_SC => "Not Implemented",
-      self::BAD_GATEWAY_SC => "Bad Gateway",
-      self::SERVICE_UNAVAILABLE_SC => "Service Unavailable",
-      self::GATEWAY_TIMEOUT_SC => "Gateway Timeout",
-      self::VERSION_NOT_SUPPORTED_SC => "HTTP Version Not Supported"
   ];
 
   private $statusCode;

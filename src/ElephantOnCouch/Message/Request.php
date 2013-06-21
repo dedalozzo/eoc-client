@@ -135,12 +135,9 @@ final class Request extends Message {
   //! @see http://en.wikipedia.org/wiki/X-Forwarded-For
   const X_FORWARDED_FOR_HF = "X-Forwarded-For";
 
-  //! @brief Allows easier parsing of the MakeModel/Firmware that is usually found in the User-Agent String of AT&T Devices.
-  const X_ATT_DEVICEID_HF = "X_Att-Deviceid";
-
-  //! @brief Links to an XML file on the Internet with a full description and details about the device currently connecting.
-  //! In the example to the right is an XML file for an AT&T Samsung Galaxy S2.
-  const X_WAP_PROFILE_HF = "X-Wap-Profile";
+  const DESTINATION_HF = "Destination"; //!< This header field is not supported by HTTP 1.1. It's a special header field used by CouchDB.
+  const X_COUCHDB_WWW_AUTHENTICATE_HF = "X-CouchDB-WWW-Authenticate"; //!< This header field is not supported by HTTP 1.1. It's a special method header field by CouchDB.
+  const X_COUCHDB_FULL_COMMIT_HF = "X-Couch-Full-Commit"; //!< This header field is not supported by HTTP 1.1. It's a special header field used by CouchDB.
 
   //! @}
 
@@ -171,20 +168,19 @@ final class Request extends Message {
     self::X_DO_NOT_TRACK_HF => NULL,
     self::DNT_HF => NULL,
     self::X_FORWARDED_FOR_HF => NULL,
-    self::X_ATT_DEVICEID_HF => NULL,
-    self::X_WAP_PROFILE_HF => NULL
+    self::DESTINATION_HF => NULL,
+    self::X_COUCHDB_WWW_AUTHENTICATE_HF => NULL,
+    self::X_COUCHDB_FULL_COMMIT_HF => NULL,
   ];
 
   //! @name Request Methods
   //@{
   const GET_METHOD = "GET";
+  const HEAD_METHOD = "HEAD";
   const POST_METHOD = "POST";
   const PUT_METHOD = "PUT";
   const DELETE_METHOD = "DELETE";
-  const HEAD_METHOD = "HEAD";
-  const TRACE_METHOD = "TRACE";
-  const OPTIONS_METHOD = "OPTIONS";
-  const CONNECT_METHOD = "CONNECT";
+  const COPY_METHOD = "COPY"; //!< This method is not supported by HTTP 1.1. It's a special method used by CouchDB.
   //! @}
 
   // Stores the request methods supported by HTTP 1.1 protocol.
@@ -194,9 +190,7 @@ final class Request extends Message {
     self::POST_METHOD => NULL,
     self::PUT_METHOD => NULL,
     self::DELETE_METHOD => NULL,
-    self::TRACE_METHOD => NULL,
-    self::OPTIONS_METHOD => NULL,
-    self::CONNECT_METHOD => NULL
+    self::COPY_METHOD => NULL
   ];
 
   // Used to know if the constructor has been already called.

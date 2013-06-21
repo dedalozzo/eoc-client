@@ -81,18 +81,6 @@ final class Couch {
 	        (?P<port>:[0-9]+)?                               # Port
 	        $/ix'; 
 
-  //! @name Custom Request Header Fields
-  // @{
-  const DESTINATION_HF = "Destination";
-  const X_COUCHDB_WWW_AUTHENTICATE_HF = "X-CouchDB-WWW-Authenticate";
-  const X_COUCHDB_FULL_COMMIT_HF = "X-Couch-Full-Commit";
-  //@}
-
-  //! @name Custom Request Methods
-  // @{
-  const COPY_METHOD = "COPY"; // This method is not part of HTTP 1.1 protocol.
-  //@}
-
   //! Default CouchDB revisions limit number.
   const REVS_LIMIT = 1000;
 
@@ -133,10 +121,7 @@ final class Couch {
   private $timeout;
 
   // Stores the transport mode. This library can use cURL or sockets.
-  private static $transport = self::SOCKET_TRANSPORT;
-
-  // Used to know if the constructor has been already called.
-  private static $initialized = FALSE;
+  private $transport = self::SOCKET_TRANSPORT;
 
 
   //! @brief Creates a Couch class instance.
@@ -161,21 +146,6 @@ final class Couch {
 
     // Uses the default socket's timeout.
     $this->timeout = ini_get("default_socket_timeout");
-
-    // We can avoid to call the following code every time a ElephantOnCouch instance is created, testing a static property.
-    // Because the static nature of self::$initialized, this code will be executed only one time, even multiple ElephantOnCouch
-    // instances are created.
-    if (!self::$initialized) {
-      self::$initialized = TRUE;
-
-      // CouchDB uses a custom Method.
-      Request::addCustomMethod(self::COPY_METHOD);
-
-      // CouchDB uses some custom Header Fields
-      Request::addCustomHeaderField(self::DESTINATION_HF);
-      Request::addCustomHeaderField(self::X_COUCHDB_WWW_AUTHENTICATE_HF);
-      Request::addCustomHeaderField(self::X_COUCHDB_FULL_COMMIT_HF);
-    }
   }
 
 
@@ -338,7 +308,7 @@ final class Couch {
     // We close the connection after read the response.
     $request->setHeaderField(Message::CONNECTION_HF, "close");
 
-    if (self::$transport === self::SOCKET_TRANSPORT)
+    if ($this->transport === self::SOCKET_TRANSPORT)
       $response = $this->socketSend($request);
     else
       $response = $this->curlSend($request);
@@ -378,7 +348,7 @@ final class Couch {
   //! @brief Selects the cURL transport method.
   public function useCurl() {
     if (extension_loaded("curl"))
-      self::$transport = self::CURL_TRANSPORT;
+      $this->transport = self::CURL_TRANSPORT;
     else
       throw new \RuntimeException("The cURL extension is not loaded.");
   }
@@ -386,7 +356,13 @@ final class Couch {
 
   //! @brief Selects socket transport method. This is the default transport method.
   public function useSocket() {
-    self::$transport = self::SOCKET_TRANSPORT;
+    $this->transport = self::SOCKET_TRANSPORT;
+  }
+
+
+  //! @brief Returns the active transport method.
+  public function getTransportMethod() {
+    return $this->transport;
   }
 
   //! @}
