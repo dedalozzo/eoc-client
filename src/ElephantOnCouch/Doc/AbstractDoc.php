@@ -56,7 +56,7 @@ abstract class AbstractDoc {
   private function initMetadata() {
     $this->meta = [];
 
-    if ($this instanceof Doc || $this instanceof LocalDoc)
+    if (is_subclass_of($this, 'Doc') || is_subclass_of($this, 'LocalDoc'))
       $this->meta[self::DOC_CLASS] = get_class($this);
   }
 
