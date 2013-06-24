@@ -61,7 +61,7 @@ final class Couch {
   const DEFAULT_SERVER = "127.0.0.1:5984";
 
   //! HTTP protocol version.
-  const HTTP_VERSION_1_1 = 1;
+  const HTTP_VERSION = "HTTP/1.1";
 
   //! CR+LF (0x0D 0x0A). A Carriage Return followed by a Line Feed. We don't use PHP_EOL because HTTP wants CR+LF.
   const CRLF = "\r\n";
@@ -163,7 +163,7 @@ final class Couch {
 
   // This method executes the provided request, using sockets.
   private function socketSend(Request $request) {
-    $command = $request->getMethod()." ".$request->getPath().$request->getQueryString()." HTTP/1.1".self::CRLF;
+    $command = $request->getMethod()." ".$request->getPath().$request->getQueryString()." ".self::HTTP_VERSION.self::CRLF;
 
     $request->setHeaderField(Request::HOST_HF, $this->host.":".$this->port);
 
@@ -294,6 +294,63 @@ final class Couch {
       curl_close($curl);
       throw new \RuntimeException($error);
     }
+  }
+
+
+  private function doReplication($sourceDbUrl, $targetDbUrl, $createTargetDb = TRUE,
+                                 $continuous = FALSE, $filter = NULL, Opt\ViewQueryOpts $opts = NULL) {
+    // Sets the common parameters.
+    if (is_string($sourceDbUrl) && !empty($sourceDbUrl) &&
+      is_string($targetDbUrl) && !empty($targetDbUrl)) {
+      $body["source"] = $sourceDbUrl;
+      $body["target"] = $targetDbUrl;
+    }
+    else
+      throw new \InvalidArgumentException("\$source_db_url and \$target_db_url must be non-empty strings.");
+
+    if (!is_bool($continuous))
+      throw new \InvalidArgumentException("\$continuous must be a boolean.");
+    elseif ($continuous)
+      $body["continuous"] = $continuous;
+
+    // Uses the specified proxy if any set.
+    if (isset($this->proxy))
+      $body["proxy"] = $this->proxy;
+
+    // Specific parameters depend by caller method.
+    $callerMethod = self::getCallerMethod();
+
+    if ($callerMethod == "startDbReplication") {
+      // create_target option
+      if (!is_bool($createTargetDb))
+        throw new \InvalidArgumentException("\$createTargetDb must be a boolean.");
+      elseif ($createTargetDb)
+        $body["create_target"] = $createTargetDb;
+
+      if (!empty($filter)) {
+        if (is_string($filter)) // filter option
+        $body["filter"] = $filter;
+        elseif (is_array($filter)) // doc_ids option
+        $body["doc_ids"] = array_values($filter);
+        else
+          throw new \InvalidArgumentException("\$filter must be a string or an array.");
+      }
+
+      // queryParams option
+      if (!is_null($opts)) {
+        if ($opts instanceof Opt\ViewQueryOpts)
+          $body["queryParams"] = get_object_vars($opts);
+        else
+          throw new \InvalidArgumentException("\$queryParams must be an instance of ViewQueryOpts class.");
+      }
+    }
+    elseif ($callerMethod == "cancelDbReplication") {
+      $body["cancel"] = TRUE;
+    }
+    else
+      throw new \Exception("realDbReplication can be called only from startDbReplication and cancelDbReplication methods.");
+
+    return $this->send(Request::POST_METHOD, "/_replicate", NULL, NULL, $body);
   }
 
 
@@ -930,65 +987,8 @@ final class Couch {
   //! or you have large attachments.
   // @{
 
-  private function realDbReplication($sourceDbUrl, $targetDbUrl, $createTargetDb = TRUE,
-                                     $continuous = FALSE, $filter = NULL, $queryArgs = NULL) {
-    // Sets the common parameters.
-    if (is_string($sourceDbUrl) && !empty($sourceDbUrl) &&
-      is_string($targetDbUrl) && !empty($targetDbUrl)) {
-      $body["source"] = $sourceDbUrl;
-      $body["target"] = $targetDbUrl;
-    }
-    else
-      throw new \InvalidArgumentException("\$source_db_url and \$target_db_url must be non-empty strings.");
-
-    if (!is_bool($continuous))
-      throw new \InvalidArgumentException("\$continuous must be a boolean.");
-    elseif ($continuous)
-      $body["continuous"] = $continuous;
-
-    // Uses the specified proxy if any set.
-    if (isset($this->proxy))
-      $body["proxy"] = $this->proxy;
-
-    // Specific parameters depend by caller method.
-    $callerMethod = self::getCallerMethod();
-
-    if ($callerMethod == "startDbReplication") {
-      // create_target option
-      if (!is_bool($createTargetDb))
-        throw new \InvalidArgumentException("\$createTargetDb must be a boolean.");
-      elseif ($createTargetDb)
-        $body["create_target"] = $createTargetDb;
-
-      if (!empty($filter)) {
-        if (is_string($filter)) // filter option
-          $body["filter"] = $filter;
-        elseif (is_array($filter)) // doc_ids option
-          $body["doc_ids"] = array_values($filter);
-        else
-          throw new \InvalidArgumentException("\$filter must be a string or an array.");
-      }
-
-      // queryParams option
-      if (!is_null($queryArgs)) {
-        if ($queryArgs instanceof Opt\ViewQueryOpts)
-          $body["queryParams"] = get_object_vars($queryArgs);
-        else
-          throw new \InvalidArgumentException("\$queryParams must be an instance of ViewQueryOpts class.");
-      }
-    }
-    elseif ($callerMethod == "cancelDbReplication") {
-      $body["cancel"] = TRUE;
-    }
-    else
-      throw new \Exception("realDbReplication can be called only from startDbReplication and cancelDbReplication methods.");
-
-    return $this->send(Request::POST_METHOD, "/_replicate", NULL, NULL, $body);
-  }
-
-
   //! @brief Starts replication.
-  //! @code start_db_replication("sourcedbname", "http://example.org/targetdbname", TRUE, TRUE); @endcode
+  //! @code startReplication("sourcedbname", "http://example.org/targetdbname", TRUE, TRUE); @endcode
   //! @param[in] string $sourceDbUrl todo
   //! @param[in] string $targetDbUrl
   //! @param[in] boolean $createTargetDb The target database has to exist and is not implicitly created. You can force
@@ -999,20 +999,20 @@ final class Couch {
   //! you are required to trigger them again when you restart CouchDB. In the future, CouchDB will allow you to define
   //! permanent continuous replications that survive a server restart without you having to do anything.
   //! @param[in] string|array $filter todo
-  //! @param[in] QueryArgs $queryArgs todo
+  //! @param[in] ViewQueryOpts $opts todo
   //! @see http://docs.couchdb.org/en/latest/api/misc.html#post-replicate
   //! @todo Document parameters.
-  public function startDbReplication($sourceDbUrl, $targetDbUrl, $createTargetDb = TRUE,
-                                     $continuous = FALSE, $filter = NULL, $queryArgs = NULL) {
-    return $this->realDbReplication($sourceDbUrl, $targetDbUrl, $createTargetDb, $continuous, $filter, $queryArgs);
+  public function startReplication($sourceDbUrl, $targetDbUrl, $createTargetDb = TRUE,
+                                     $continuous = FALSE, $filter = NULL, Opt\ViewQueryOpts $opts = NULL) {
+    return $this->doReplication($sourceDbUrl, $targetDbUrl, $createTargetDb, $continuous, $filter, $opts);
   }
 
 
   //! @brief Cancels replication.
   //! @see http://docs.couchdb.org/en/latest/api/misc.html#post-replicate
   //! @todo Document parameters.
-  public function cancelDbReplication($sourceDbUrl, $targetDbUrl, $continuous = FALSE) {
-    return $this->realDbReplication($sourceDbUrl, $targetDbUrl, $continuous);
+  public function stopReplication($sourceDbUrl, $targetDbUrl, $continuous = FALSE) {
+    return $this->doReplication($sourceDbUrl, $targetDbUrl, $continuous);
   }
 
 
