@@ -21,10 +21,9 @@ use ElephantOnCouch\Message\Response;
 
 
 //! @brief The CouchDB's client. You need an instance of this class to interact with CouchDB.
+//! @details This client is using HTTP/1.1 version. Encoding is made according RFC 3986, using rawurlencode().
 //! @nosubgrouping
 //! @todo Improve Protocol Version support: let the user choose between RFC 1738 and RFC 3986. In the first case we use
-//! urlencode() and http_build_query with enc_type as PHP_QUERY_RFC1738, in the second one rawurlencode and enc_type as
-//! PHP_QUERY_RFC3986.
 //! I think this also will affect cURL, so check through his options. Checks also ISO-8859-1 because CouchDB use it, in
 //! particular utf8_encode().
 //! See http://it1.php.net/manual/en/function.http-build-query.php
@@ -33,6 +32,7 @@ use ElephantOnCouch\Message\Response;
 //! @todo Add Post File support.
 //! @todo Add Chunked Transfer-Encoding support.
 //! @todo Add Memcached support.
+//! @todo Add persistent connection support.
 //! @todo Implement getDbChanges().
 //! @todo Implement getSecurityObj().
 //! @todo Implement setSecurityObj().

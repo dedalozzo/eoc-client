@@ -319,7 +319,8 @@ final class Request extends Message {
     if (empty($this->queryParams))
       return "";
     else
-      return "?".http_build_query($this->queryParams);
+      // Encoding is based on RFC 3986.
+      return "?".http_build_query($this->queryParams, NULL, "&", PHP_QUERY_RFC3986);
   }
 
 
