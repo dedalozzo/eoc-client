@@ -10,11 +10,7 @@
 namespace ElephantOnCouch;
 
 
-// If PHP is not properly recognizing the line endings when reading files either on or created by a Macintosh computer,
-// enabling the auto_detect_line_endings run-time configuration option may help resolve the problem.
-ini_set("auto_detect_line_endings", TRUE);
-
-
+use ElephantOnCouch\Exception\ServerErrorException;
 use ElephantOnCouch\Message\Message;
 use ElephantOnCouch\Message\Request;
 use ElephantOnCouch\Message\Response;
@@ -23,14 +19,11 @@ use ElephantOnCouch\Message\Response;
 //! @brief The CouchDB's client. You need an instance of this class to interact with CouchDB.
 //! @details This client is using HTTP/1.1 version. Encoding is made according RFC 3986, using rawurlencode().
 //! @nosubgrouping
-//! @todo Improve Protocol Version support: let the user choose between RFC 1738 and RFC 3986. In the first case we use
-//! I think this also will affect cURL, so check through his options. Checks also ISO-8859-1 because CouchDB use it, in
-//! particular utf8_encode().
-//! See http://it1.php.net/manual/en/function.http-build-query.php
+//! @todo Check ISO-8859-1 because CouchDB use it, in particular utf8_encode().
 //! @todo Add Proxy support.
 //! @todo Add SSL support.
 //! @todo Add Post File support.
-//! @todo Add Chunked Transfer-Encoding support.
+//! @todo Add Chunked Transfer-Encoding support to curlSend.
 //! @todo Add Memcached support.
 //! @todo Add persistent connection support.
 //! @todo Implement getDbChanges().
@@ -65,6 +58,8 @@ final class Couch {
 
   //! CR+LF (0x0D 0x0A). A Carriage Return followed by a Line Feed. We don't use PHP_EOL because HTTP wants CR+LF.
   const CRLF = "\r\n";
+
+  const BUFFER_LENGTH = 8192;
 
   //! Maximum period to wait before the response is sent.
   const DEFAULT_TIMEOUT = 60000;
@@ -116,12 +111,16 @@ final class Couch {
   // todo Not used actually.
   private $requestFullUri = FALSE;
 
-  // Socket connection timeout in seconds, specified by a float. By default the default_socket_timeout php.ini setting
-  // is used.
-  private $timeout;
-
   // Stores the transport mode. This library can use cURL or sockets.
   private $transport = self::SOCKET_TRANSPORT;
+
+  // Socket connection timeout in seconds, specified by a float.
+  private $timeout;
+
+  private static $defaultSocketTimeout;
+
+  // Used to know if the constructor has been already called.
+  private static $initialized = FALSE;
 
 
   //! @brief Creates a Couch class instance.
@@ -131,6 +130,7 @@ final class Couch {
   //! @param[in] string $password (optional) Password.
   //! @see http://www.ietf.org/rfc/rfc3986.txt
   public function __construct($server = self::DEFAULT_SERVER, $userName = "", $password = "") {
+    self::initialize();
 
     // Parses the URI string '$server' to retrieve scheme, host and port and assigns matches to the relative class members.
     if (preg_match(self::SCHEME_HOST_PORT_URI, $server, $matches)) {
@@ -145,7 +145,26 @@ final class Couch {
     $this->password = (string)$password;
 
     // Uses the default socket's timeout.
-    $this->timeout = ini_get("default_socket_timeout");
+    $this->timeout = self::$defaultSocketTimeout;
+  }
+
+
+  // We can avoid to call the following code every time a ElephantOnCouch instance is created, testing a static property.
+  // Because the static nature of self::$initialized, this code will be executed only one time, even multiple Couch
+  // instances are created.
+  private static function initialize() {
+
+    if (!self::$initialized) {
+      self::$initialized = TRUE;
+
+      // If PHP is not properly recognizing the line endings when reading files either on or created by a Macintosh
+      // computer, enabling the auto_detect_line_endings run-time configuration option may help resolve the problem.
+      ini_set("auto_detect_line_endings", TRUE);
+
+      // By default the default_socket_timeout php.ini setting is used.
+      self::$defaultSocketTimeout = ini_get("default_socket_timeout");
+    }
+
   }
 
 
@@ -162,8 +181,8 @@ final class Couch {
 
 
   // This method executes the provided request, using sockets.
-  private function socketSend(Request $request) {
-    $command = $request->getMethod()." ".$request->getPath().$request->getQueryString()." ".self::HTTP_VERSION.self::CRLF;
+  private function socketSend(Request $request, callable $chunkHookFn = NULL) {
+    $command = $request->getMethod()." ".$request->getPath().$request->getQueryString()." ".self::HTTP_VERSION;
 
     $request->setHeaderField(Request::HOST_HF, $this->host.":".$this->port);
 
@@ -180,25 +199,82 @@ final class Couch {
       throw new \ErrorException($errstr, $errno);
 
     // Writes the request over the socket.
-    fputs($socket, $command);
-    fputs($socket, $request->getHeaderAsString().self::CRLF.self::CRLF);
+    fputs($socket, $command.self::CRLF);
+    fputs($socket, $request->getHeaderAsString().self::CRLF);
+    fputs($socket, self::CRLF);
     fputs($socket, $request->getBody());
     fputs($socket, self::CRLF);
 
-    // Reads the response.
-    $buffer = "";
+    // Reads the header.
+    $header = "";
+
     while (!feof($socket)) {
-      $buffer .= fgets($socket);
+      // We use fgets() because it stops reading at first newline or buffer length, depends which one is reached first.
+      $buffer = fgets($socket, self::BUFFER_LENGTH);
+
+      // Adding the buffer to the header.
+      $header .= $buffer;
+
+      // The header is separated from the body by a newline, so we break when we read it.
+      if ($buffer == self::CRLF)
+        break;
     }
+
+    // Creates the Response object, that parses the header.
+    $response = new Response($header);
+
+    // Now it's time to read the response body.
+    $body = "";
+
+    // This might be a chunked response. See: http://www.jmarshall.com/easy/http/#http1.1c2.
+    if ($response->getHeaderFieldValue(Response::TRANSFER_ENCODING_HF) == "chunked") {
+
+      while (!feof($socket)) {
+        // Gets the line which has the length of this chunk.
+        $line = fgets($socket, self::BUFFER_LENGTH);
+
+        // If it's only a newline, this normally means it's read the total amount of data requested minus the newline
+        // continue to next loop to make sure we're done.
+        if ($line == self::CRLF)
+          continue;
+
+        // The length of the block is expressed in hexadecimal.
+        $length = hexdec($line);
+
+        if (!is_int($length))
+          throw new \RuntimeException("The response doesn't seem chunk encoded.");
+
+        // Zero is sent when at the end of the chunks or the end of the stream.
+        if ($length < 1)
+          break;
+
+        // We use fread() here, because we know exactly how many bytes read.
+        $buffer = fread($socket, $length);
+
+        // If a function has been hooked, calls it, else just add the buffer to the body.
+        if (is_null($chunkHookFn))
+          $body .= $buffer;
+        else
+          call_user_func($chunkHookFn, $buffer);
+      }
+
+    }
+    else { // Normal response, not chunked.
+      while (!feof($socket))
+        $body .= fgets($socket);
+    }
+
+    // Assigns the body to the Response, if any is present.
+    $response->setBody($body);
 
     @fclose($socket);
 
-    return new Response($buffer);
+    return $response;
   }
 
 
   // This method executes the provided request, using cURL library. To use it, cURL must be installed on server.
-  private function curlSend(Request $request) {
+  private function curlSend(Request $request, callable $chunkHookFn = NULL) {
     $opts = [];
 
     // Sets the methods and its related options.
@@ -355,7 +431,7 @@ final class Couch {
 
 
   //! @brief This method is used to send a Request to the server.
-  public function send(Request $request) {
+  public function send(Request $request, callable $chunkHookFn = NULL) {
     // Sets user agent information.
     $request->setHeaderField(Request::USER_AGENT_HF, self::USER_AGENT_NAME." ".self::USER_AGENT_VERSION);
 
@@ -366,9 +442,9 @@ final class Couch {
     $request->setHeaderField(Message::CONNECTION_HF, "close");
 
     if ($this->transport === self::SOCKET_TRANSPORT)
-      $response = $this->socketSend($request);
+      $response = $this->socketSend($request, $chunkHookFn);
     else
-      $response = $this->curlSend($request);
+      $response = $this->curlSend($request, $chunkHookFn);
 
     // 1xx - Informational Status Codes
     // 2xx - Success Status Codes
