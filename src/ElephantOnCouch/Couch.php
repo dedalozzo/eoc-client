@@ -23,13 +23,12 @@ use ElephantOnCouch\Message\Response;
 //! @todo Add Proxy support.
 //! @todo Add SSL support.
 //! @todo Add Post File support.
-//! @todo Add Chunked Transfer-Encoding support to curlSend.
 //! @todo Add Memcached support.
 //! @todo Add persistent connection support.
 //! @todo Implement getDbChanges().
 //! @todo Implement getSecurityObj().
 //! @todo Implement setSecurityObj().
-//! @todo Implement cancelDbReplication().
+//! @todo Implement cancelReplication().
 //! @todo Implement getReplicator().
 //! @todo Implement purgeDocs().
 //! @todo Implement performBulkOperations().
@@ -47,7 +46,7 @@ final class Couch {
   //! @brief User agent's information.
   // @{
   const USER_AGENT_NAME = "ElephantOnCouch";
-  const USER_AGENT_VERSION = "0.1";
+  const USER_AGENT_VERSION = "0.2.1";
   //@}
 
   //! Default server.
@@ -74,7 +73,7 @@ final class Couch {
 	        |     \[[a-f0-9:.]+\]                            # IPv6 host
 	        |     \[v[a-f0-9][a-z0-9\-._~%!$&\'()*+,;=:]+\]) # IPvFuture host
 	        (?P<port>:[0-9]+)?                               # Port
-	        $/ix'; 
+	        $/ix';
 
   //! Default CouchDB revisions limit number.
   const REVS_LIMIT = 1000;
@@ -338,7 +337,8 @@ final class Couch {
     $opts[CURLOPT_HTTPHEADER] = $request->getHeaderAsArray();
 
     // Includes the header in the output. We need this because our Response object will parse them.
-    $opts[CURLOPT_HEADER] = TRUE;
+    // NOTE: We don't include header anymore, because we use the option CURLOPT_HEADERFUNCTION.
+    //$opts[CURLOPT_HEADER] = TRUE;
 
     // Returns the transfer as a string of the return value of curl_exec() instead of outputting it out directly.
     $opts[CURLOPT_RETURNTRANSFER] = TRUE;
@@ -352,7 +352,10 @@ final class Couch {
       $opts[CURLOPT_USERPWD] = $this->userName.":".$this->password;
     }
 
+    // Init cURL.
     $curl = curl_init();
+
+    // Sets the previous options.
     curl_setopt_array($curl, $opts);
 
     // This fix a known cURL bug: see http://the-stickman.com/web-development/php-and-curl-disabling-100-continue-header/
@@ -361,9 +364,31 @@ final class Couch {
     if (!$request->hasHeaderField(Request::EXPECT_HF))
       curl_setopt($curl, CURLOPT_HTTPHEADER, array("Expect:"));
 
+    // Here we use this option because we might have a response without body. This may happen because we are supporting
+    // chunk responses, and sometimes we want trigger an hook function to let the user perform operations on coming
+    // chunks.
+    $header = "";
+    curl_setopt($curl, CURLOPT_HEADERFUNCTION, function($curl, $buffer) use (&$header) {
+      $header .= $buffer;
+
+      return strlen($buffer);
+    });
+
+    // When the hook function is provided, we set the CURLOPT_WRITEFUNCTION so cURL will call the hook function for each
+    // response chunk read.
+    if (isset($chunkHookFn)) {
+      curl_setopt($curl, CURLOPT_WRITEFUNCTION, function($curl, $buffer) use ($chunkHookFn) {
+        call_user_func($chunkHookFn, $buffer);
+
+        return strlen($buffer);
+      });
+    }
+
     if ($result = curl_exec($curl)) {
       curl_close($curl);
-      return new Response($result);
+      $response = new Response($header);
+      $response->setBody($result);
+      return $response;
     }
     else {
       $error = curl_error($curl);
