@@ -675,7 +675,7 @@ final class Couch {
   public function getFavicon() {
     $response = $this->send(new Request(Request::GET_METHOD, "/favicon.ico"));
 
-    if ($response->getHeaderField(Request::CONTENT_TYPE_HF) == "image/x-icon")
+    if ($response->getHeaderFieldValue(Request::CONTENT_TYPE_HF) == "image/x-icon")
       return $response->getBody();
     else
       throw new \InvalidArgumentException("Content-Type must be image/x-icon.");
@@ -832,7 +832,7 @@ final class Couch {
 
     $request = new Request(Request::POST_METHOD, "/_session");
 
-    $request->setHeaderField(self::X_COUCHDB_WWW_AUTHENTICATE_HF, "Cookie");
+    $request->setHeaderField(Request::X_COUCHDB_WWW_AUTHENTICATE_HF, "Cookie");
     $request->setHeaderField(Request::CONTENT_TYPE_HF, "application/x-www-form-urlencoded");
 
     $request->setQueryParam("name", $userName);
@@ -1312,7 +1312,7 @@ final class Couch {
     $request = new Request(Request::HEAD_METHOD, $path);
 
     // CouchDB ETag is included between quotation marks.
-    return trim($this->send($request)->getHeaderField(Response::ETAG_HF), '"');
+    return trim($this->send($request)->getHeaderFieldValue(Response::ETAG_HF), '"');
   }
 
 
@@ -1452,12 +1452,12 @@ final class Couch {
     $path = "/".$this->dbName."/".$path.$sourceDocId;
 
     // This request uses the special method COPY.
-    $request = new Request(self::COPY_METHOD, $path);
+    $request = new Request(Request::COPY_METHOD, $path);
 
     if (empty($rev))
-      $request->setHeaderField(self::DESTINATION_HF, $targetDocId);
+      $request->setHeaderField(Request::DESTINATION_HF, $targetDocId);
     else
-      $request->setHeaderField(self::DESTINATION_HF, $targetDocId."?rev=".(string)$rev);
+      $request->setHeaderField(Request::DESTINATION_HF, $targetDocId."?rev=".(string)$rev);
 
     $this->send($request);
   }
@@ -1493,9 +1493,9 @@ final class Couch {
       $request = new Request(Request::POST_METHOD, $path);
 
       if ($fullCommit)
-        $request->setHeaderField(self::X_COUCHDB_FULL_COMMIT_HF, "full_commit");
+        $request->setHeaderField(Request::X_COUCHDB_FULL_COMMIT_HF, "full_commit");
       else
-        $request->setHeaderField(self::X_COUCHDB_FULL_COMMIT_HF, "delay_commit");
+        $request->setHeaderField(Request::X_COUCHDB_FULL_COMMIT_HF, "delay_commit");
 
       $this->send($request);
     }
