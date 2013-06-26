@@ -180,14 +180,14 @@ abstract class Message {
   }
 
 
-  //! @brief Returns the value for the header identified by the specified name.
+  //! @brief Returns the value for the header identified by the specified name or <i>FALSE</i> in case it doesn't exist.
   //! @param[in] string $name Header field name.
   //! @return string
-  public function getHeaderField($name) {
-    if (array_key_exists($name, $this->header))
+  public function getHeaderFieldValue($name) {
+    if ($this->hasHeaderField($name))
       return $this->header[$name];
     else
-      throw new \Exception("$name header field is not present.");
+      return FALSE;
   }
 
 
@@ -285,10 +285,7 @@ abstract class Message {
   //! @brief Sets the Message entity-body.
   //! @param[in] string $body
   public function setBody($body) {
-    if (is_string($body) && !empty($body))
-      $this->body = $body;
-    else
-      throw new \Exception("\$body must be a non-empty string.");
+    $this->body = (string)$body;
   }
 
 
