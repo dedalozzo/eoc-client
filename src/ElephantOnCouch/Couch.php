@@ -483,7 +483,7 @@ final class Couch {
   }
 
 
-  //! @brief This method is used to send a Request to the server.
+  //! @brief This method is used to send a Request to CouchDB.
   public function send(Request $request, callable $chunkHookFn = NULL) {
     // Sets user agent information.
     $request->setHeaderField(Request::USER_AGENT_HF, self::USER_AGENT_NAME." ".self::USER_AGENT_VERSION);
@@ -548,7 +548,7 @@ final class Couch {
 
 
   //! @brief Returns the active transport method.
-  public static function getTransportMethod() {
+  public function getTransportMethod() {
     return self::$transport;
   }
 
