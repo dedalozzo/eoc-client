@@ -202,7 +202,7 @@ final class Couch {
 
 
   // This method executes the provided request, using sockets.
-  private function socketSend(Request $request, callable $chunkHookFn = NULL) {
+  private function socketSend(Request $request, Hook\ChunkHook $chunkHook = NULL) {
     $command = $request->getMethod()." ".$request->getPath().$request->getQueryString()." ".self::HTTP_VERSION;
 
     $request->setHeaderField(Request::HOST_HF, $this->host.":".$this->port);
@@ -268,10 +268,10 @@ final class Couch {
         $buffer = fread($this->handle, $length);
 
         // If a function has been hooked, calls it, else just add the buffer to the body.
-        if (is_null($chunkHookFn))
+        if (is_null($chunkHook))
           $body .= $buffer;
         else
-          call_user_func($chunkHookFn, $buffer);
+          $chunkHook->process($buffer);
       }
 
     }
@@ -302,7 +302,7 @@ final class Couch {
 
 
   // This method executes the provided request, using cURL library. To use it, cURL must be installed on server.
-  private function curlSend(Request $request, callable $chunkHookFn = NULL) {
+  private function curlSend(Request $request, Hook\ChunkHook $chunkHook = NULL) {
     $opts = [];
 
     // Resets all the cURL options. The curl_reset() function is available only since PHP 5.5.
@@ -406,9 +406,9 @@ final class Couch {
 
     // When the hook function is provided, we set the CURLOPT_WRITEFUNCTION so cURL will call the hook function for each
     // response chunk read.
-    if (isset($chunkHookFn)) {
-      curl_setopt($this->handle, CURLOPT_WRITEFUNCTION, function($unused, $buffer) use ($chunkHookFn) {
-        call_user_func($chunkHookFn, $buffer);
+    if (isset($chunkHook)) {
+      curl_setopt($this->handle, CURLOPT_WRITEFUNCTION, function($unused, $buffer) use ($chunkHook) {
+        $chunkHook->process($buffer);
 
         return strlen($buffer);
       });
@@ -484,7 +484,13 @@ final class Couch {
 
 
   //! @brief This method is used to send a Request to CouchDB.
-  public function send(Request $request, callable $chunkHookFn = NULL) {
+  //! @details If you want call a not supported CouchDB API, you can use this function to send your request.<br />
+  //! You can also provide an instance of a class that implements the ChunkHook interface, to deal with a chunked
+  //! response.
+  //! @param[in] Request $request The Request object.
+  //! @param[in] ChunkHook $chunkHook (optional) A class instance that implements the ChunkHook interface.
+  //! @return Response
+  public function send(Request $request, Hook\ChunkHook $chunkHook = NULL) {
     // Sets user agent information.
     $request->setHeaderField(Request::USER_AGENT_HF, self::USER_AGENT_NAME." ".self::USER_AGENT_VERSION);
 
@@ -496,9 +502,9 @@ final class Couch {
     //$request->setHeaderField(Message::CONNECTION_HF, "close");
 
     if (self::$transport === self::SOCKET_TRANSPORT)
-      $response = $this->socketSend($request, $chunkHookFn);
+      $response = $this->socketSend($request, $chunkHook);
     else
-      $response = $this->curlSend($request, $chunkHookFn);
+      $response = $this->curlSend($request, $chunkHook);
 
     // 1xx - Informational Status Codes
     // 2xx - Success Status Codes
