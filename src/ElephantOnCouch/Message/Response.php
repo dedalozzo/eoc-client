@@ -337,12 +337,13 @@ final class Response extends Message {
     $fields = explode("\r\n", preg_replace('/\x0D\x0A[\x09\x20]+/', ' ', $rawHeader));
 
     foreach ($fields as $field) {
-      if (preg_match('/([^:]+): (.+)/m', $field, $match)) {
-        $match[1] = preg_replace('/(?<=^|[\x09\x20\x2D])./e', 'strtoupper("\0")', strtolower(trim($match[1])));
-        if (isset($this->header[$match[1]]))
-          $this->header[$match[1]] = array($this->header[$match[1]], $match[2]);
+      if (preg_match('/([^:]+): (.+)/m', $field, $matches)) {
+        // With the advent of PHP 5.5, the /e modifier is deprecated, so we use preg_replace_callback().
+        $matches[1] = preg_replace_callback('/(?<=^|[\x09\x20\x2D])./', function($matches) { return strtoupper($matches[0]); }, strtolower(trim($matches[1])));
+        if (isset($this->header[$matches[1]]))
+          $this->header[$matches[1]] = array($this->header[$matches[1]], $matches[2]);
         else
-          $this->header[$match[1]] = trim($match[2]);
+          $this->header[$matches[1]] = trim($matches[2]);
       }
     }
   }
