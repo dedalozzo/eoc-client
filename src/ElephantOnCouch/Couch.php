@@ -23,8 +23,7 @@ use ElephantOnCouch\Message\Response;
 //! @todo Add Proxy support.
 //! @todo Add SSL support.
 //! @todo Add Post File support.
-//! @todo Add Memcached support.
-//! @todo Add persistent connection support.
+//! @todo Add Memcached support. Remember to use Memcached extension, not memcache.
 //! @todo Implement getDbChanges().
 //! @todo Implement getSecurityObj().
 //! @todo Implement setSecurityObj().
@@ -92,6 +91,9 @@ final class Couch {
     self::DESIGN_DOC_PATH => NULL
   ];
 
+  // Stores the transport mode. This library can use cURL or sockets.
+  private static $transport = self::SOCKET_TRANSPORT;
+
   private $scheme;
   private $host;
   private $port;
@@ -110,11 +112,11 @@ final class Couch {
   // todo Not used actually.
   private $requestFullUri = FALSE;
 
-  // Stores the transport mode. This library can use cURL or sockets.
-  private $transport = self::SOCKET_TRANSPORT;
-
   // Socket connection timeout in seconds, specified by a float.
   private $timeout;
+
+  // Socket or cURL handle.
+  private $handle;
 
   private static $defaultSocketTimeout;
 
@@ -145,6 +147,26 @@ final class Couch {
 
     // Uses the default socket's timeout.
     $this->timeout = self::$defaultSocketTimeout;
+
+    // PHP sockets are the default transport mode.
+    if (self::$transport == self::SOCKET_TRANSPORT) {
+      // Establishes a connection within the server.
+      $this->handle = @pfsockopen($this->scheme.$this->host, $this->port, $errno, $errstr, $this->timeout);
+
+      if (!is_resource($this->handle))
+        throw new \ErrorException($errstr, $errno);
+    }
+    else {
+      // Init cURL.
+      $this->handle = curl_init();
+    }
+  }
+
+
+  //! @brief Destroys the Couch class instance.
+  public function __destruct() {
+    if (self::$transport == self::CURL_TRANSPORT)
+      curl_close($this->handle);
   }
 
 
@@ -192,26 +214,21 @@ final class Couch {
     if ($request->hasBody())
       $request->setHeaderField(Message::CONTENT_LENGTH_HF, $request->getBodyLength());
 
-    $socket = @fsockopen($this->scheme.$this->host, $this->port, $errno, $errstr, $this->timeout);
-
-    if (!is_resource($socket))
-      throw new \ErrorException($errstr, $errno);
-
     // Writes the request over the socket.
-    fputs($socket, $command.self::CRLF);
-    fputs($socket, $request->getHeaderAsString().self::CRLF);
-    fputs($socket, self::CRLF);
-    fputs($socket, $request->getBody());
-    fputs($socket, self::CRLF);
+    fputs($this->handle, $command.self::CRLF);
+    fputs($this->handle, $request->getHeaderAsString().self::CRLF);
+    fputs($this->handle, self::CRLF);
+    fputs($this->handle, $request->getBody());
+    fputs($this->handle, self::CRLF);
 
     // Reads the header.
     $header = "";
 
-    while (!feof($socket)) {
+    while (!feof($this->handle)) {
       // We use fgets() because it stops reading at first newline or buffer length, depends which one is reached first.
-      $buffer = fgets($socket, self::BUFFER_LENGTH);
+      $buffer = fgets($this->handle, self::BUFFER_LENGTH);
 
-      // Adding the buffer to the header.
+      // Adds the buffer to the header.
       $header .= $buffer;
 
       // The header is separated from the body by a newline, so we break when we read it.
@@ -228,9 +245,9 @@ final class Couch {
     // This might be a chunked response. See: http://www.jmarshall.com/easy/http/#http1.1c2.
     if ($response->getHeaderFieldValue(Response::TRANSFER_ENCODING_HF) == "chunked") {
 
-      while (!feof($socket)) {
+      while (!feof($this->handle)) {
         // Gets the line which has the length of this chunk.
-        $line = fgets($socket, self::BUFFER_LENGTH);
+        $line = fgets($this->handle, self::BUFFER_LENGTH);
 
         // If it's only a newline, this normally means it's read the total amount of data requested minus the newline
         // continue to next loop to make sure we're done.
@@ -248,7 +265,7 @@ final class Couch {
           break;
 
         // We use fread() here, because we know exactly how many bytes read.
-        $buffer = fread($socket, $length);
+        $buffer = fread($this->handle, $length);
 
         // If a function has been hooked, calls it, else just add the buffer to the body.
         if (is_null($chunkHookFn))
@@ -259,14 +276,26 @@ final class Couch {
 
     }
     else { // Normal response, not chunked.
-      while (!feof($socket))
-        $body .= fgets($socket);
+      // Retrieves the body length from the header.
+      $length = (int)$response->getHeaderFieldValue(Response::CONTENT_LENGTH_HF);
+
+      // The response should have a body, if not we have finished.
+      if ($length > 0) {
+        $bytes = 0;
+
+        while (!feof($this->handle)) {
+          $buffer = fgets($this->handle);
+          $body .= $buffer;
+          $bytes += strlen($buffer);
+
+          if ($bytes >= $length)
+            break;
+        }
+      }
     }
 
     // Assigns the body to the Response, if any is present.
     $response->setBody($body);
-
-    @fclose($socket);
 
     return $response;
   }
@@ -275,6 +304,10 @@ final class Couch {
   // This method executes the provided request, using cURL library. To use it, cURL must be installed on server.
   private function curlSend(Request $request, callable $chunkHookFn = NULL) {
     $opts = [];
+
+    // Resets all the cURL options. The curl_reset() function is available only since PHP 5.5.
+    if (function_exists('curl_reset'))
+      curl_reset($this->handle);
 
     // Sets the methods and its related options.
     switch ($request->getMethod()) {
@@ -324,7 +357,7 @@ final class Couch {
         $opts[CURLOPT_CUSTOMREQUEST] = Request::DELETE_METHOD;
         break;
 
-      // HEAD, TRACE, OPTIONS, CONNECT or any other custom method.
+      // COPY or any other custom method.
       default:
         $opts[CURLOPT_CUSTOMREQUEST] = $request->getMethod();
 
@@ -337,7 +370,7 @@ final class Couch {
     $opts[CURLOPT_HTTPHEADER] = $request->getHeaderAsArray();
 
     // Includes the header in the output. We need this because our Response object will parse them.
-    // NOTE: We don't include header anymore, because we use the option CURLOPT_HEADERFUNCTION.
+    // NOTE: we don't include header anymore, because we use the option CURLOPT_HEADERFUNCTION.
     //$opts[CURLOPT_HEADER] = TRUE;
 
     // Returns the transfer as a string of the return value of curl_exec() instead of outputting it out directly.
@@ -352,23 +385,20 @@ final class Couch {
       $opts[CURLOPT_USERPWD] = $this->userName.":".$this->password;
     }
 
-    // Init cURL.
-    $curl = curl_init();
-
     // Sets the previous options.
-    curl_setopt_array($curl, $opts);
+    curl_setopt_array($this->handle, $opts);
 
     // This fix a known cURL bug: see http://the-stickman.com/web-development/php-and-curl-disabling-100-continue-header/
     // cURL sets the Expect header field automatically, ignoring the fact that a client may not need it for the specific
     // request.
     if (!$request->hasHeaderField(Request::EXPECT_HF))
-      curl_setopt($curl, CURLOPT_HTTPHEADER, array("Expect:"));
+      curl_setopt($this->handle, CURLOPT_HTTPHEADER, array("Expect:"));
 
     // Here we use this option because we might have a response without body. This may happen because we are supporting
     // chunk responses, and sometimes we want trigger an hook function to let the user perform operations on coming
     // chunks.
     $header = "";
-    curl_setopt($curl, CURLOPT_HEADERFUNCTION, function($curl, $buffer) use (&$header) {
+    curl_setopt($this->handle, CURLOPT_HEADERFUNCTION, function($unused, $buffer) use (&$header) {
       $header .= $buffer;
 
       return strlen($buffer);
@@ -377,22 +407,20 @@ final class Couch {
     // When the hook function is provided, we set the CURLOPT_WRITEFUNCTION so cURL will call the hook function for each
     // response chunk read.
     if (isset($chunkHookFn)) {
-      curl_setopt($curl, CURLOPT_WRITEFUNCTION, function($curl, $buffer) use ($chunkHookFn) {
+      curl_setopt($this->handle, CURLOPT_WRITEFUNCTION, function($unused, $buffer) use ($chunkHookFn) {
         call_user_func($chunkHookFn, $buffer);
 
         return strlen($buffer);
       });
     }
 
-    if ($result = curl_exec($curl)) {
-      curl_close($curl);
+    if ($result = curl_exec($this->handle)) {
       $response = new Response($header);
       $response->setBody($result);
       return $response;
     }
     else {
-      $error = curl_error($curl);
-      curl_close($curl);
+      $error = curl_error($this->handle);
       throw new \RuntimeException($error);
     }
   }
@@ -464,9 +492,10 @@ final class Couch {
     $request->setHeaderField(Request::ACCEPT_HF, "application/json");
 
     // We close the connection after read the response.
-    $request->setHeaderField(Message::CONNECTION_HF, "close");
+    // NOTE: we don't use anymore the connection header field, because we use the same socket until the end of script.
+    //$request->setHeaderField(Message::CONNECTION_HF, "close");
 
-    if ($this->transport === self::SOCKET_TRANSPORT)
+    if (self::$transport === self::SOCKET_TRANSPORT)
       $response = $this->socketSend($request, $chunkHookFn);
     else
       $response = $this->curlSend($request, $chunkHookFn);
@@ -504,23 +533,23 @@ final class Couch {
   //@{
 
   //! @brief Selects the cURL transport method.
-  public function useCurl() {
+  public static function useCurl() {
     if (extension_loaded("curl"))
-      $this->transport = self::CURL_TRANSPORT;
+      self::$transport = self::CURL_TRANSPORT;
     else
       throw new \RuntimeException("The cURL extension is not loaded.");
   }
 
 
   //! @brief Selects socket transport method. This is the default transport method.
-  public function useSocket() {
-    $this->transport = self::SOCKET_TRANSPORT;
+  public static function useSocket() {
+    self::$transport = self::SOCKET_TRANSPORT;
   }
 
 
   //! @brief Returns the active transport method.
-  public function getTransportMethod() {
-    return $this->transport;
+  public static function getTransportMethod() {
+    return self::$transport;
   }
 
   //! @}
