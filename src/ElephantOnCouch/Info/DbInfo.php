@@ -141,11 +141,11 @@ class DbInfo {
   //! @brief Overrides the magic method to convert the object to a string.
   public function __toString() {
     $buffer = "";
-    $buffer .= "[Name] ".$this->name.PHP_EOL;
+    $buffer .= "[Database Name] ".$this->name.PHP_EOL;
     $buffer .= "[Disk Size (Bytes)] ".$this->diskSize.PHP_EOL;
     $buffer .= "[Data Size (Bytes)] ".$this->dataSize.PHP_EOL;
     $buffer .= "[Disk Format Version] ".$this->diskFormatVersion.PHP_EOL;
-    $buffer .= "[CouchDB Start Time] ".$this->instanceStartTime.PHP_EOL;
+    $buffer .= "[CouchDB Startup Time] ".date('Y-m-d H:i:s', $this->instanceStartTime).PHP_EOL;
     $buffer .= "[Documents] ".$this->docCount.PHP_EOL;
     $buffer .= "[Deleted Documents] ".$this->docDelCount.PHP_EOL;
     $buffer .= "[Updates] = ".$this->updateSeq.PHP_EOL;
