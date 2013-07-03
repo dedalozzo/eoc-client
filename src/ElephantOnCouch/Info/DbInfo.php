@@ -15,23 +15,50 @@ use ElephantOnCouch\Helper;
 //! @brief This is an information only purpose class. It's used by Couch.getDbInfo() method.
 //! @details Since this class uses the <i>Properties</i> trait, you don't need to call the getter methods to obtain information
 //! about database.
+//! @nosubgrouping
 class DbInfo {
   use Helper\Properties;
 
+  //! @name Properties
+  //@{
+
+  //! @brief Returns the database name.
   private $name;
+
+  //! @brief Gets the current size in Bytes of the database. Note: size of views indexes on disk are not included.
   private $diskSize;
+
+  //! @brief Returns the current size in Bytes of the database documents. Deleted documents or revision are not counted.
   private $dataSize;
+
+  //! @brief Gets the current version of the internal database format on disk.
   private $diskFormatVersion;
+
+  //! @brief Returns the timestamp of CouchDBs start time.
   private $instanceStartTime;
+
+  //! #brief Returns the number of documents (including design documents) in the database.
   private $docCount;
+
+  //! @brief Returns the number of deleted documents (including design documents) in the database.
   private $docDelCount;
+
+  //! @brief Returns the current number of updates to the database.
   private $updateSeq;
+
+  //! @brief Returns the number of purge operations.
   private $purgeSeq;
+
+  //! @brief Indicates if a compaction is running.
   private $compactRunning;
+
+  //! @brief Returns of committed updates number.
   private $committedUpdateSeq;
 
+  //@}
 
-  //! @brief This constructor is used by src.getDbinfo() method.
+
+  //! @brief Creates an instance based on the provided JSON array.
   public function __construct(array $info) {
     if (Helper\ArrayHelper::isAssociative($info)) {
       $this->name = $info['db_name'];
@@ -56,69 +83,80 @@ class DbInfo {
   }
 
 
-  //! @brief Returns the database name.
   public function getName() {
     return $this->name;
   }
 
 
-  //! @brief Gets the current size in Bytes of the database. Note: size of views indexes on disk are not included.
   public function getDiskSize() {
     return $this->diskSize;
   }
 
 
-  //! @brief Returns the current size in Bytes of the database documents. Deleted documents or revision are not counted.
   public function getDataSize() {
     return $this->dataSize;
   }
 
 
-  //! @brief Gets the current version of the internal database format on disk.
   public function getDiskFormatVersion() {
     return $this->diskFormatVersion;
   }
 
 
-  //! @brief Returns the timestamp of CouchDBs start time.
   public function getInstanceStartTime() {
     return $this->instanceStartTime;
   }
 
 
-  //! #brief Returns the number of documents (including design documents) in the database.
   public function getDocCount() {
     return $this->docCount;
   }
 
 
-  //! @brief Returns the number of deleted documents (including design documents) in the database.
   public function getDocDelCount() {
     return $this->docDelCount;
   }
 
 
-  //! @brief Returns the current number of updates to the database.
   public function getUpdateSeq() {
     return $this->updateSeq;
   }
 
 
-  //! @brief Returns the number of purge operations.
   public function getPurgeSeq() {
     return $this->purgeSeq;
   }
 
 
-  //! @brief Indicates if a compaction is running.
   public function getCompactRunning() {
     return $this->compactRunning;
   }
 
 
-  //! @brief Returns of committed updates number.
   public function getCommittedUpdateSequence() {
     return $this->committedUpdateSeq;
+  }
+
+
+  //! @brief Overrides the magic method to convert the object to a string.
+  public function __toString() {
+    $buffer = "";
+    $buffer .= "[Name] ".$this->name.PHP_EOL;
+    $buffer .= "[Disk Size (Bytes)] ".$this->diskSize.PHP_EOL;
+    $buffer .= "[Data Size (Bytes)] ".$this->dataSize.PHP_EOL;
+    $buffer .= "[Disk Format Version] ".$this->diskFormatVersion.PHP_EOL;
+    $buffer .= "[CouchDB Start Time] ".$this->instanceStartTime.PHP_EOL;
+    $buffer .= "[Documents] ".$this->docCount.PHP_EOL;
+    $buffer .= "[Deleted Documents] ".$this->docDelCount.PHP_EOL;
+    $buffer .= "[Updates] = ".$this->updateSeq.PHP_EOL;
+    $buffer .= "[Purge Operations] ".$this->purgeSeq.PHP_EOL;
+
+    $compactRunning = ($this->compactRunning) ? 'active' : 'inactive';
+    $buffer .= "[Compaction] ".$compactRunning.PHP_EOL;
+
+    $buffer .= "[Committed Updates] ".$this->committedUpdateSeq.PHP_EOL;
+
+    return $buffer;
   }
 
 }
