@@ -178,7 +178,7 @@ class DbInfo {
   //! @brief Overrides the magic method to convert the object to a string.
   public function __toString() {
     $buffer = "";
-    $buffer .= "[CouchDB Uptime] ".$this->uptime().PHP_EOL
+    $buffer .= "[CouchDB Uptime] ".$this->uptime().PHP_EOL;
     $buffer .= PHP_EOL;
 
     $buffer .= "[Database Name] ".$this->name.PHP_EOL;
