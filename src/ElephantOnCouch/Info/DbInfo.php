@@ -71,12 +71,7 @@ class DbInfo {
       $this->docDelCount = $info['doc_del_count'];
       $this->updateSeq = $info['update_seq'];
       $this->purgeSeq = $info['purge_seq'];
-
-      if (is_null($info['compact_running']))
-        $this->compactRunning = FALSE;
-      else
-        $this->compactRunning = TRUE;
-
+      $this->compactRunning = $info['compact_running'];
       $this->committedUpdateSeq = $info['committed_update_seq'];
     }
     else
