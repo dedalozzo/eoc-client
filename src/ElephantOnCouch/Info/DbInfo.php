@@ -94,7 +94,7 @@ class DbInfo {
     $timestamp = microtime(TRUE);
 
     // Subtracts from the current timestamp the last timestamp server was started.
-    $microseconds = $timestamp - (float)$this->instanceStartTime;
+    $microseconds = ($timestamp * $microsecondsInASecond) - (float)$this->instanceStartTime;
 
     // Converts microseconds in seconds.
     $seconds = floor($microseconds / $microsecondsInASecond);
