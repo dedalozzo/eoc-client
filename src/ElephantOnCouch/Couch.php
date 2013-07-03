@@ -46,7 +46,7 @@ final class Couch {
   //! @brief User agent's information.
   // @{
   const USER_AGENT_NAME = "ElephantOnCouch";
-  const USER_AGENT_VERSION = "0.2.1";
+  const USER_AGENT_VERSION = "0.2.3";
   //@}
 
   //! Default server.
