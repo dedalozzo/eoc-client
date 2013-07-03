@@ -22,8 +22,9 @@ abstract class DesignHandler {
 
 
   //! @brief Returns the handler's section.
+  //! @details This method is not abstract because a static function cannot be abstracted.
   //! @return string
-  abstract public static function getSection();
+  public static function getSection() {}
 
 
   //! @brief You must always check the handler's consistence before every call to <i>getAttributes</i> method.
