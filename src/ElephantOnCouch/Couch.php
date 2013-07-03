@@ -555,7 +555,7 @@ final class Couch {
 
 
   //! @brief Returns the active transport method.
-  public function getTransportMethod() {
+  public static function getTransportMethod() {
     return self::$transport;
   }
 
@@ -647,7 +647,7 @@ final class Couch {
   //! @}
 
 
-  //! @name Server-level Miscellaneous Methods
+  //! @name Miscellaneous Methods
   // @{
 
   //! @brief Creates the admin user.
@@ -694,12 +694,20 @@ final class Couch {
   //!   echo $e;
   //! }
   //! @endcode
-  //! @return SvrInfo
+  //! @return ServerInfo
   //! @see http://docs.couchdb.org/en/latest/api/misc.html#get
-  public function getSvrInfo() {
+  public function getServerInfo() {
     $response = $this->send(new Request(Request::GET_METHOD, "/"));
     $info = $response->getBodyAsArray();
-    return new Info\SvrInfo($info["couchdb"], $info["version"]);
+    return new Info\ServerInfo($info["couchdb"], $info["version"]);
+  }
+
+
+  //! @brief Returns information about the ElephantOnCouch client.
+  //! @return ClientInfo
+  //! @see http://docs.couchdb.org/en/latest/api/misc.html#get
+  public function getClientInfo() {
+    return new Info\ClientInfo();
   }
 
 

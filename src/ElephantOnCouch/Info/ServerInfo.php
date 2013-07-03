@@ -1,7 +1,7 @@
 <?php
 
-//! @file SvrInfo.php
-//! @brief This file contains the SvrInfo class.
+//! @file ServerInfo.phpphp
+//! @brief This file contains the ServerInfo class.
 //! @details
 //! @author Filippo F. Fadda
 
@@ -17,7 +17,7 @@ use ElephantOnCouch\Helper\Properties;
 //! @details Since this class uses the <i>Properties</i> trait, you don't need to call the getter methods to obtain information
 //! about server.
 //! @nosubgrouping
-class SvrInfo {
+class ServerInfo {
   use Properties;
 
   //! @name Properties
@@ -27,15 +27,15 @@ class SvrInfo {
   private $motd;
 
   //! @brief CouchDB server version.
-  private $serverVersion;
+  private $version;
 
   //@}
 
 
   //! @brief Creates the object.
-  public function __construct($motd, $serverVersion) {
+  public function __construct($motd, $version) {
     $this->motd = $motd;
-    $this->serverVersion = "CouchDB ".$serverVersion;
+    $this->version = "CouchDB ".$version;
   }
 
 
@@ -44,14 +44,14 @@ class SvrInfo {
   }
 
 
-  public function getServerVersion() {
-    return $this->serverVersion;
+  public function getVersion() {
+    return $this->version;
   }
 
 
   //! @brief Overrides the magic method to convert the object to a string.
   public function __toString() {
-    return $this->motd.PHP_EOL.$this->serverVersion.PHP_EOL;
+    return $this->motd.PHP_EOL.$this->version.PHP_EOL;
   }
 
 }
