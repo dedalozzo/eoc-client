@@ -51,7 +51,7 @@ class BadResponseException extends \RuntimeException {
   }
 
 
-  //! @brief Override the magic method to get all the information about the error.
+  //! @brief Overrides the magic method to get all the information about the error.
   public function __toString() {
     $error = $this->response->getBodyAsArray();
 
