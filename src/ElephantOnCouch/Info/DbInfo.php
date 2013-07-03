@@ -83,6 +83,43 @@ class DbInfo {
   }
 
 
+  // Returns an array with the uptime in days, hours, minutes and seconds.
+  private function uptime() {
+    $microsecondsInASecond = 1000000;
+    $secondsInAMinute = 60;
+    $secondsInAnHour = 60 * $secondsInAMinute;
+    $secondsInADay = 24 * $secondsInAnHour;
+
+    // Gets the current timestamp in microseconds.
+    $timestamp = microtime(TRUE);
+
+    // Subtracts from the current timestamp the last timestamp server was started.
+    $microseconds = $timestamp - (float)$this->instanceStartTime;
+
+    // Converts microseconds in seconds.
+    $seconds = floor($microseconds / $microsecondsInASecond);
+
+    // Extracts days.
+    $days = (int)floor($seconds / $secondsInADay);
+
+    // Extracts hours.
+    $hourSeconds = $seconds % $secondsInADay;
+    $hours = (int)floor($hourSeconds / $secondsInAnHour);
+
+    // Extracts minutes.
+    $minuteSeconds = $hourSeconds % $secondsInAnHour;
+    $minutes = (int)floor($minuteSeconds / $secondsInAMinute);
+
+    // Extracts the remaining seconds.
+    $remainingSeconds = $minuteSeconds % $secondsInAMinute;
+    $seconds = (int)ceil($remainingSeconds);
+
+    $uptime = '%d days, %d hours, %d minutes, %d seconds';
+
+    return sprintf($uptime, $days, $hours, $minutes, $seconds);
+  }
+
+
   public function getName() {
     return $this->name;
   }
@@ -141,20 +178,24 @@ class DbInfo {
   //! @brief Overrides the magic method to convert the object to a string.
   public function __toString() {
     $buffer = "";
+    $buffer .= "[CouchDB Uptime] ".$this->uptime().PHP_EOL
+    $buffer .= PHP_EOL;
+
     $buffer .= "[Database Name] ".$this->name.PHP_EOL;
-    $buffer .= "[Disk Size (Bytes)] ".$this->diskSize.PHP_EOL;
-    $buffer .= "[Data Size (Bytes)] ".$this->dataSize.PHP_EOL;
-    $buffer .= "[Disk Format Version] ".$this->diskFormatVersion.PHP_EOL;
-    $buffer .= "[CouchDB Startup Time] ".date('Y-m-d H:i:s', $this->instanceStartTime).PHP_EOL;
-    $buffer .= "[Documents] ".$this->docCount.PHP_EOL;
-    $buffer .= "[Deleted Documents] ".$this->docDelCount.PHP_EOL;
-    $buffer .= "[Updates] = ".$this->updateSeq.PHP_EOL;
-    $buffer .= "[Purge Operations] ".$this->purgeSeq.PHP_EOL;
+    $buffer .= "[Database Disk Size (Bytes)] ".$this->diskSize.PHP_EOL;
+    $buffer .= "[Database Data Size (Bytes)] ".$this->dataSize.PHP_EOL;
+    $buffer .= "[Database Disk Format Version] ".$this->diskFormatVersion.PHP_EOL;
+    $buffer .= PHP_EOL;
 
     $compactRunning = ($this->compactRunning) ? 'active' : 'inactive';
-    $buffer .= "[Compaction] ".$compactRunning.PHP_EOL;
+    $buffer .= "[Database Compaction] ".$compactRunning.PHP_EOL;
+    $buffer .= PHP_EOL;
 
-    $buffer .= "[Committed Updates] ".$this->committedUpdateSeq.PHP_EOL;
+    $buffer .= "[Database Number of Documents] ".$this->docCount.PHP_EOL;
+    $buffer .= "[Database Number of Deleted Documents] ".$this->docDelCount.PHP_EOL;
+    $buffer .= "[Database Number of Updates] = ".$this->updateSeq.PHP_EOL;
+    $buffer .= "[Database Number of Purge Operations] ".$this->purgeSeq.PHP_EOL;
+    $buffer .= "[Database Number of Committed Updates] ".$this->committedUpdateSeq.PHP_EOL;
 
     return $buffer;
   }
