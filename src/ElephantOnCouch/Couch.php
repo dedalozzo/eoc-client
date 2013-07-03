@@ -17,7 +17,8 @@ use ElephantOnCouch\Message\Response;
 
 
 //! @brief The CouchDB's client. You need an instance of this class to interact with CouchDB.
-//! @details This client is using HTTP/1.1 version. Encoding is made according RFC 3986, using rawurlencode().
+//! @details This client is using HTTP/1.1 version. Encoding is made according RFC 3986, using rawurlencode(). It supports
+//! 100-continue, chunked responses, persistent connections, etc.
 //! @nosubgrouping
 //! @todo Check ISO-8859-1 because CouchDB use it, in particular utf8_encode().
 //! @todo Add Proxy support.
@@ -1175,10 +1176,11 @@ final class Couch {
   //! multi-document-fetch feature.
   //! @param[in] ViewQueryOpts $opts (optional) Query options to get additional information, grouping results, include
   //! docs, etc.
+  //! @param[in] ChunkHook $chunkHook (optional) A class instance that implements the ChunkHook interface.
   //! @return associative array
   //! @see http://docs.couchdb.org/en/latest/api/database.html#get-db-all-docs
   //! @see http://docs.couchdb.org/en/latest/api/database.html#post-db-all-docs
-  public function queryAllDocs(\ArrayIterator $keys = NULL, Opt\ViewQueryOpts $opts = NULL) {
+  public function queryAllDocs(\ArrayIterator $keys = NULL, Opt\ViewQueryOpts $opts = NULL, Hook\ChunkHook $chunkHook = NULL) {
     $this->checkForDb();
 
     if (is_null($keys))
@@ -1191,7 +1193,7 @@ final class Couch {
     if (isset($opts))
       $request->setMultipleQueryParamsAtOnce($opts->asArray());
 
-    return $this->send($request);
+    return $this->send($request, $chunkHook);
   }
 
 
@@ -1203,10 +1205,11 @@ final class Couch {
   //! multi-document-fetch feature.
   //! @param[in] ViewQueryOpts $opts (optional) Query options to get additional information, grouping results, include
   //! docs, etc.
+  //! @param[in] ChunkHook $chunkHook (optional) A class instance that implements the ChunkHook interface.
   //! @return associative array
   //! @see http://docs.couchdb.org/en/latest/api/design.html#get-db-design-design-doc-view-view-name
   //! @see http://docs.couchdb.org/en/latest/api/design.html#post-db-design-design-doc-view-view-name
-  public function queryView($designDocName, $viewName, \ArrayIterator $keys = NULL, Opt\ViewQueryOpts $opts = NULL) {
+  public function queryView($designDocName, $viewName, \ArrayIterator $keys = NULL, Opt\ViewQueryOpts $opts = NULL, Hook\ChunkHook $chunkHook = NULL) {
     $this->checkForDb();
 
     $this->validateAndEncodeDocId($designDocName);
@@ -1224,7 +1227,7 @@ final class Couch {
     if (isset($opts))
       $request->setMultipleQueryParamsAtOnce($opts->asArray());
 
-    return $this->send($request);
+    return $this->send($request, $chunkHook);
   }
 
 
@@ -1238,9 +1241,10 @@ final class Couch {
   //! multi-document-fetch feature.
   //! @param[in] ViewQueryOpts $opts (optional) Query options to get additional information, grouping results, include
   //! docs, etc.
+  //! @param[in] ChunkHook $chunkHook (optional) A class instance that implements the ChunkHook interface.
   //! @return associative array
   //! @see http://docs.couchdb.org/en/latest/api/database.html#post-db-temp-view
-  public function queryTempView($mapFn, $reduceFn = "", \ArrayIterator $keys = NULL, Opt\ViewQueryOpts $opts = NULL) {
+  public function queryTempView($mapFn, $reduceFn = "", \ArrayIterator $keys = NULL, Opt\ViewQueryOpts $opts = NULL, Hook\ChunkHook $chunkHook = NULL) {
     $this->checkForDb();
 
     $handler = new Handler\ViewHandler("temp");
@@ -1261,7 +1265,7 @@ final class Couch {
     if (isset($opts))
       $request->setMultipleQueryParamsAtOnce($opts->asArray());
 
-    return $this->send($request);
+    return $this->send($request, $chunkHook);
   }
 
   //@}
