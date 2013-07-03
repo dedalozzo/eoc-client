@@ -34,7 +34,8 @@ class DbInfo {
   //! @brief Gets the current version of the internal database format on disk.
   private $diskFormatVersion;
 
-  //! @brief Returns the timestamp of CouchDBs start time.
+  //! @brief Returns the timestamp of the last time the database file was opened.
+  //! @details This is used during the replication. When BiCouch is used this value is 0.
   private $instanceStartTime;
 
   //! #brief Returns the number of documents (including design documents) in the database.
@@ -84,7 +85,7 @@ class DbInfo {
 
 
   // Returns an array with the uptime in days, hours, minutes and seconds.
-  private function uptime() {
+  private function opentime() {
     $microsecondsInASecond = 1000000;
     $secondsInAMinute = 60;
     $secondsInAnHour = 60 * $secondsInAMinute;
@@ -177,25 +178,23 @@ class DbInfo {
 
   //! @brief Overrides the magic method to convert the object to a string.
   public function __toString() {
-    $buffer = "";
-    $buffer .= "[CouchDB Uptime] ".$this->uptime().PHP_EOL;
-    $buffer .= PHP_EOL;
+    $buffer = "Name: ".$this->name.PHP_EOL;
 
-    $buffer .= "[Database Name] ".$this->name.PHP_EOL;
-    $buffer .= "[Database Disk Size (Bytes)] ".$this->diskSize.PHP_EOL;
-    $buffer .= "[Database Data Size (Bytes)] ".$this->dataSize.PHP_EOL;
-    $buffer .= "[Database Disk Format Version] ".$this->diskFormatVersion.PHP_EOL;
-    $buffer .= PHP_EOL;
+    if ((float)$this->instanceStartTime > 0)
+      $buffer .= "File Opened Since: ".$this->opentime().PHP_EOL;
+
+    $buffer .= "Disk Size (Bytes): ".$this->diskSize.PHP_EOL;
+    $buffer .= "Data Size (Bytes): ".$this->dataSize.PHP_EOL;
+    $buffer .= "Disk Format Version: ".$this->diskFormatVersion.PHP_EOL;
 
     $compactRunning = ($this->compactRunning) ? 'active' : 'inactive';
-    $buffer .= "[Database Compaction] ".$compactRunning.PHP_EOL;
-    $buffer .= PHP_EOL;
+    $buffer .= "Compaction: ".$compactRunning.PHP_EOL;
 
-    $buffer .= "[Database Number of Documents] ".$this->docCount.PHP_EOL;
-    $buffer .= "[Database Number of Deleted Documents] ".$this->docDelCount.PHP_EOL;
-    $buffer .= "[Database Number of Updates] = ".$this->updateSeq.PHP_EOL;
-    $buffer .= "[Database Number of Purge Operations] ".$this->purgeSeq.PHP_EOL;
-    $buffer .= "[Database Number of Committed Updates] ".$this->committedUpdateSeq.PHP_EOL;
+    $buffer .= "Number of Documents: ".$this->docCount.PHP_EOL;
+    $buffer .= "Number of Deleted Documents: ".$this->docDelCount.PHP_EOL;
+    $buffer .= "Number of Updates: ".$this->updateSeq.PHP_EOL;
+    $buffer .= "Number of Purge Operations: ".$this->purgeSeq.PHP_EOL;
+    $buffer .= "Number of Committed Updates: ".$this->committedUpdateSeq.PHP_EOL;
 
     return $buffer;
   }
