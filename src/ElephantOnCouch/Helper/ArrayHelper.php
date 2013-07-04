@@ -14,16 +14,17 @@ namespace ElephantOnCouch\Helper;
 //! @nosubgrouping
 class ArrayHelper {
 
+
   // @brief Checks if the array is associative.
   // @return bool
-  static function isAssociative(array $array) {
+  public static function isAssociative(array $array) {
     return (0 !== count(array_diff_key($array, array_keys(array_keys($array)))) || count($array) == 0);
   }
 
 
   // @brief Converts the array to an object.
   // @return object
-  static function toObject(array $array) {
+  public static function toObject(array $array) {
     return is_array($array) ? (object)array_map(__METHOD__, $array) : $array;
   }
 
