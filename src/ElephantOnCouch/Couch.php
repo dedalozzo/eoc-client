@@ -1079,7 +1079,7 @@ final class Couch {
   //! deeply limits CouchDB's performance for non-bulk writers.<br />
   //! Delayed commit should be left set to true in the configuration settings. Anyway, you can still tell CouchDB to make
   //! an fsync, calling the ensure_full_commit method.
-  //! @return string A timestamp when the server instance was started.
+  //! @return string The timestamp of the last time the database file was opened.
   //! @see http://docs.couchdb.org/en/latest/api/database.html#post-db-ensure-full-commit
   public function ensureFullCommit() {
     $this->checkForDb();
