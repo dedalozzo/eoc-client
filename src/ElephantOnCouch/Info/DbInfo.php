@@ -79,43 +79,6 @@ class DbInfo {
   }
 
 
-  // Returns an array with the uptime in days, hours, minutes and seconds.
-  private function opentime() {
-    $microsecondsInASecond = 1000000;
-    $secondsInAMinute = 60;
-    $secondsInAnHour = 60 * $secondsInAMinute;
-    $secondsInADay = 24 * $secondsInAnHour;
-
-    // Gets the current timestamp in microseconds.
-    $timestamp = microtime(TRUE);
-
-    // Subtracts from the current timestamp the last timestamp server was started.
-    $microseconds = ($timestamp * $microsecondsInASecond) - (float)$this->instanceStartTime;
-
-    // Converts microseconds in seconds.
-    $seconds = floor($microseconds / $microsecondsInASecond);
-
-    // Extracts days.
-    $days = (int)floor($seconds / $secondsInADay);
-
-    // Extracts hours.
-    $hourSeconds = $seconds % $secondsInADay;
-    $hours = (int)floor($hourSeconds / $secondsInAnHour);
-
-    // Extracts minutes.
-    $minuteSeconds = $hourSeconds % $secondsInAnHour;
-    $minutes = (int)floor($minuteSeconds / $secondsInAMinute);
-
-    // Extracts the remaining seconds.
-    $remainingSeconds = $minuteSeconds % $secondsInAMinute;
-    $seconds = (int)ceil($remainingSeconds);
-
-    $uptime = '%d days, %d hours, %d minutes, %d seconds';
-
-    return sprintf($uptime, $days, $hours, $minutes, $seconds);
-  }
-
-
   public function getName() {
     return $this->name;
   }
@@ -176,7 +139,7 @@ class DbInfo {
     $buffer = "Name: ".$this->name.PHP_EOL;
 
     if ((float)$this->instanceStartTime > 0)
-      $buffer .= "File Opened Since: ".$this->opentime().PHP_EOL;
+      $buffer .= "File Opened Since: ".Helper\TimeHelper::since($this->instanceStartTime).PHP_EOL;
 
     $buffer .= "Disk Size (Bytes): ".$this->diskSize.PHP_EOL;
     $buffer .= "Data Size (Bytes): ".$this->dataSize.PHP_EOL;
