@@ -1445,7 +1445,7 @@ final class Couch {
     $doc->setClass($class);
 
     // Sets the document type.
-    $type = strtolower(preg_replace('/(?:[\w]+$)/', "", $class));
+    $type = strtolower(preg_split('/(?:[\w]+$)/', $class)[1]);
     $doc->setType($type);
 
     $path = "/".$this->dbName."/".$doc->getPath().$doc->getId();
