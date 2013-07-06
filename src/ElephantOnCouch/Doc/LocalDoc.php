@@ -19,8 +19,8 @@ abstract class LocalDoc extends AbstractDoc {
 
   //! @brief Removes <i>_local/</i> from he document identifier.
   protected function fixDocId() {
-    if (isset($this->meta[self::ID]))
-      $this->meta[self::ID] = preg_replace('%\A_local/%m', "", $this->meta[self::ID]);
+    if (isset($this->meta['_id']))
+      $this->meta['_id'] = preg_replace('%\A_local/%m', "", $this->meta['_id']);
   }
 
 

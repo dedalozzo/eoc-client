@@ -33,6 +33,9 @@ abstract class Doc extends AbstractDoc {
   private $deletedConflicts = [];
 
 
+  protected function fixDocId() {}
+
+
   //! @brief Standard documents path is null.
   //! @return empty string
   public function getPath() {
