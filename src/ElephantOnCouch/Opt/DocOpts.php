@@ -22,21 +22,21 @@ class DocOpts extends AbstractOpts {
   //@{
 
   //! @brief Ignores the class name to avoid the creation of an instance of that class.
-  //! @details When TRUE ignores the class name, previously saved in the special attribute 'doc_class', to avoid the
-  //! creation of an instance of that particular class. You want use this property when the interpreter can't load class
-  //! due to namespace resolution problem or because the class definition is missing.
-  private $ignoreClassName = FALSE;
+  //! @details When <i>true</i> ignores the class name, previously saved in the special attribute <i>class</i>, to
+  //! avoid the creation of an instance of that particular class. You want use this property when the interpreter can't
+  //! load class due to namespace resolution problem or because the class definition is missing.
+  private $ignoreClass = FALSE;
 
   //@}
 
 
-  public function setIgnoreClassName($value) {
-    $this->ignoreClassName = (boolean)$value;
+  public function setIgnoreClass($value) {
+    $this->ignoreClass = (boolean)$value;
   }
 
 
-  public function getIgnoreClassName() {
-    return $this->ignoreClassName;
+  public function getIgnoreClass() {
+    return $this->ignoreClass;
   }
 
 

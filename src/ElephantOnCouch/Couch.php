@@ -46,7 +46,7 @@ final class Couch {
   //! @brief User agent's information.
   // @{
   const USER_AGENT_NAME = "ElephantOnCouch";
-  const USER_AGENT_VERSION = "0.2.3";
+  const USER_AGENT_VERSION = "0.2.4";
   //@}
 
   //! Default server.
@@ -1370,7 +1370,7 @@ final class Couch {
   //! @param[in] string $path The document's path.
   //! @param[in] string $rev (optional) The document's revision.
   //! @param[in] DocOpts $opts Query options to get additional document information, like conflicts, attachments, etc.
-  //! @return object An instance of Doc, LocalDoc, DesignDoc or any subclass of Doc.
+  //! @return object|Response An instance of Doc, LocalDoc, DesignDoc or any subclass of Doc.
   //! @see http://docs.couchdb.org/en/latest/api/documents.html#get-db-doc
   public function getDoc($path, $docId, $rev = NULL, Opt\DocOpts $opts = NULL) {
     $this->checkForDb();
@@ -1388,31 +1388,33 @@ final class Couch {
     // If there are any options, add them to the request.
     if (isset($opts)) {
       $request->setMultipleQueryParamsAtOnce($opts->asArray());
-      $ignoreClassName = $opts->ignoreClassName;
+      $ignoreClass = $opts->ignoreClass;
     }
     else
-      $ignoreClassName = FALSE;
+      $ignoreClass = FALSE;
 
-    $body = $this->send($request)->getBodyAsArray();
+    $response = $this->send($request);
+    $body = $response->getBodyAsArray();
 
-    // We use 'doc_class' metadata to store an instance of a specialized document class. We can have Article and Book classes,
-    // both derived from Doc, with special properties and methods. Instead to convert them, we store the class type in a
-    // special attribute called <i>AbstractDoc::DOC_CLASS</i> within the others metadata. So, once we retrieve the document,
-    // the client creates an instance of the class we provided when we saved the document. We don't need to convert it.
-    if (!$ignoreClassName && isset($body[Doc\AbstractDoc::DOC_CLASS])) { // Special document class inherited from Doc or LocalDoc.
-      $type = "\\".$body[Doc\AbstractDoc::DOC_CLASS];
-      $doc = new $type;
+    // We use 'class' metadata to store an instance of a specialized document class. We can have Article and Book classes,
+    // both derived from Doc, with special properties and methods. Instead to convert them, we store the class name in a
+    // special attribute called 'class' within the others metadata. So, once we retrieve the document, the client creates
+    //! an instance of the class we provided when we saved the document; we never need to convert it.
+    if (!$ignoreClass && isset($body['class'])) { // Special document class inherited from Doc or LocalDoc.
+      $class = "\\".$body['class'];
+      $doc = new $class;
     }
-    elseif ($path == self::LOCAL_DOC_PATH)   // Local document.
-      $doc = new Doc\LocalDoc;
-    elseif ($path == self::DESIGN_DOC_PATH)  // Design document.
+    elseif ($path == self::DESIGN_DOC_PATH)
       $doc = new Doc\DesignDoc;
-    else                                     // Standard document.
-      $doc = new Doc\Doc;
+    else
+      $doc = NULL;
 
-    $doc->assignArray($body);
-
-    return $doc;
+    if (is_object($doc)) {
+      $doc->assignArray($body);
+      return $doc;
+    }
+    else
+      return $response;
   }
 
 
@@ -1421,13 +1423,13 @@ final class Couch {
   //! using PUT instead we need to specify one. We can still use the function getUuids() to ask CouchDB for some ids.
   //! This is an internal detail. You have only to know that CouchDB can generate the document id for you.
   //! @param[in] Doc $doc The document you want insert or update.
-  //! @param[in] bool $batch_mode You can write documents to the database at a higher rate by using the batch option. This
+  //! @param[in] bool $batchMode You can write documents to the database at a higher rate by using the batch option. This
   //! collects document writes together in memory (on a user-by-user basis) before they are committed to disk.
   //! This increases the risk of the documents not being stored in the event of a failure, since the documents are not
   //! written to disk immediately.
   //! @see http://docs.couchdb.org/en/latest/api/documents.html#put-db-doc
   /// @todo Support the new_edits=true|false option, see http://wiki.apache.org/couchdb/HTTP_Bulk_Document_API#Posting_Existing_Revisions
-  public function saveDoc(Doc\AbstractDoc $doc, $batchMode = FALSE) {
+  public function saveDoc(Doc\DocInterface $doc, $batchMode = FALSE) {
     $this->checkForDb();
 
     // We never use the POST method.
@@ -1438,13 +1440,15 @@ final class Couch {
     if (!$doc->issetId())
       $doc->setid(Generator\UUID::generate(Generator\UUID::UUID_RANDOM, Generator\UUID::FMT_STRING));
 
-    // Sets the path according to the document type.
-    if ($doc instanceof \ElephantOnCouch\Doc\DesignDoc)
-      $path = "/".$this->dbName."/".self::DESIGN_DOC_PATH.$doc->getId();
-    elseif ($doc instanceof \ElephantOnCouch\Doc\LocalDoc)
-      $path = "/".$this->dbName."/".self::LOCAL_DOC_PATH.$doc->getId();
-    else
-      $path = "/".$this->dbName."/".$doc->getId();
+    // Sets the class name.
+    $class = get_class($doc);
+    $doc->setClass($class);
+
+    // Sets the document type.
+    $type = preg_replace('@\\\\([\w]+)$@', "", $class);
+    $doc->setType($type);
+
+    $path = "/".$this->dbName."/".$doc->getPath().$doc->getId();
 
     $request = new Request($method, $path);
     $request->setHeaderField(Request::CONTENT_TYPE_HF, "application/json");

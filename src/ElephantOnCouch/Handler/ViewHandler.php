@@ -15,10 +15,12 @@ use Lint\Lint;
 //! @brief This handler let you create a CouchDB view.
 //! @details Views are the primary tool used for querying and reporting on CouchDB databases. Views are managed by a
 //! special server. Default server implementation uses JavaScript, that's why you have to write views in JavaScript
-//! language. This handler instead let you write your views directly in PHP.
+//! language. This handler instead let you write your views directly in PHP.<br />
+//! If you have specified 'php' as your design document language, this handler makes a syntax check on your map and
+//! reduce functions.<br />
 //! To create a permanent view, the functions must first be saved into special design document. Every design document has
 //! a special 'views' attribute, that stores mandatory map function and an optional reduce function. Using this handler
-//! you can write these functions directly in PHP.
+//! you can write these functions directly in PHP.<br />
 //! All the views in one design document are indexed whenever any of them gets queried.
 //! @nosubgrouping
 final class ViewHandler extends DesignHandler {
@@ -33,12 +35,13 @@ final class ViewHandler extends DesignHandler {
   const REDUCE_REGEX = '/function\s*\(\s*\$keys\s*,\s*\$values\,\s*\$rereduce\)\s*\{[\W\w]*\};\z/m';
   const REDUCE_DEFINITION = "function(\$keys, \$values, \$rereduce) { ... };";
 
-  private $name;
-
   private $options = [];
 
   //! @name Properties
   //@{
+
+  //! @brief The view handler name.
+  private $name;
 
   //! @brief Stores the map function.
   //! @details Contains the function implementation provided by the user. You can have multiple views in a design document
@@ -85,6 +88,11 @@ final class ViewHandler extends DesignHandler {
   }
 
 
+  public function getSection() {
+    return self::VIEWS;
+  }
+
+
   //! @brief Resets the options.
   public function reset() {
     unset($this->options);
@@ -92,11 +100,6 @@ final class ViewHandler extends DesignHandler {
 
     $this->mapFn = "";
     $this->reduceFn = "";
-  }
-
-
-  public static function getSection() {
-    return self::VIEWS;
   }
 
 
@@ -176,7 +179,10 @@ final class ViewHandler extends DesignHandler {
 
   public function setMapFn($value) {
     $fn = stripslashes((string)$value);
-    self::checkFn($fn, self::MAP_DEFINITION, self::MAP_REGEX);
+
+    if ($this->doc->getLanguage() == "php")
+      self::checkFn($fn, self::MAP_DEFINITION, self::MAP_REGEX);
+
     $this->mapFn = $fn;
   }
 
@@ -188,7 +194,10 @@ final class ViewHandler extends DesignHandler {
 
   public function setReduceFn($value) {
     $fn = stripslashes((string)$value);
-    self::checkFn($fn, self::REDUCE_DEFINITION, self::REDUCE_REGEX);
+
+    if ($this->doc->getLanguage() == "php")
+      self::checkFn($fn, self::REDUCE_DEFINITION, self::REDUCE_REGEX);
+
     $this->reduceFn = $fn;
   }
 

@@ -15,7 +15,7 @@ namespace ElephantOnCouch\Opt;
 //! @todo Add 'list' and 'callback' properties. Also review all the key methods.
 class ViewQueryOpts extends AbstractOpts {
 
-  //! Returns only documents that match the specified key.
+  //! @brief Returns only documents that match the specified key.
   //! @param[in] string $value An URL encoded JSON value indicating the the key.
   public function setKey($value) {
     $this->options["key"] = $value;
@@ -26,14 +26,14 @@ class ViewQueryOpts extends AbstractOpts {
   //! @brief Those are used to return documents in a key range.
   //@{
 
-  //! @brief
+  //! @brief Defines the first key to be included in the range.
   //! @param[in] string $value An URL encoded JSON value indicating the the key at which to start the range.
   // todo
   public function setStartKey($value) {
     $this->options["startkey"] = $value;
   }
 
-  //! @brief
+  //! @brief Defines the last key to be included in the range.
   //! @param[in] string $value An URL encoded JSON value indicating the the key at which to end the range.
   // todo
   public function setEndKey($value) {
@@ -176,7 +176,7 @@ class ViewQueryOpts extends AbstractOpts {
   }
 
 
-  //! @brief Skip the defined number of documents.
+  //! @brief Skips the defined number of documents.
   //! @details The skip option should only be used with small values, as skipping a large range of documents this way is
   //! inefficient (it scans the index from the start key and then skips N elements, but still needs to read all the index
   //! values to do that). For efficient paging you'll need to use start key and limit.

@@ -9,6 +9,7 @@
 namespace ElephantOnCouch\Doc;
 
 
+use ElephantOnCouch\Couch;
 use ElephantOnCouch\Handler\DesignHandler;
 
 
@@ -16,46 +17,15 @@ use ElephantOnCouch\Handler\DesignHandler;
 //! stored.
 //! @see http://guide.couchdb.org/editions/1/en/design.html
 //! @nosubgrouping
-final class DesignDoc extends ReplicableDoc {
-
-  //! @name Design Document Properties
-  //@{
-
-  //! @brief The purpose of this property is to specify the programming language used to write the handlers' closures.
-  //! @details CouchDB will automatically use the right interpreter for the various handlers stored into this design document.
-  const LANGUAGE = "language";
-
-  //const LIB_RW = "lib"; TODO This must be investigated and added or an handler must be created for it.
-
-  //@}
-
-  // Used to know if the constructor has been already called.
-  private static $initialized = FALSE;
+final class DesignDoc extends Doc {
 
   // Stores the names of the sections that belong to all the available handlers.
-  private static $sections = [];
+  private $sections = [];
 
-  // Stores the reserved words used by a Design Document.
-  protected static $reservedWords = [
-    self::LANGUAGE => NULL,
-  ];
-
-
-  public function __construct() {
-    parent::__construct();
-
-    if (!self::$initialized) {
-      self::$initialized = TRUE;
-
-      self::$reservedWords += parent::$reservedWords;
-
-      self::scanForHandlers();
-    }
-  }
 
   //! @brief Creates an instance of DesignDoc class.
   //! @param[in] string $name The design document name.
-  //! @param[in] string $name The programming language used by the design document for his handlers.
+  //! @param[in] string $language The programming language used by the design document for his handlers.
   public static function create($name, $language = "php") {
     $instance = new self();
 
@@ -66,25 +36,31 @@ final class DesignDoc extends ReplicableDoc {
   }
 
 
-  //! @brief Scans the handlers' directory.
-  //! @details Every CouchDB's handler is stored in a particular design document section. Every class that extends the
-  //! abstract handler DesignHandler, must implement a static method to return his own section. These sections are stored
-  //! in a static class property to be used later.
-  private static function scanForHandlers() {
-    foreach (glob(dirname(__DIR__)."/Handler/*.php") as $fileName) {
-      //$className = preg_replace('/\.php\z/i', '', $fileName);
-      $className = "ElephantOnCouch\\Handler\\".basename($fileName, ".php"); // Same like the above regular expression.
+  //! @brief Removes <i>_design/</i> from he document identifier.
+  protected function fixDocId() {
+    if (isset($this->meta['_id']))
+      $this->meta['_id'] = preg_replace('%\A_design/%m', "", $this->meta['_id']);
+  }
 
-      if (class_exists($className) && array_key_exists("ElephantOnCouch\\Handler\\DesignHandler", class_parents($className)))
-        self::$sections[$className::getSection()] = NULL;
-    }
 
+  //! @brief Design documents don't have a class, so we don't provide an implementation.
+  public function setClass() {}
+
+
+  //! @brief Design documents don't have a type, so we don't provide an implementation.
+  public function setType() {}
+
+
+  //! @brief Gets the document path: <i>_design/</i>.
+  //! @return string
+  public function getPath() {
+    return "_design/";
   }
 
 
   //! @brief Reset the list of handlers.
   public function resetHandlers() {
-    foreach (self::$sections as $name => $value) {
+    foreach ($this->sections as $name => $value) {
       if (array_key_exists($name, $this->meta))
         unset($this->meta[$name]);
     }
@@ -112,9 +88,9 @@ final class DesignDoc extends ReplicableDoc {
 
 
   //! @brief Adds a special handler to the design document.
-  //! @details This method checks the existence of the property 'name', in fact a design document can have sections with
-  //! multiple handlers, but in some cases there is one and only one handler per section, so that handler doesn't have a
-  //! name.
+  //! @details This method checks the existence of the property <i>$name</i>, in fact a design document can have sections
+  //! with multiple handlers, but in some cases there is one and only one handler per section, so that handler doesn't
+  //! have a name.
   //! @param[in] DesignHandler $handler An instance of a subclass of the abstract class DesignHandler.
   public function addHandler(DesignHandler $handler) {
     $section = $handler->getSection();
@@ -163,26 +139,26 @@ final class DesignDoc extends ReplicableDoc {
 
 
   public function getLanguage() {
-    return $this->meta[self::LANGUAGE];
+    return $this->meta['language'];
   }
 
 
   public function issetLanguage() {
-    return isset($this->meta[self::LANGUAGE]);
+    return isset($this->meta['language']);
   }
 
 
   public function setLanguage($value) {
     if (!empty($value))
-      $this->meta[self::LANGUAGE] = (string)$value;
+      $this->meta['language'] = strtolower((string)$value);
     else
       throw new \InvalidArgumentException("\$language must be a non-empty string.");
   }
 
 
   public function unsetLanguage() {
-    if ($this->isMetadataPresent(self::LANGUAGE))
-      unset($this->meta[self::LANGUAGE]);
+    if ($this->isMetadataPresent('language'))
+      unset($this->meta['language']);
   }
 
 }

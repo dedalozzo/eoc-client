@@ -1,0 +1,39 @@
+<?php
+
+
+namespace ElephantOnCouch\Doc;
+
+
+class Doc {
+
+  //! @name Properties
+  //@{
+
+  //! @brief Stores the map function.
+  //! @details Contains the function implementation provided by the user. You can have multiple views in a design document
+  //! and for every single view you can have only one map function. The map function is a closure.
+  //! The closure must be declared like:
+  //! @code
+  //! function($doc) use ($emit) {
+  //!   ...
+  //!
+  //!   $emit($key, $value);
+  //! };
+  //! @endcode
+  //! To emit your record you must call the <i>$emit</i> closure.
+  private $mapFn = "";
+
+  //! @brief Stores the reduce function.
+  //! @details Contains the function implementation provided by the user. You can have multiple views in a design document
+  //! and for every single view you can have only one reduce function. The reduce function is a closure.
+  //! The closure must be declared like:
+  //! @code
+  //! function($keys, $values, $rereduce) {
+  //!   ...
+  //! };
+  //! @endcode
+  private $reduceFn = "";
+
+  //@}
+
+}

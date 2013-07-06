@@ -11,6 +11,7 @@ namespace ElephantOnCouch\Handler;
 
 
 use ElephantOnCouch\Helper\Properties;
+use ElephantOnCouch\Doc\DesignDoc;
 
 
 //! @brief This class defines the interface for all the concrete CouchDB's handlers.
@@ -20,11 +21,21 @@ use ElephantOnCouch\Helper\Properties;
 abstract class DesignHandler {
   use Properties; // This is a trait, not a namespace or a class.
 
+  protected $doc;
+
+
+  //! @brief Creates an handler instance.
+  //! @param[in] DesignDoc $doc A design document.
+  public function __construct(DesignDoc $doc) {
+    $this->doc = $doc;
+  }
+
 
   //! @brief Returns the handler's section.
-  //! @details This method is not abstract because a static function cannot be abstracted.
+  //! @details Every CouchDB's handler is stored in a particular design document section. Every class that extends the
+  //! abstract handler DesignHandler, must implement this method to return his own section.
   //! @return string
-  public static function getSection() {}
+  abstract public function getSection();
 
 
   //! @brief You must always check the handler's consistence before every call to <i>getAttributes</i> method.
@@ -35,4 +46,5 @@ abstract class DesignHandler {
   //! @brief Returns the handler's attributes.
   //! @return string|array
   abstract public function asArray();
+
 }

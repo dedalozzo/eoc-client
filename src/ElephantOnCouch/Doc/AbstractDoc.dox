@@ -1,0 +1,49 @@
+<?php
+
+
+namespace ElephantOnCouch\Doc;
+
+
+class AbstractDoc {
+
+  protected $meta = []; //!< Metadata array.
+
+  //! @name Properties
+  //@{
+  public string $id; //!< Document identifier. Mandatory and immutable.
+  public string $rev; //!< The current MVCC-token/revision of this document. Mandatory and immutable.
+  //@}
+
+
+  //! @brief Removes tha path from the document identifier, because CouchDB returns it for local and design documents.
+  //! @details Both LocalDoc and DesignDoc override this method.
+  abstract protected function fixDocId();
+
+
+  //! @brief Resets the metadata.
+  public function resetMetadata() {}
+
+
+  //! @brief Checks the document for the given attribute.
+  //! @return boolean
+  public function isMetadataPresent($name) {}
+
+
+  //! @brief Assigns the given associative array to the <i>$meta</i> array, the array that stores the document's metadata.
+  //! @param[in] array $array An associative array.
+  public function assignArray(array $array) {}
+
+
+  //! @brief Given an instance of a standard class, this function assigns every single object's property to the <i>$meta</i>
+  //! array, the array that stores the document's metadata.
+  public function assignObject(\stdClass $object) {}
+
+
+  //! @brief Indicates that this document has been deleted and previous revisions will be removed on next compaction run.
+  public function isDeleted() {}
+
+
+  //! @brief Gets the document revisions.
+  public function getRevisions() {}
+
+}
