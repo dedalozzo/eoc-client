@@ -24,14 +24,9 @@ use Lint\Lint;
 //! All the views in one design document are indexed whenever any of them gets queried.
 //! @nosubgrouping
 final class ViewHandler extends DesignHandler {
-  const VIEWS = "views";
-  const OPTIONS = "options";
-
-  const MAP = "map";
   const MAP_REGEX = '/function\s*\(\s*\$doc\)\s*use\s*\(\$emit\)\s*\{[\W\w]*\};\z/m';
   const MAP_DEFINITION = "function(\$doc) use (\$emit) { ... };";
 
-  const REDUCE = "reduce";
   const REDUCE_REGEX = '/function\s*\(\s*\$keys\s*,\s*\$values\,\s*\$rereduce\)\s*\{[\W\w]*\};\z/m';
   const REDUCE_DEFINITION = "function(\$keys, \$values, \$rereduce) { ... };";
 
@@ -89,7 +84,7 @@ final class ViewHandler extends DesignHandler {
 
 
   public function getSection() {
-    return self::VIEWS;
+    return 'views';
   }
 
 
@@ -122,13 +117,13 @@ final class ViewHandler extends DesignHandler {
 
   public function asArray() {
     $view = [];
-    $view[self::MAP] = $this->mapFn;
+    $view['map'] = $this->mapFn;
 
     if (!empty($this->reduceFn))
-      $view[self::REDUCE] = $this->reduceFn;
+      $view['reduce'] = $this->reduceFn;
 
     if (!empty($this->options))
-      $view[self::OPTIONS] = $this->options;
+      $view['options'] = $this->options;
 
     return $view;
   }
