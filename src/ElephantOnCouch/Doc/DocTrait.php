@@ -13,6 +13,7 @@ use ElephantOnCouch\Helper;
 use ElephantOnCouch\Couch;
 
 
+//! @cond HIDDEN_SYMBOLS
 trait DocTrait {
   use Helper\Properties;
 
@@ -147,3 +148,4 @@ trait DocTrait {
   }
 
 }
+//! @endcond
