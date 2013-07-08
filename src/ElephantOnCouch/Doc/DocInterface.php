@@ -20,39 +20,39 @@ interface DocInterface {
 
   //! @brief Gets the document identifier.
   //! @return string
-  public function getId();
+  function getId();
 
 
   //! @brief Returns <i>true</i> if the document has an identifier, <i>false</i> otherwise.
   //! @return boolean
-  public function issetId();
+  function issetId();
 
 
   //! Sets the document identifier. Mandatory and immutable.
-  public function setId($value);
+  function setId($value);
 
 
   //! @brief Sets the full name space class name into the the provided metadata into the metadata array.
   //! @details The method Couch.getDoc will use this to create an object of the same class you previously stored using
   //! Couch.saveDoc() method.
   //! @param[in] string $value The full namespace class name, like returned from get_class() function.
-  public function setClass($value);
+  function setClass($value);
 
 
   //! @brief Sets the object type.
   //! @param[in] string $value Usually the class name purged of his namespace.
-  public function setType($value);
+  function setType($value);
 
 
   //! @brief Gets the document path.
   //! @details Returns an empty string for standard document, <i>_local/</i> for local document and <i>_design/</i> for
   //! design document.
   //! @return string
-  public function getPath();
+  function getPath();
 
 
   //! @brief Returns the document representation as a JSON object.
   //! @return JSON object
-  public function asJson();
+  function asJson();
 
 }
