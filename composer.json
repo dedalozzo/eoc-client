@@ -14,7 +14,7 @@
     ],
     "require": {
         "php": ">=5.4.0",
-        "3f/lint": "dev-master"
+        "3f/lint": "1.1"
     },
     "require-dev": {
         "phpunit/phpunit": "3.7.21"
