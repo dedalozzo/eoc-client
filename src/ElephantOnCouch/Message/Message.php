@@ -247,31 +247,10 @@ abstract class Message {
 
 
   //! @brief Returns the Message entity-body JSON as an array.
-  //! @param[in] bool $assoc When <i>TRUE</i>, returned objects will be converted into associative arrays.
+  //! @param[in] bool $assoc When <i>true</i>, returned objects will be converted into associative arrays.
   //! @return associative array
   public function getBodyAsArray($assoc = TRUE) {
-    $data = json_decode((string)$this->body, $assoc);
-
-    if (is_null($data))
-      switch (json_last_error()) {
-        case JSON_ERROR_DEPTH:
-          throw new Exception\JSONErrorException("Unable to parse response body into JSON, the maximum stack depth has been exceeded.");
-          break;
-        case JSON_ERROR_STATE_MISMATCH:
-          throw new Exception\JSONErrorException("Unable to parse response body into JSON, invalid or malformed JSON.");
-          break;
-        case JSON_ERROR_CTRL_CHAR:
-          throw new Exception\JSONErrorException("Unable to parse response body into JSON, control character error, possibly incorrectly encoded.");
-          break;
-        case JSON_ERROR_SYNTAX:
-          throw new Exception\JSONErrorException("Unable to parse response body into JSON, syntax error.");
-          break;
-        case JSON_ERROR_UTF8:
-          throw new Exception\JSONErrorException("Unable to parse response body into JSON, malformed UTF-8 characters, possibly incorrectly encoded.");
-          break;
-      }
-
-    return $data;
+    return Helper\ArrayHelper::fromJson($this->body, $assoc);
   }
 
 
