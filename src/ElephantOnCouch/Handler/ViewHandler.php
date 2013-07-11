@@ -176,7 +176,7 @@ final class ViewHandler extends DesignHandler {
   public function setMapFn($value) {
     $fn = stripslashes((string)$value);
 
-    if ($this->doc->getLanguage() == "php")
+    if ($this->language == "php")
       self::checkFn($fn, self::MAP_DEFINITION, self::MAP_REGEX);
 
     $this->mapFn = $fn;
@@ -191,7 +191,7 @@ final class ViewHandler extends DesignHandler {
   public function setReduceFn($value) {
     $fn = stripslashes((string)$value);
 
-    if ($this->doc->getLanguage() == "php")
+    if ($this->language == "php")
       self::checkFn($fn, self::REDUCE_DEFINITION, self::REDUCE_REGEX);
 
     $this->reduceFn = $fn;

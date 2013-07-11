@@ -10,6 +10,7 @@
 namespace ElephantOnCouch;
 
 
+use ElephantOnCouch\Doc\DesignDoc;
 use ElephantOnCouch\Exception\ServerErrorException;
 use ElephantOnCouch\Message\Message;
 use ElephantOnCouch\Message\Request;
@@ -1179,7 +1180,7 @@ final class Couch {
   //! @brief Returns a built-in view of all documents in this database. If keys are specified returns only certain rows.
   //! @param[in] string $designDocName The design document's name.
   //! @param[in] string $viewName The view's name.
-  //! @param[in] \ArrayIterator $keys (optional) Used to retrieve just the view rows matching that set of keys. Rows are returned
+  //! @param[in] array $keys (optional) Used to retrieve just the view rows matching that set of keys. Rows are returned
   //! in the order of the specified keys. Combining this feature with include_docs=true results in the so-called
   //! multi-document-fetch feature.
   //! @param[in] ViewQueryOpts $opts (optional) Query options to get additional information, grouping results, include
@@ -1188,7 +1189,7 @@ final class Couch {
   //! @return associative array
   //! @see http://docs.couchdb.org/en/latest/api/database.html#get-db-all-docs
   //! @see http://docs.couchdb.org/en/latest/api/database.html#post-db-all-docs
-  public function queryAllDocs(\ArrayIterator $keys = NULL, Opt\ViewQueryOpts $opts = NULL, Hook\ChunkHook $chunkHook = NULL) {
+  public function queryAllDocs(array $keys = NULL, Opt\ViewQueryOpts $opts = NULL, Hook\ChunkHook $chunkHook = NULL) {
     $this->checkForDb();
 
     if (is_null($keys))
@@ -1208,7 +1209,7 @@ final class Couch {
   //! @brief Executes the given view and returns the result.
   //! @param[in] string $designDocName The design document's name.
   //! @param[in] string $viewName The view's name.
-  //! @param[in] \ArrayIterator $keys (optional) Used to retrieve just the view rows matching that set of keys. Rows are returned
+  //! @param[in] array $keys (optional) Used to retrieve just the view rows matching that set of keys. Rows are returned
   //! in the order of the specified keys. Combining this feature with include_docs=true results in the so-called
   //! multi-document-fetch feature.
   //! @param[in] ViewQueryOpts $opts (optional) Query options to get additional information, grouping results, include
@@ -1217,7 +1218,7 @@ final class Couch {
   //! @return associative array
   //! @see http://docs.couchdb.org/en/latest/api/design.html#get-db-design-design-doc-view-view-name
   //! @see http://docs.couchdb.org/en/latest/api/design.html#post-db-design-design-doc-view-view-name
-  public function queryView($designDocName, $viewName, \ArrayIterator $keys = NULL, Opt\ViewQueryOpts $opts = NULL, Hook\ChunkHook $chunkHook = NULL) {
+  public function queryView($designDocName, $viewName, array $keys = NULL, Opt\ViewQueryOpts $opts = NULL, Hook\ChunkHook $chunkHook = NULL) {
     $this->checkForDb();
 
     $this->validateAndEncodeDocId($designDocName);
@@ -1242,20 +1243,21 @@ final class Couch {
   //! @brief Executes the given view, both map and reduce functions, for all documents and returns the result.
   //! @details Map and Reduce functions are provided by the programmer.
   //! @attention Requires admin privileges.
-  //! @param[in] string $designDocName The design document's name.
-  //! @param[in] string $viewName The view's name.
-  //! @param[in] \ArrayIterator $keys (optional) Used to retrieve just the view rows matching that set of keys. Rows are returned
+  //! @param[in] string $mapFn The map function.
+  //! @param[in] string $reduceFn The reduce function.
+  //! @param[in] array $keys (optional) Used to retrieve just the view rows matching that set of keys. Rows are returned
   //! in the order of the specified keys. Combining this feature with include_docs=true results in the so-called
   //! multi-document-fetch feature.
   //! @param[in] ViewQueryOpts $opts (optional) Query options to get additional information, grouping results, include
   //! docs, etc.
+  //! @param[in] string $language The language used to implement the map and reduce functions.
   //! @param[in] ChunkHook $chunkHook (optional) A class instance that implements the ChunkHook interface.
   //! @return associative array
   //! @see http://docs.couchdb.org/en/latest/api/database.html#post-db-temp-view
-  public function queryTempView($mapFn, $reduceFn = "", \ArrayIterator $keys = NULL, Opt\ViewQueryOpts $opts = NULL, Hook\ChunkHook $chunkHook = NULL) {
+  public function queryTempView($mapFn, $reduceFn = "", array $keys = NULL, Opt\ViewQueryOpts $opts = NULL, $language = 'php', Hook\ChunkHook $chunkHook = NULL) {
     $this->checkForDb();
 
-    $handler = new Handler\ViewHandler("temp");
+    $handler = new Handler\ViewHandler($language);
     $handler->mapFn = $mapFn;
     if (!empty($reduce))
       $handler->reduceFn = $reduceFn;

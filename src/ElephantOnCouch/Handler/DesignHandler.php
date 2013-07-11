@@ -21,13 +21,13 @@ use ElephantOnCouch\Doc\DesignDoc;
 abstract class DesignHandler {
   use Properties; // This is a trait, not a namespace or a class.
 
-  protected $doc;
+  protected $language;
 
 
   //! @brief Creates an handler instance.
   //! @param[in] DesignDoc $doc A design document.
-  public function __construct(DesignDoc $doc) {
-    $this->doc = $doc;
+  public function __construct($language = "php") {
+    $this->language = $language;
   }
 
 
