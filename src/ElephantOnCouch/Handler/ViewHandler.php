@@ -89,7 +89,7 @@ final class ViewHandler extends DesignHandler {
 
 
   public function setLanguage($value) {
-    $this->name = (string)$value;
+    $this->language = (string)$value;
   }
 
 
