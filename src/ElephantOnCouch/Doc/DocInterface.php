@@ -39,6 +39,14 @@ interface DocInterface {
   function setClass($value);
 
 
+  //! @brief Returns <i>true</i> if your document class already defines his type internally, <i>false</i> otherwise.
+  //! @details Sometime happens you have two classes with the same name but located under different namespaces. In case,
+  //! you should provide a type yourself for at least one of these classes, to avoid Couch.SaveDoc() using the same type
+  //! for both. Default implementation should return <i>false</i>.
+  //! @return boolean
+  function hasType();
+
+
   //! @brief Sets the object type.
   //! @param[in] string $value Usually the class name purged of his namespace.
   function setType($value);

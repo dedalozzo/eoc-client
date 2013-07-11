@@ -61,6 +61,13 @@ trait DocTrait {
   }
 
 
+  //! @brief This implementation returns <i>false</i>.
+  //! @return boolean
+  public function hasType() {
+    return FALSE;
+  }
+
+
   //! Assigns the given associative array to the <i>$meta</i> array, the array that stores the document's metadata..
   //! @param[in] array $array An associative array.
   public function assignArray(array $array) {
