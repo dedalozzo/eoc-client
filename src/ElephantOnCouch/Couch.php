@@ -1264,6 +1264,7 @@ final class Couch {
       $handler->reduceFn = $reduceFn;
 
     $request = new Request(Request::POST_METHOD, "/".$this->dbName."/_temp_view");
+    $request->setHeaderField(Request::CONTENT_TYPE_HF, "application/json");
 
     if (is_null($keys))
       $request->setBody(json_encode($handler->asArray()));
