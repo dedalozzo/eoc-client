@@ -23,6 +23,7 @@ use Lint\Lint;
 //! you can write these functions directly in PHP.<br />
 //! All the views in one design document are indexed whenever any of them gets queried.
 //! @nosubgrouping
+//! todo: Add support for seq_indexed option.
 final class ViewHandler extends DesignHandler {
   const MAP_REGEX = '/function\s*\(\s*\$doc\)\s*use\s*\(\$emit\)\s*\{[\W\w]*\};\z/m';
   const MAP_DEFINITION = "function(\$doc) use (\$emit) { ... };";
