@@ -1257,7 +1257,8 @@ final class Couch {
   public function queryTempView($mapFn, $reduceFn = "", array $keys = NULL, Opt\ViewQueryOpts $opts = NULL, $language = 'php', Hook\ChunkHook $chunkHook = NULL) {
     $this->checkForDb();
 
-    $handler = new Handler\ViewHandler($language);
+    $handler = new Handler\ViewHandler('temp');
+    $handler->language = $language;
     $handler->mapFn = $mapFn;
     if (!empty($reduce))
       $handler->reduceFn = $reduceFn;

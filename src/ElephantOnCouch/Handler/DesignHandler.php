@@ -21,15 +21,6 @@ use ElephantOnCouch\Doc\DesignDoc;
 abstract class DesignHandler {
   use Properties; // This is a trait, not a namespace or a class.
 
-  protected $language;
-
-
-  //! @brief Creates an handler instance.
-  //! @param[in] DesignDoc $doc A design document.
-  public function __construct($language = "php") {
-    $this->language = $language;
-  }
-
 
   //! @brief Returns the handler's section.
   //! @details Every CouchDB's handler is stored in a particular design document section. Every class that extends the

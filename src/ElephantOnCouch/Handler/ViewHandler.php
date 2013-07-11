@@ -39,6 +39,10 @@ final class ViewHandler extends DesignHandler {
   //! @brief The view handler name.
   private $name;
 
+
+  //! @brief The programming language used to write map and reduce functions.
+  private $language;
+
   //! @brief Stores the map function.
   //! @details Contains the function implementation provided by the user. You can have multiple views in a design document
   //! and for every single view you can have only one map function. The map function is a closure.
@@ -84,6 +88,11 @@ final class ViewHandler extends DesignHandler {
   }
 
 
+  public function setLanguage($value) {
+    $this->name = (string)$value;
+  }
+
+
   public function getSection() {
     return 'views';
   }
@@ -119,6 +128,9 @@ final class ViewHandler extends DesignHandler {
   public function asArray() {
     $view = [];
     $view['map'] = $this->mapFn;
+
+    if (!empty($this->language))
+      $view['language'] = $this->language;
 
     if (!empty($this->reduceFn))
       $view['reduce'] = $this->reduceFn;
