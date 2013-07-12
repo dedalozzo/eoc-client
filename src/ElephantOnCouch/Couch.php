@@ -340,7 +340,7 @@ final class Couch {
         // path. This can either be passed as a urlencoded string like 'para1=val1&para2=val2&...' or as an array with
         // the field name as key and field data as value. If value is an array, the Content-Type header will be set to
         // multipart/form-data.
-        $opts[CURLOPT_POSTFIELDS] = ltrim($request->getQueryString(), "?");
+        $opts[CURLOPT_POSTFIELDS] = $request->getBody();
         break;
 
       // PUT method.
@@ -1276,13 +1276,12 @@ final class Couch {
     $request = new Request(Request::POST_METHOD, "/".$this->dbName."/_temp_view");
     $request->setHeaderField(Request::CONTENT_TYPE_HF, "application/json");
 
-    if (is_null($keys))
-      $request->setBody(json_encode($handler->asArray()));
-    else {
-      $body = $handler->asArray() + ['keys' => $keys];
+    $array = $handler->asArray();
 
-      $request->setBody(json_encode($body));
-    }
+    if (is_array($keys))
+      $array['keys'] = $keys;
+
+    $request->setBody(json_encode($array));
 
     if (isset($opts))
       $request->setMultipleQueryParamsAtOnce($opts->asArray());
