@@ -10,7 +10,7 @@ namespace ElephantOnCouch\Doc;
 
 
 use ElephantOnCouch\Couch;
-use ElephantOnCouch\Handler\DesignHandler;
+use ElephantOnCouch\Handler;
 
 
 //! @brief A design document is a special CouchDB document where views, updates, rewrites and many others handlers are
@@ -23,6 +23,11 @@ final class DesignDoc extends Doc {
   private $sections = [];
 
 
+  public function __construct() {
+    $this->addHandlers();
+  }
+
+
   //! @brief Creates an instance of DesignDoc class.
   //! @param[in] string $name The design document name.
   //! @param[in] string $language The programming language used by the design document for his handlers.
@@ -33,6 +38,17 @@ final class DesignDoc extends Doc {
     $instance->setLanguage($language);
 
     return $instance;
+  }
+
+
+  private function addHandlers() {
+    $this->sections[Handler\FilterHandler::getSection()] = NULL;
+    $this->sections[Handler\ListHandler::getSection()] = NULL;
+    $this->sections[Handler\RewriteHandler::getSection()] = NULL;
+    $this->sections[Handler\ShowHandler::getSection()] = NULL;
+    $this->sections[Handler\UpdateHandler::getSection()] = NULL;
+    $this->sections[Handler\ValidateDocUpdateHandler::getSection()] = NULL;
+    $this->sections[Handler\ViewHandler::getSection()] = NULL;
   }
 
 
@@ -92,7 +108,7 @@ final class DesignDoc extends Doc {
   //! with multiple handlers, but in some cases there is one and only one handler per section, so that handler doesn't
   //! have a name.
   //! @param[in] DesignHandler $handler An instance of a subclass of the abstract class DesignHandler.
-  public function addHandler(DesignHandler $handler) {
+  public function addHandler(Handler\DesignHandler $handler) {
     $section = $handler->getSection();
 
     if (property_exists($handler, "name")) {
