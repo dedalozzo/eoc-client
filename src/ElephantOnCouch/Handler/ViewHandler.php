@@ -41,7 +41,9 @@ final class ViewHandler extends DesignHandler {
 
 
   //! @brief The programming language used to write map and reduce functions.
-  private $language;
+  //! @details This property is used mainly by the Couch.queryTempView() method. In fact, the language is taken from
+  //! the design document where your map and reduce functions have been stored.
+  private $language = "";
 
   //! @brief Stores the map function.
   //! @details Contains the function implementation provided by the user. You can have multiple views in a design document

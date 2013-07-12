@@ -92,7 +92,7 @@ final class Request extends Message {
   //! @see http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.35
   const RANGE_HF = "Range";
 
-  //! @brief The Referer[sic] request-header field allows the client to specify, for the server's benefit, the address (URI)
+  //! @brief The Referer request-header field allows the client to specify, for the server's benefit, the address (URI)
   //! of the resource from which the Request-URI was obtained.
   //! @see http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.36
   const REFERER_HF = "Referer";

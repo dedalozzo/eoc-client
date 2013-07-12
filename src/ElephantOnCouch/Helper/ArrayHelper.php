@@ -25,6 +25,14 @@ class ArrayHelper {
   }
 
 
+  /*public static function convert
+array_walk_recursive($array, function(&$value, $key) {
+  if (is_string($value)) {
+    $value = iconv('windows-1252', 'utf-8', $value);
+  }
+});*/
+
+
   // @brief Converts the array to an object.
   // @return object
   public static function toObject(array $array) {

@@ -378,7 +378,7 @@ final class Couch {
     // Sets the request Uniform Resource Locator.
     $opts[CURLOPT_URL] = "http://".$this->host.":".$this->port.$request->getPath().$request->getQueryString();
 
-    // Sets the request's header.
+    // Sets the request header.
     $opts[CURLOPT_HTTPHEADER] = $request->getHeaderAsArray();
 
     // Includes the header in the output. We need this because our Response object will parse them.
@@ -410,20 +410,20 @@ final class Couch {
     // chunk responses, and sometimes we want trigger an hook function to let the user perform operations on coming
     // chunks.
     $header = "";
-    curl_setopt($this->handle, CURLOPT_HEADERFUNCTION, function($unused, $buffer) use (&$header) {
-      $header .= $buffer;
-
-      return strlen($buffer);
-    });
+    curl_setopt($this->handle, CURLOPT_HEADERFUNCTION,
+        function($unused, $buffer) use (&$header) {
+          $header .= $buffer;
+          return strlen($buffer);
+        });
 
     // When the hook function is provided, we set the CURLOPT_WRITEFUNCTION so cURL will call the hook function for each
     // response chunk read.
     if (isset($chunkHook)) {
-      curl_setopt($this->handle, CURLOPT_WRITEFUNCTION, function($unused, $buffer) use ($chunkHook) {
-        $chunkHook->process($buffer);
-
-        return strlen($buffer);
-      });
+      curl_setopt($this->handle, CURLOPT_WRITEFUNCTION,
+          function($unused, $buffer) use ($chunkHook) {
+            $chunkHook->process($buffer);
+            return strlen($buffer);
+          });
     }
 
     if ($result = curl_exec($this->handle)) {
@@ -1240,7 +1240,7 @@ final class Couch {
       $request = new Request(Request::GET_METHOD, "/".$this->dbName."/_design/".$designDocName."/_view/".$viewName);
     else {
       $request = new Request(Request::POST_METHOD, "/".$this->dbName."/_design/".$designDocName."/_view/".$viewName);
-      $request->setBody(json_encode(utf8_encode(['keys' => $keys])));
+      $request->setBody(json_encode(['keys' => $keys]));
     }
 
     if (isset($opts))
@@ -1281,7 +1281,7 @@ final class Couch {
     else {
       $body = $handler->asArray() + ['keys' => $keys];
 
-      $request->setBody(json_encode(utf8_encode($body)));
+      $request->setBody(json_encode($body));
     }
 
     if (isset($opts))
