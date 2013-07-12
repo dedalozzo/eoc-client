@@ -972,7 +972,7 @@ final class Couch {
     $this->validateAndEncodeDbName($name);
 
     if ($name != $this->dbName) {
-      $this->send(new Request(Request::PUT_METHOD, "/".rawurlencode($name)."/"));
+      $this->send(new Request(Request::PUT_METHOD, "/".$name."/"));
 
       if ($autoSelect)
         $this->dbName = $name;
@@ -1490,7 +1490,7 @@ final class Couch {
     $this->validateDocPath($path);
     $this->validateAndEncodeDocId($docId);
 
-    $path = "/".$this->dbName."/".$path.rawurlencode($docId);
+    $path = "/".$this->dbName."/".$path.$docId;
 
     $request = new Request(Request::DELETE_METHOD, $path);
     $request->setQueryParam("rev", (string)$rev);
