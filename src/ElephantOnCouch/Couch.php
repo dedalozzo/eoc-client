@@ -276,6 +276,16 @@ final class Couch {
           $chunkHook->process($buffer);
       }
 
+      // A chunk response might have some footer, but CouchDB doesn't use them, so we simply ignore them.
+      while (!feof($this->handle)) {
+        // We use fgets() because it stops reading at first newline or buffer length, depends which one is reached first.
+        $buffer = fgets($this->handle, self::BUFFER_LENGTH);
+
+        // The chunk response ends with a newline, so we break when we read it.
+        if ($buffer == self::CRLF)
+          break;
+      }
+
     }
     else { // Normal response, not chunked.
       // Retrieves the body length from the header.
