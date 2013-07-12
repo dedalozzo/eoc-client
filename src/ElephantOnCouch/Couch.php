@@ -266,8 +266,21 @@ final class Couch {
         if ($length < 1)
           break;
 
-        // We use fread() here, because we know exactly how many bytes read.
-        $buffer = fread($this->handle, $length);
+        // When reading from network streams or pipes, such as those returned when reading remote files or from popen()
+        // and proc_open(), reading will stop after a new packet is available. This means that we must collect the data
+        // together in chunks. So, we can't pass to the fread() the entire length because it could return less data than
+        // expected. We have to read, instead, the standard buffer length, and concatenate the read chunks.
+        $buffer = "";
+
+        while ($length > 0) {
+          $size = min(self::BUFFER_LENGTH, $length);
+          $data = fread($this->handle, $size);
+          if (strlen($data) == 0) {
+            break; // EOF
+          }
+          $buffer .= $data;
+          $length -= strlen($data);
+        }
 
         // If a function has been hooked, calls it, else just add the buffer to the body.
         if (is_null($chunkHook))
