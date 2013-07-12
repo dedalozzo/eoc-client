@@ -331,10 +331,7 @@ final class Couch {
 
       // POST method.
       case Request::POST_METHOD:
-        // @bug The following instruction doesn't work; might be a cURL bug. We use, instead, CURLOPT_CUSTOMREQUEST.
-        //$opts[CURLOPT_POST] = TRUE;
-
-        $opts[CURLOPT_CUSTOMREQUEST] = Request::POST_METHOD;
+        $opts[CURLOPT_POST] = TRUE;
 
         // The full data to post in a HTTP "POST" operation. To post a file, prepend a filename with @ and use the full
         // path. This can either be passed as a urlencoded string like 'para1=val1&para2=val2&...' or as an array with
@@ -378,9 +375,6 @@ final class Couch {
     // Sets the request Uniform Resource Locator.
     $opts[CURLOPT_URL] = "http://".$this->host.":".$this->port.$request->getPath().$request->getQueryString();
 
-    // Sets the request header.
-    $opts[CURLOPT_HTTPHEADER] = $request->getHeaderAsArray();
-
     // Includes the header in the output. We need this because our Response object will parse them.
     // NOTE: we don't include header anymore, because we use the option CURLOPT_HEADERFUNCTION.
     //$opts[CURLOPT_HEADER] = TRUE;
@@ -405,6 +399,12 @@ final class Couch {
     // request.
     if (!$request->hasHeaderField(Request::EXPECT_HF))
       curl_setopt($this->handle, CURLOPT_HTTPHEADER, array("Expect:"));
+
+    // Sets the request header.
+    // Due to a stupid bug, using curl_setopt_array(), cURL doesn't override the Content-Type header field. So we must
+    // set the header using, instead, curl_stopt()
+    // $opts[CURLOPT_HTTPHEADER] = $request->getHeaderAsArray();
+    curl_setopt($this->handle, CURLOPT_HTTPHEADER, $request->getHeaderAsArray());
 
     // Here we use this option because we might have a response without body. This may happen because we are supporting
     // chunk responses, and sometimes we want trigger an hook function to let the user perform operations on coming
