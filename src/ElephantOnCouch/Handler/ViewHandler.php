@@ -93,7 +93,7 @@ final class ViewHandler extends DesignHandler {
   }
 
 
-  public function getSection() {
+  public static function getSection() {
     return 'views';
   }
 
