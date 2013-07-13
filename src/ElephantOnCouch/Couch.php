@@ -266,6 +266,7 @@ final class Couch {
         if ($length < 1)
           break;
 
+        // Reads the chunk.
         // When reading from network streams or pipes, such as those returned when reading remote files or from popen()
         // and proc_open(), reading will stop after a new packet is available. This means that we must collect the data
         // together in chunks. So, we can't pass to the fread() the entire length because it could return less data than
