@@ -339,7 +339,12 @@ final class Response extends Message {
     foreach ($fields as $field) {
       if (preg_match('/([^:]+): (.+)/m', $field, $matches)) {
         // With the advent of PHP 5.5, the /e modifier is deprecated, so we use preg_replace_callback().
-        $matches[1] = preg_replace_callback('/(?<=^|[\x09\x20\x2D])./', function($matches) { return strtoupper($matches[0]); }, strtolower(trim($matches[1])));
+        $matches[1] = preg_replace_callback('/(?<=^|[\x09\x20\x2D])./',
+            function($matches) {
+              return strtoupper($matches[0]);
+            },
+            strtolower(trim($matches[1])));
+
         if (isset($this->header[$matches[1]]))
           $this->header[$matches[1]] = array($this->header[$matches[1]], $matches[2]);
         else
