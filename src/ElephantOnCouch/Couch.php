@@ -767,7 +767,7 @@ final class Couch {
   }
 
 
-  //! @brief todo
+  //! @brief Obtains a list of the operations made to the databases file, like creation, deletion, etc.
   //! @param[in] DbUpdatesFeedOpts $opts Additional options.
   //! @return A Response object.
   //! @attention Requires admin privileges.
