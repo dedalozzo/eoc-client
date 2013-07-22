@@ -9,8 +9,8 @@
 namespace ElephantOnCouch\Opt;
 
 
-//! @brief To retrieve additional information about document, you can create a ChangesFeedOpts instance and pass it as parameter
-//! to the Couch.getDoc() method.
+//! @brief To change the feed type, set a different timeout, etc, you can create a ChangesFeedOpts instance and pass
+//! it as parameter to the Couch.getDbChanges() method.
 //! @nosubgrouping
 //! @see http://docs.couchdb.org/en/latest/changes.html#changes
 class ChangesFeedOpts extends AbstractOpts {
