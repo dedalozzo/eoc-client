@@ -9,8 +9,8 @@
 namespace ElephantOnCouch\Opt;
 
 
-//! @brief To retrieve additional information about document, you can create a ChangesFeedOpts instance and pass it as parameter
-//! to the Couch.getDoc() method.
+//! @brief To change the feed type, set a different timeout, etc, you can create a DbUpdatesFeedOpts instance and pass
+//! it as parameter to the Couch.getDbUpdates() method.
 //! @nosubgrouping
 //! @see http://docs.couchdb.org/en/latest/changes.html#changes
 class DbUpdatesFeedOpts extends AbstractOpts {
@@ -23,7 +23,7 @@ class DbUpdatesFeedOpts extends AbstractOpts {
 
   //! @brief Long polling mode.
   //! @details The longpoll feed (probably most useful used from a browser) is a more efficient form of polling that waits
-  //! for a change to occur before the response is sent. longpoll avoids the need to frequently poll CouchDB to discover
+  //! for a change to occur before the response is sent. Longpoll avoids the need to frequently poll CouchDB to discover
   //! nothing has changed.
   const LONGPOLL_TYPE = "longpoll";
 
@@ -70,6 +70,13 @@ class DbUpdatesFeedOpts extends AbstractOpts {
         $this->options["timeout"] = $timeout;
       else
         throw new \InvalidArgumentException("\$timeout must be a positive integer.");
+  }
+
+
+  //! @brief An empty line is emitted, by default, when the timeout occurs to maintain the connection active. Using this
+  //! option the connection ends on timeout.
+  public function doNotKeepAlive() {
+    $this->options["heartbeat"] = 'false';
   }
 
 }
