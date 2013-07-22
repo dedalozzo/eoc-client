@@ -767,6 +767,23 @@ final class Couch {
   }
 
 
+  //! @brief todo
+  //! @param[in] DbUpdatesFeedOpts $opts Additional options.
+  //! @return A Response object.
+  //! @attention Requires admin privileges.
+  //! @see todo
+  public function getDbUpdates(Opt\DbUpdatesFeedOpts $opts = NULL) {
+    $this->checkForDb();
+
+    $request = new Request(Request::GET_METHOD, "/_db_updates");
+
+    if (isset($opts))
+      $request->setMultipleQueryParamsAtOnce($opts->asArray());
+
+    return $this->send($request)->getBodyAsArray();
+  }
+
+
   //! @brief Returns a list of running tasks.
   //! @attention Requires admin privileges.
   //! @return associative array
@@ -1022,6 +1039,7 @@ final class Couch {
 
   //! @brief Obtains a list of the changes made to the database. This can be used to monitor for update and modifications
   //! to the database for post processing or synchronization.
+  //! @param[in] ChangesFeedOpts $opts Additional options.
   //! @return A Response object.
   //! @see http://docs.couchdb.org/en/latest/api/database.html#get-db-changes
   public function getDbChanges(Opt\ChangesFeedOpts $opts = NULL) {
