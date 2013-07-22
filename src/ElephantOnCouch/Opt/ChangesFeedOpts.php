@@ -18,7 +18,7 @@ class ChangesFeedOpts extends AbstractOpts {
   //! Default period after which an empty line is sent during a longpoll or continuous feed.
   const DEFAULT_HEARTBEAT = 60000;
 
-  //! period in milliseconds to wait for a change before the response is sent, even if there are no results.
+  //! Period in milliseconds to wait for a change before the response is sent, even if there are no results.
   const DEFAULT_TIMEOUT = 60000;
 
   //! @name Feed Types
@@ -72,7 +72,7 @@ class ChangesFeedOpts extends AbstractOpts {
     if (($since == "now") or (is_int($since) and ($since >= 0)))
       $this->options["since"] = $since;
     else
-      throw new \Exception("\$since must be a non-negative integer or can be 'now'.");
+      throw new \InvalidArgumentException("\$since must be a non-negative integer or can be 'now'.");
   }
 
 
@@ -82,7 +82,7 @@ class ChangesFeedOpts extends AbstractOpts {
     if (is_int($limit) and ($limit > 0))
       $this->options["limit"] = $limit;
     else
-      throw new \Exception("\$value must be a positive integer.");
+      throw new \InvalidArgumentException("\$value must be a positive integer.");
   }
 
 
@@ -124,7 +124,7 @@ class ChangesFeedOpts extends AbstractOpts {
       if (is_int($heartbeat) and ($heartbeat >= 0))
         $this->options["heartbeat"] = $heartbeat;
       else
-        throw new \Exception("\$heartbeat must be a non-negative integer.");
+        throw new \InvalidArgumentException("\$heartbeat must be a non-negative integer.");
   }
 
 
@@ -139,7 +139,7 @@ class ChangesFeedOpts extends AbstractOpts {
       if (is_int($timeout) and ($timeout > 0))
         $this->options["timeout"] = $timeout;
       else
-        throw new \Exception("\$timeout must be a positive integer.");
+        throw new \InvalidArgumentException("\$timeout must be a positive integer.");
   }
 
 
