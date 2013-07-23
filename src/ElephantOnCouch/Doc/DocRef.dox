@@ -4,11 +4,13 @@
 namespace ElephantOnCouch\Doc;
 
 
-class Doc {
+class DocRef {
 
   //! @name Properties
   //@{
 
+  //! @brief The document identifier.
+  private $id;
 
   //@}
 

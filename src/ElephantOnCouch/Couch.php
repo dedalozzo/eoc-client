@@ -31,7 +31,6 @@ use ElephantOnCouch\Message\Response;
 //! @todo Implement setSecurityObj().
 //! @todo Implement cancelReplication().
 //! @todo Implement getReplicator().
-//! @todo Implement purgeDocs().
 //! @todo Implement showDoc().
 //! @todo Implement listDocs().
 //! @todo Implement callUpdateDocFunc().
@@ -1583,7 +1582,17 @@ final class Couch {
   public function purgeDocs(array $refs) {
     $this->checkForDb();
 
-    return $this->send(new Request(Request::POST_METHOD, "/".$this->dbName));
+    $path = "/".$this->dbName."/_purge";
+
+    $request = new Request(Request::POST_METHOD, $path);
+
+    $purge = [];
+    foreach ($refs as $ref)
+      $purge[] = $ref->asArray();
+
+    $request->setBody(json_encode($purge));
+
+    return $this->send($request);
   }
 
 
