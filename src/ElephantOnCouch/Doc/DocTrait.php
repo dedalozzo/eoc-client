@@ -95,6 +95,13 @@ trait DocTrait {
   }
 
 
+  //! @brief Returns the document representation as an associative array.
+  //! @return associative array
+  public function asArray() {
+    return $this->meta;
+  }
+
+
   public function getId() {
     return $this->meta['_id'];
   }
@@ -137,6 +144,12 @@ trait DocTrait {
   public function unsetRev() {
     if ($this->isMetadataPresent('_rev'))
       unset($this->meta['_rev']);
+  }
+
+
+  //! @brief Marks the document as deleted. To be effected the document must be saved.
+  public function delete() {
+    $this->meta['_deleted'] == "true";
   }
 
 

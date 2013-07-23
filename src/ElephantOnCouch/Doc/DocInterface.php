@@ -63,4 +63,9 @@ interface DocInterface {
   //! @return JSON object
   function asJson();
 
+
+  //! @brief Returns the document representation as an associative array.
+  //! @return associative array
+  public function asArray();
+
 }
