@@ -24,7 +24,7 @@ final class DesignDoc extends Doc {
 
 
   public function __construct() {
-    $this->addHandlers();
+    $this->loadHandlers();
   }
 
 
@@ -41,7 +41,7 @@ final class DesignDoc extends Doc {
   }
 
 
-  private function addHandlers() {
+  private function loadHandlers() {
     $this->sections[Handler\FilterHandler::getSection()] = NULL;
     $this->sections[Handler\ListHandler::getSection()] = NULL;
     $this->sections[Handler\RewriteHandler::getSection()] = NULL;
