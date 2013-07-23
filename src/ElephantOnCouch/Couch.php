@@ -32,7 +32,6 @@ use ElephantOnCouch\Message\Response;
 //! @todo Implement cancelReplication().
 //! @todo Implement getReplicator().
 //! @todo Implement purgeDocs().
-//! @todo Implement performBulkOperations().
 //! @todo Implement showDoc().
 //! @todo Implement listDocs().
 //! @todo Implement callUpdateDocFunc().
@@ -503,9 +502,24 @@ final class Couch {
       $body["cancel"] = TRUE;
     }
     else
-      throw new \Exception("realDbReplication can be called only from startDbReplication and cancelDbReplication methods.");
+      throw new \ErrorException("realDbReplication can be called only from startDbReplication and cancelDbReplication methods.");
 
     return $this->send(Request::POST_METHOD, "/_replicate", NULL, NULL, $body);
+  }
+
+
+  // This method sets the document class and type in case the document hasn't one.
+  private function setDocInfo(Doc\DocInterface $doc) {
+    // Sets the class name.
+    $class = get_class($doc);
+    $doc->setClass($class);
+
+    // Sets the document type.
+    if (!$doc->hasType()) {
+      preg_match('/([\w]+$)/', $class, $matches);
+      $type = strtolower($matches[1]);
+      $doc->setType($type);
+    }
   }
 
 
@@ -769,7 +783,7 @@ final class Couch {
 
   //! @brief Obtains a list of the operations made to the databases file, like creation, deletion, etc.
   //! @param[in] DbUpdatesFeedOpts $opts Additional options.
-  //! @return A Response object.
+  //! @return Response
   //! @attention Requires admin privileges.
   //! @see todo
   public function getDbUpdates(Opt\DbUpdatesFeedOpts $opts = NULL) {
@@ -929,7 +943,7 @@ final class Couch {
 
 
   //! @brief Makes user logout.
-  //! @return a Response object
+  //! @return Response
   //! @see http://wiki.apache.org/couchdb/Session_API
   public function deleteSession() {
     return $this->send(new Request(Request::DELETE_METHOD, "/_session"));
@@ -1040,7 +1054,7 @@ final class Couch {
   //! @brief Obtains a list of the changes made to the database. This can be used to monitor for update and modifications
   //! to the database for post processing or synchronization.
   //! @param[in] ChangesFeedOpts $opts Additional options.
-  //! @return A Response object.
+  //! @return Response
   //! @see http://docs.couchdb.org/en/latest/api/database.html#get-db-changes
   public function getDbChanges(Opt\ChangesFeedOpts $opts = NULL) {
     $this->checkForDb();
@@ -1473,7 +1487,6 @@ final class Couch {
   //! This increases the risk of the documents not being stored in the event of a failure, since the documents are not
   //! written to disk immediately.
   //! @see http://docs.couchdb.org/en/latest/api/documents.html#put-db-doc
-  /// @todo Support the new_edits=true|false option, see http://wiki.apache.org/couchdb/HTTP_Bulk_Document_API#Posting_Existing_Revisions
   public function saveDoc(Doc\DocInterface $doc, $batchMode = FALSE) {
     $this->checkForDb();
 
@@ -1485,16 +1498,7 @@ final class Couch {
     if (!$doc->issetId())
       $doc->setid(Generator\UUID::generate(Generator\UUID::UUID_RANDOM, Generator\UUID::FMT_STRING));
 
-    // Sets the class name.
-    $class = get_class($doc);
-    $doc->setClass($class);
-
-    // Sets the document type.
-    if (!$doc->hasType()) {
-      preg_match('/([\w]+$)/', $class, $matches);
-      $type = strtolower($matches[1]);
-      $doc->setType($type);
-    }
+    $this->setDocInfo($doc);
 
     $path = "/".$this->dbName."/".$doc->getPath().$doc->getId();
 
@@ -1564,16 +1568,19 @@ final class Couch {
 
   //! @brief The purge operation removes the references to the deleted documents from the database.
   //! @details A database purge permanently removes the references to deleted documents from the database. Deleting a
-  //! document within CouchDB does not actually remove the document from the database, instead, the document is marked as
-  //! a deleted (and a new revision is created). This is to ensure that deleted documents are replicated to other
+  //! document within CouchDB does not actually remove the document from the database, instead, the document is marked
+  //! as deleted (and a new revision is created). This is to ensure that deleted documents are replicated to other
   //! databases as having been deleted. This also means that you can check the status of a document and identify that
   //! the document has been deleted.<br />
   //! The purging of old documents is not replicated to other databases. If you are replicating between databases and
   //! have deleted a large number of documents you should run purge on each database.<br />
-  //! Purging documents does not remove the space used by them on disk. To reclaim disk space, you should run compactDb().
+  //! Purging documents does not remove the space used by them on disk. To reclaim disk space, you should run compactDb().<br />
+  //! @param[in] array $refs An array of references used to identify documents and revisions to delete. The array must
+  //! contains instances of the DocRef class.
   //! @return Response
   //! @see http://docs.couchdb.org/en/latest/api/database.html#post-db-purge
-  public function purgeDocs(array $docs) {
+  //! @see http://wiki.apache.org/couchdb/Purge_Documents
+  public function purgeDocs(array $refs) {
     $this->checkForDb();
 
     return $this->send(new Request(Request::POST_METHOD, "/".$this->dbName));
@@ -1581,23 +1588,57 @@ final class Couch {
 
 
   //! @brief Inserts, updates and deletes documents in a bulk.
-  //! @details Documents that are updated or deleted must contain the <i>rev</i> number. To delete a document, you should set
-  //! <i>delete = true</i>.
-  public function performBulkOperations(array $docs, $fullCommit = FALSE) {
+  //! @details Documents that are updated or deleted must contain the <i>rev</i> number. To delete a document, you should
+  //! call delete() method on your document. When creating new documents the document ID is optional. For updating existing
+  //! documents, you must provide the document ID and revision.
+  //! @param[in] array $docs An array of documents you want insert, delete or update.
+  //! @param[in] boolean $fullCommit (optional) Makes sure all uncommited database changes are written and synchronized
+  //! to the disk immediately.
+  //! @param[in] boolean $allOrNothing (optional) In all-or-nothing mode, either all documents are written to the database,
+  //! or no documents are written to the database, in the event of a system failure during commit.<br />
+  //! You can ask CouchDB to check that all the documents pass your validation functions. If even one fails, none of the
+  //! documents are written. If all documents pass validation, then all documents will be updated, even if that introduces
+  //! a conflict for some or all of the documents.
+  //! @param[in] boolean $newEdits (optional) When <i>false</i> CouchDB pushes existing revisions instead of creating
+  //! new ones. The response will not include entries for any of the successful revisions (since their rev IDs are
+  //! already known to the sender), only for the ones that had errors. Also, the conflict error will never appear,
+  //! since in this mode conflicts are allowed.
+  //! @return Response
+  //! @see http://docs.couchdb.org/en/latest/api/database.html#post-db-bulk-docs
+  //! @see http://docs.couchdb.org/en/latest/json-structure.html#bulk-documents
+  //! @see http://wiki.apache.org/couchdb/HTTP_Bulk_Document_API
+  public function performBulkOperations(array $docs, $fullCommit = FALSE, $allOrNothing = FALSE, $newEdits = TRUE) {
     $this->checkForDb();
+
+    if (count($docs) == 0)
+      throw new \InvalidArgumentException("The \$docs array cannot be empty.");
+    else
+      $operations = [];
 
     $path = "/".$this->dbName."/_bulk_docs";
 
+    $request = new Request(Request::POST_METHOD, $path);
+    $request->setHeaderField(Request::CONTENT_TYPE_HF, "application/json");
+
+    if ($fullCommit)
+      $request->setHeaderField(Request::X_COUCHDB_FULL_COMMIT_HF, "full_commit");
+    else
+      $request->setHeaderField(Request::X_COUCHDB_FULL_COMMIT_HF, "delay_commit");
+
+    if ($allOrNothing)
+      $operations['all_or_nothing'] = 'true';
+
+    if (!$newEdits)
+      $operations['new_edits'] = 'false';
+
     foreach ($docs as $doc) {
-      $request = new Request(Request::POST_METHOD, $path);
-
-      if ($fullCommit)
-        $request->setHeaderField(Request::X_COUCHDB_FULL_COMMIT_HF, "full_commit");
-      else
-        $request->setHeaderField(Request::X_COUCHDB_FULL_COMMIT_HF, "delay_commit");
-
-      $this->send($request);
+      $this->setDocInfo($doc);
+      $operations['docs'][] = $doc->asArray();
     }
+
+    $request->setBody(json_encode($operations));
+
+    return $this->send($request);
   }
 
   //@}
