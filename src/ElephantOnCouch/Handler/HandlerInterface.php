@@ -20,7 +20,7 @@ interface HandlerInterface {
   static function getSection();
 
 
-  //! @brief You must always check the handler's consistence before every call to <i>getAttributes</i> method.
+  //! @brief You must always check the handler's consistence before every call to asArray() method.
   //! @return boolean
   function isConsistent();
 

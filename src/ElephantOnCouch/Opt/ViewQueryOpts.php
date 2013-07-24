@@ -17,6 +17,7 @@ class ViewQueryOpts extends AbstractOpts {
 
   //! @brief Returns only documents that match the specified key.
   //! @param[in] string $value An URL encoded JSON value indicating the the key.
+  // todo
   public function setKey($value) {
     $this->options["key"] = $value;
   }
@@ -32,6 +33,7 @@ class ViewQueryOpts extends AbstractOpts {
   public function setStartKey($value) {
     $this->options["startkey"] = $value;
   }
+
 
   //! @brief Defines the last key to be included in the range.
   //! @param[in] string $value An URL encoded JSON value indicating the the key at which to end the range.
@@ -53,17 +55,17 @@ class ViewQueryOpts extends AbstractOpts {
   //! Same thing for the <i>endDocId</i>.
   //@{
 
-  //! @brief Sets the ID of the document with which to start the range.
-  //! @param[in] string $value The ID of the document with which to start the range.
-  public function setEndDocId($value) {
-    $this->options["endkey_docid"] = $value;
-  }
-
 
   //! @brief Sets the ID of the document with which to end the range.
   //! @param[in] string $value The ID of the document with which to end the range.
   public function setStartDocId($value) {
     $this->options["start_docid"] = $value;
+  }
+
+  //! @brief Sets the ID of the document with which to start the range.
+  //! @param[in] string $value The ID of the document with which to start the range.
+  public function setEndDocId($value) {
+    $this->options["endkey_docid"] = $value;
   }
 
   //@}
@@ -72,7 +74,6 @@ class ViewQueryOpts extends AbstractOpts {
   //! @brief Restricts the number of results.
   //! @details Allowed values: positive integers.
   //! @param[in] integer $value The maximum number of rows to include in the output.
-  //! @exception Exception <c>Message: <i>\$value must be a positive integer.</i></c>
   public function setLimit($value) {
     if (is_int($value) && $value > 0)
       $this->options["limit"] = $value;
@@ -91,11 +92,10 @@ class ViewQueryOpts extends AbstractOpts {
 
 
   //! @brief Level at which documents should be grouped.
-  //! @details If your keys are are JSON arrays, this parameter will specify how many elements in those arrays to use for
+  //! @details If your keys are JSON arrays, this parameter will specify how many elements in those arrays to use for
   //! grouping purposes. If your emitted keys are not JSON arrays this parameter's value will effectively be ignored.
   //! Allowed values: positive integers.
   //! @param[in] integer $value The number of elements used for grouping purposes.
-  //! @exception Exception <c>Message: <i>\$value must be a positive integer.</i></c>
   public function setGroupLevel($value) {
     if (is_int($value) && $value > 0) {
       $this->groupResults(); // This parameter is used only if 'group' is 'true'.
@@ -194,6 +194,12 @@ class ViewQueryOpts extends AbstractOpts {
   //! @brief Includes conflict documents.
   public function includeConflicts() {
     $this->options["conflicts"] = "true";
+  }
+
+
+  //! @brief Includes an update_seq value indicating which sequence id of the database the view reflects.
+  public function includeUpdateSeq() {
+    $this->options['update_seq'] = "true";
   }
 
 }

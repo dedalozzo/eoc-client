@@ -39,7 +39,6 @@ final class ViewHandler extends DesignHandler {
   //! @brief The view handler name.
   private $name;
 
-
   //! @brief The programming language used to write map and reduce functions.
   //! @details This property is used mainly by the Couch.queryTempView() method. In fact, the language is taken from
   //! the design document where your map and reduce functions have been stored.

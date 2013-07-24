@@ -274,14 +274,15 @@ final class Couch {
         while ($length > 0) {
           $size = min(self::BUFFER_LENGTH, $length);
           $data = fread($this->handle, $size);
-          if (strlen($data) == 0) {
+
+          if (strlen($data) == 0)
             break; // EOF
-          }
+
           $buffer .= $data;
           $length -= strlen($data);
         }
 
-        // If a function has been hooked, calls it, else just add the buffer to the body.
+        // If a function has been hooked, calls it, else just adds the buffer to the body.
         if (is_null($chunkHook))
           $body .= $buffer;
         else
