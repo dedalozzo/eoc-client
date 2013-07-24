@@ -60,11 +60,11 @@ final class DesignDoc extends Doc {
 
 
   //! @brief Design documents don't have a class, so we don't provide an implementation.
-  public function setClass() {}
+  public function setClass($value) {}
 
 
   //! @brief Design documents don't have a type, so we don't provide an implementation.
-  public function setType() {}
+  public function setType($value) {}
 
 
   //! @brief Gets the document path: <i>_design/</i>.
