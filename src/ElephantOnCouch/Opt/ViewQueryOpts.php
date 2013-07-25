@@ -172,7 +172,7 @@ class ViewQueryOpts extends AbstractOpts {
   //! @details Note that the descending option is applied before any key filtering, so you may need to swap the values
   //! of the start key and end key options to get the expected results.
   public function reverseOrderOfResults() {
-    $this->options["descending"] = "false";
+    $this->options["descending"] = "true";
   }
 
 
