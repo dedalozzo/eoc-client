@@ -988,7 +988,7 @@ final class Couch {
   //! In every call you have to specify the database name (when a database is required). The ElephantOnCouch client stores this
   //! information for us, so we don't need to pass the database name as parameter to every method call. The purpose of
   //! this method, is to avoid you repeat database name every time. The function doesn't check if the database really
-  //! exists, but it performs a fast check on the name itself. To obtain information about a database, use getDbInfo
+  //! exists, but it performs a fast check on the name itself. To obtain information about a database, use getDbInfo()
   //! instead.
   //! @attention Only lowercase characters (a-z), digits (0-9), and any of the characters _, $, (, ), +, -, and / are
   //! allowed. Must begin with a letter.</i></c>\n

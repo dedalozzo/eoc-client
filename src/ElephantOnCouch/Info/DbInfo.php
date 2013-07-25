@@ -138,8 +138,11 @@ class DbInfo {
   public function __toString() {
     $buffer = "Name: ".$this->name.PHP_EOL;
 
-    if ((float)$this->instanceStartTime > 0)
-      $buffer .= "File Opened Since: ".Helper\TimeHelper::since($this->instanceStartTime).PHP_EOL;
+    if ((float)$this->instanceStartTime > 0) {
+      $time = Helper\TimeHelper::since($this->instanceStartTime, TRUE);
+      $since = '%d days, %d hours, %d minutes, %d seconds';
+      $buffer .= "File Opened Since: ".sprintf($since, $time['days'], $time['hours'], $time['minutes'], $time['seconds']).PHP_EOL;
+    }
 
     $buffer .= "Disk Size (Bytes): ".$this->diskSize.PHP_EOL;
     $buffer .= "Data Size (Bytes): ".$this->dataSize.PHP_EOL;
