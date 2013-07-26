@@ -295,7 +295,7 @@ final class Request extends Message {
   //! @param[in] string $value Parameter value.
   public function setQueryParam($name, $value) {
     if (preg_match('/[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*/', $name))
-      $this->queryParams[$name] = rawurlencode($value);
+      $this->queryParams[$name] = $value;
     else
       throw new \InvalidArgumentException("\$name must start with a letter or underscore, followed by any number of
           letters, numbers, or underscores.");
