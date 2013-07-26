@@ -56,14 +56,14 @@ class ViewQueryOpts extends AbstractOpts {
   //@{
 
 
-  //! @brief Sets the ID of the document with which to end the range.
-  //! @param[in] string $value The ID of the document with which to end the range.
-  public function setStartDocId($value) {
-    $this->options["start_docid"] = $value;
-  }
-
   //! @brief Sets the ID of the document with which to start the range.
   //! @param[in] string $value The ID of the document with which to start the range.
+  public function setStartDocId($value) {
+    $this->options["startkey_docid"] = $value;
+  }
+
+  //! @brief Sets the ID of the document with which to end the range.
+  //! @param[in] string $value The ID of the document with which to end the range.
   public function setEndDocId($value) {
     $this->options["endkey_docid"] = $value;
   }
