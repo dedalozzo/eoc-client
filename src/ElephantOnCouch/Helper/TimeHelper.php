@@ -14,22 +14,31 @@ namespace ElephantOnCouch\Helper;
 class TimeHelper {
 
   //! @brief Returns a string with the elapsed time, from the provided timestamp, in days, hours, minutes and seconds.
-  //! @param[in] string $timestamp A timestamp in microseconds.
-  //! @return string
-  public static function since($timestamp) {
+  //! @param[in] string $timestamp A timestamp in seconds/microseconds.
+  //! @param[in] string $micro When <i>true</i> the timestamp is expressed in microseconds otherwise in seconds.
+  //! @return associated array
+  public static function since($timestamp, $micro = FALSE) {
     $microsecondsInASecond = 1000000;
     $secondsInAMinute = 60;
     $secondsInAnHour = 60 * $secondsInAMinute;
     $secondsInADay = 24 * $secondsInAnHour;
 
-    // Gets the current timestamp in microseconds.
-    $now = microtime(TRUE);
+    if ($micro) {
+      // Gets the current timestamp in microseconds.
+      $now = microtime(TRUE);
 
-    // Subtracts from the current timestamp the last timestamp server was started.
-    $microseconds = ($now * $microsecondsInASecond) - (float)$timestamp;
+      // Subtracts from the current timestamp the last timestamp server was started.
+      $microseconds = ($now * $microsecondsInASecond) - (float)$timestamp;
 
-    // Converts microseconds in seconds.
-    $seconds = floor($microseconds / $microsecondsInASecond);
+      // Converts microseconds in seconds.
+      $seconds = floor($microseconds / $microsecondsInASecond);
+    }
+    else {
+      $now = time(); // Gets the current timestamp in seconds.
+
+      // Calculates difference in seconds.
+      $seconds = floor($now / $timestamp);
+    }
 
     // Extracts days.
     $days = (int)floor($seconds / $secondsInADay);
@@ -46,9 +55,13 @@ class TimeHelper {
     $remainingSeconds = $minuteSeconds % $secondsInAMinute;
     $seconds = (int)ceil($remainingSeconds);
 
-    $since = '%d days, %d hours, %d minutes, %d seconds';
+    $time = [];
+    $time['days'] = $days;
+    $time['hours'] = $hours;
+    $time['minutes'] = $minutes;
+    $time['seconds'] = $seconds;
 
-    return sprintf($since, $days, $hours, $minutes, $seconds);
+    return $time;
   }
 
 }
