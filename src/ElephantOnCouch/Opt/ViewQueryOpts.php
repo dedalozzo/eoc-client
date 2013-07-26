@@ -12,14 +12,14 @@ namespace ElephantOnCouch\Opt;
 //! @brief To set the query arguments you must create an instance of this class. Use it when you query a CouchDB View with
 //! the methods Couch.queryAllDocs(), Couch.queryView() and Couch.queryTempView().
 //! @nosubgrouping
-//! @todo Add 'list' and 'callback' properties. Also review all the key methods.
+//! @todo Add 'list' and 'callback' properties.
 class ViewQueryOpts extends AbstractOpts {
 
   //! @brief Returns only documents that match the specified key.
-  //! @param[in] string $value An URL encoded JSON value indicating the the key.
+  //! @param[in] string $value The key.
   // todo
   public function setKey($value) {
-    $this->options["key"] = $value;
+    $this->options["key"] = json_encode($value);
   }
 
 
@@ -28,18 +28,16 @@ class ViewQueryOpts extends AbstractOpts {
   //@{
 
   //! @brief Defines the first key to be included in the range.
-  //! @param[in] string $value An URL encoded JSON value indicating the the key at which to start the range.
-  // todo
+  //! @param[in] string $value The key at which to start the range.
   public function setStartKey($value) {
-    $this->options["startkey"] = $value;
+    $this->options["startkey"] = json_encode($value);
   }
 
 
   //! @brief Defines the last key to be included in the range.
-  //! @param[in] string $value An URL encoded JSON value indicating the the key at which to end the range.
-  // todo
+  //! @param[in] string $value The key at which to end the range.
   public function setEndKey($value) {
-    $this->options["endkey"] = $value;
+    $this->options["endkey"] = json_encode($value);
   }
 
   //@}
