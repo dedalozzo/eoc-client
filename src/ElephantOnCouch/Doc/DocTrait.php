@@ -55,7 +55,7 @@ trait DocTrait {
 
 
   //! @brief Sets the object type.
-  //! @param[in] string $value Usually the class name purged of his namespace.
+  //! @param[in] string $value Usually the lowercase class name purged of his namespace.
   public function setType($value) {
     $this->meta['type'] = $value;
   }
