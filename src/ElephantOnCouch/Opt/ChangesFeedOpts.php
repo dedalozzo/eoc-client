@@ -73,6 +73,8 @@ class ChangesFeedOpts extends AbstractOpts {
       $this->options["since"] = $since;
     else
       throw new \InvalidArgumentException("\$since must be a non-negative integer or can be 'now'.");
+
+    return $this;
   }
 
 
@@ -83,6 +85,8 @@ class ChangesFeedOpts extends AbstractOpts {
       $this->options["limit"] = $limit;
     else
       throw new \InvalidArgumentException("\$value must be a positive integer.");
+
+    return $this;
   }
 
 

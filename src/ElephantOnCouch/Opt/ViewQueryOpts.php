@@ -77,12 +77,12 @@ class ViewQueryOpts extends AbstractOpts {
   //! @details Allowed values: positive integers.
   //! @param[in] integer $value The maximum number of rows to include in the output.
   public function setLimit($value) {
-    if (is_int($value) && $value > 0) {
+    if (is_int($value) && $value > 0)
       $this->options["limit"] = $value;
-      return $this;
-    }
     else
       throw new \Exception("\$value must be a positive integer.");
+
+    return $this;
   }
 
 
@@ -105,10 +105,11 @@ class ViewQueryOpts extends AbstractOpts {
     if (is_int($value) && $value > 0) {
       $this->groupResults(); // This parameter is used only if 'group' is 'true'.
       $this->options["limit"] = $value;
-      return $this;
     }
     else
       throw new \Exception("\$value must be a positive integer.");
+
+    return $this;
   }
 
 
@@ -197,12 +198,12 @@ class ViewQueryOpts extends AbstractOpts {
   //! @param[in] integer $number The number of rows to skip.
   //! @exception Exception <c>Message: <i>\$number must be a positive integer.</i></c>
   public function skipDocs($number) {
-    if (is_int($number) && $number > 0) {
+    if (is_int($number) && $number > 0)
       $this->options["skip"] = $number;
-      return $this;
-    }
     else
       throw new \Exception("\$number must be a positive integer.");
+
+    return $this;
   }
 
 

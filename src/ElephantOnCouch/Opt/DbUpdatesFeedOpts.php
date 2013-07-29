@@ -55,6 +55,8 @@ class DbUpdatesFeedOpts extends AbstractOpts {
       $this->options["feed"] = $type;
     else
       throw new \InvalidArgumentException("Invalid feed type.");
+
+    return $this;
   }
 
 
@@ -70,6 +72,8 @@ class DbUpdatesFeedOpts extends AbstractOpts {
         $this->options["timeout"] = $timeout;
       else
         throw new \InvalidArgumentException("\$timeout must be a positive integer.");
+
+    return $this;
   }
 
 
@@ -77,6 +81,7 @@ class DbUpdatesFeedOpts extends AbstractOpts {
   //! option the connection ends on timeout.
   public function doNotKeepAlive() {
     $this->options["heartbeat"] = 'false';
+    return $this;
   }
 
 }
