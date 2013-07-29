@@ -17,9 +17,9 @@ class ViewQueryOpts extends AbstractOpts {
 
   //! @brief Returns only documents that match the specified key.
   //! @param[in] string $value The key.
-  // todo
   public function setKey($value) {
     $this->options["key"] = json_encode($value);
+    return $this;
   }
 
 
@@ -31,6 +31,7 @@ class ViewQueryOpts extends AbstractOpts {
   //! @param[in] string $value The key at which to start the range.
   public function setStartKey($value) {
     $this->options["startkey"] = json_encode($value);
+    return $this;
   }
 
 
@@ -38,6 +39,7 @@ class ViewQueryOpts extends AbstractOpts {
   //! @param[in] string $value The key at which to end the range.
   public function setEndKey($value) {
     $this->options["endkey"] = json_encode($value);
+    return $this;
   }
 
   //@}
@@ -58,12 +60,14 @@ class ViewQueryOpts extends AbstractOpts {
   //! @param[in] string $value The ID of the document with which to start the range.
   public function setStartDocId($value) {
     $this->options["startkey_docid"] = $value;
+    return $this;
   }
 
   //! @brief Sets the ID of the document with which to end the range.
   //! @param[in] string $value The ID of the document with which to end the range.
   public function setEndDocId($value) {
     $this->options["endkey_docid"] = $value;
+    return $this;
   }
 
   //@}
@@ -73,8 +77,10 @@ class ViewQueryOpts extends AbstractOpts {
   //! @details Allowed values: positive integers.
   //! @param[in] integer $value The maximum number of rows to include in the output.
   public function setLimit($value) {
-    if (is_int($value) && $value > 0)
+    if (is_int($value) && $value > 0) {
       $this->options["limit"] = $value;
+      return $this;
+    }
     else
       throw new \Exception("\$value must be a positive integer.");
   }
@@ -86,6 +92,7 @@ class ViewQueryOpts extends AbstractOpts {
   //! for the view.
   public function groupResults() {
     $this->options["group"] = "true";
+    return $this;
   }
 
 
@@ -98,6 +105,7 @@ class ViewQueryOpts extends AbstractOpts {
     if (is_int($value) && $value > 0) {
       $this->groupResults(); // This parameter is used only if 'group' is 'true'.
       $this->options["limit"] = $value;
+      return $this;
     }
     else
       throw new \Exception("\$value must be a positive integer.");
@@ -109,6 +117,7 @@ class ViewQueryOpts extends AbstractOpts {
   //! of the reduce function. To avoid this behaviour you must call this method.
   public function doNotReduce() {
     $this->options["reduce"] = "false";
+    return $this;
   }
 
 
@@ -118,18 +127,21 @@ class ViewQueryOpts extends AbstractOpts {
   //! @warning You can call this method only if the view doesn't contain a reduce function.
   public function includeDocs() {
     $this->options["include_docs"] = "true";
+    return $this;
   }
 
 
   //! @brief Don't get any data, but all meta-data for this View. The number of documents in this View for example.
   public function excludeResults() {
     $this->options["limit"] = 0;
+    return $this;
   }
 
 
   //! @brief Tells CouchDB to not include end key in the result.
   public function excludeEndKey() {
     $this->options["inclusive_end"] = "false";
+    return $this;
   }
 
 
@@ -155,12 +167,14 @@ class ViewQueryOpts extends AbstractOpts {
   //! \"<a href="http://wiki.apache.org/couchdb/Regenerating_views_on_update" target="_blank">Update views on document save</a>\".
   public function doNotRefreshView() {
     $this->options["stale"] = "ok";
+    return $this;
   }
 
 
   //! @brief CouchDB will update the view after the query's result is returned.
   public function queryThenRefreshView() {
     $this->options["stale"] = "update_after";
+    return $this;
   }
 
   //@}
@@ -171,6 +185,7 @@ class ViewQueryOpts extends AbstractOpts {
   //! of the start key and end key options to get the expected results.
   public function reverseOrderOfResults() {
     $this->options["descending"] = "true";
+    return $this;
   }
 
 
@@ -182,8 +197,10 @@ class ViewQueryOpts extends AbstractOpts {
   //! @param[in] integer $number The number of rows to skip.
   //! @exception Exception <c>Message: <i>\$number must be a positive integer.</i></c>
   public function skipDocs($number) {
-    if (is_int($number) && $number > 0)
+    if (is_int($number) && $number > 0) {
       $this->options["skip"] = $number;
+      return $this;
+    }
     else
       throw new \Exception("\$number must be a positive integer.");
   }
@@ -192,12 +209,14 @@ class ViewQueryOpts extends AbstractOpts {
   //! @brief Includes conflict documents.
   public function includeConflicts() {
     $this->options["conflicts"] = "true";
+    return $this;
   }
 
 
   //! @brief Includes an update_seq value indicating which sequence id of the database the view reflects.
   public function includeUpdateSeq() {
     $this->options['update_seq'] = "true";
+    return $this;
   }
 
 }
