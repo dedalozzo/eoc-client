@@ -1282,7 +1282,7 @@ final class Couch {
     if (empty($viewName))
       throw new \InvalidArgumentException("You must provide a valid \$viewName.");
 
-    if (is_null($keys))
+    if (empty($keys))
       $request = new Request(Request::GET_METHOD, "/".$this->dbName."/_design/".$designDocName."/_view/".$viewName);
     else {
       $request = new Request(Request::POST_METHOD, "/".$this->dbName."/_design/".$designDocName."/_view/".$viewName);
