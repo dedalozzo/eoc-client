@@ -1237,7 +1237,7 @@ final class Couch {
   //! @param[in] string $designDocName The design document's name.
   //! @param[in] string $viewName The view's name.
   //! @param[in] array $keys (optional) Used to retrieve just the view rows matching that set of keys. Rows are returned
-  //! in the order of the specified keys. Combining this feature with include_docs=true results in the so-called
+  //! in the order of the specified keys. Combining this feature with ViewQueryOpts.includeDocs() results in the so-called
   //! multi-document-fetch feature.
   //! @param[in] ViewQueryOpts $opts (optional) Query options to get additional information, grouping results, include
   //! docs, etc.
@@ -1252,7 +1252,7 @@ final class Couch {
       $request = new Request(Request::GET_METHOD, "/".$this->dbName."/_all_docs");
     else {
       $request = new Request(Request::POST_METHOD, "/".$this->dbName."/_all_docs");
-      $request->setBody(json_encode(utf8_encode(['keys' => $keys])));
+      $request->setBody(json_encode(['keys' => $keys]));
     }
 
     if (isset($opts))
