@@ -47,12 +47,12 @@ class ViewQueryOpts extends AbstractOpts {
 
   //! @name First and Last Documents Identifiers
   //! @brief First and last documents to be included in the output.
-  //! @details If you expect to have multiple documents emit identical keys, you'll need to use <i>startDocId</i> in
-  //! addition to <i>$startKey</i> to paginate correctly. The reason is that <i>startKey</i> alone will no longer be
-  //! sufficient to uniquely identify a row. Those parameters are useless if you don't provide a <i>startKey</i>. In fact,
-  //! CouchDB will first look at the <i>startKey</i> parameter, then it will use the <i>startDocId</i> parameter to further
+  //! @details If you expect to have multiple documents emit identical keys, you'll need to use `startDocId` in
+  //! addition to `$startKey` to paginate correctly. The reason is that `startKey` alone will no longer be
+  //! sufficient to uniquely identify a row. Those parameters are useless if you don't provide a `startKey`. In fact,
+  //! CouchDB will first look at the `startKey` parameter, then it will use the `startDocId` parameter to further
   //! redefine the beginning of the range if multiple potential staring rows have the same key but different document IDs.
-  //! Same thing for the <i>endDocId</i>.
+  //! Same thing for the `endDocId`.
   //@{
 
 
@@ -196,7 +196,7 @@ class ViewQueryOpts extends AbstractOpts {
   //! values to do that). For efficient paging you'll need to use start key and limit.
   //! Allowed values: positive integers.
   //! @param[in] integer $number The number of rows to skip.
-  //! @exception Exception <c>Message: <i>\$number must be a positive integer.</i></c>
+  //! @exception Exception <c>Message: `\$number must be a positive integer.`</c>
   public function skipDocs($number) {
     if (is_int($number) && $number > 0)
       $this->options["skip"] = $number;

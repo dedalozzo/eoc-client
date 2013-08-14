@@ -14,7 +14,7 @@ use ElephantOnCouch\Helper\Properties;
 
 
 //! @brief This class contains the CouchDB's version and MOTD. It's used by Couch.getSvrInfo() method.
-//! @details Since this class uses the <i>Properties</i> trait, you don't need to call the getter methods to obtain information
+//! @details Since this class uses the `Properties` trait, you don't need to call the getter methods to obtain information
 //! about server.
 //! @nosubgrouping
 class ServerInfo {

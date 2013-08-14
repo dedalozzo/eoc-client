@@ -172,7 +172,7 @@ abstract class Message {
   }
 
 
-  //! @brief Returns <i>TRUE</i> in case exist the specified header field or <i>FALSE</i> in case it doesn't exist.
+  //! @brief Returns `TRUE` in case exist the specified header field or `FALSE` in case it doesn't exist.
   //! @param[in] string $name Header field name.
   //! @return boolean
   public function hasHeaderField($name) {
@@ -180,7 +180,7 @@ abstract class Message {
   }
 
 
-  //! @brief Returns the value for the header identified by the specified name or <i>FALSE</i> in case it doesn't exist.
+  //! @brief Returns the value for the header identified by the specified name or `FALSE` in case it doesn't exist.
   //! @param[in] string $name Header field name.
   //! @return string
   public function getHeaderFieldValue($name) {
@@ -247,7 +247,7 @@ abstract class Message {
 
 
   //! @brief Returns the Message entity-body JSON as an array.
-  //! @param[in] bool $assoc When <i>true</i>, returned objects will be converted into associative arrays.
+  //! @param[in] bool $assoc When `true`, returned objects will be converted into associative arrays.
   //! @return associative array
   public function getBodyAsArray($assoc = TRUE) {
     return Helper\ArrayHelper::fromJson($this->body, $assoc);

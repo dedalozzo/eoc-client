@@ -14,7 +14,7 @@ use ElephantOnCouch\Couch;
 
 
 //! @brief This is an information only purpose class. It's used by Couch.getClientInfo() method.
-//! @details Since this class uses the <i>Properties</i> trait, you don't need to call the getter methods to obtain
+//! @details Since this class uses the `Properties` trait, you don't need to call the getter methods to obtain
 //! information about the client.
 //! @nosubgrouping
 class ClientInfo {

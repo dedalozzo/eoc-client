@@ -825,7 +825,7 @@ final class Couch {
 
   //! @brief Returns a list of generated UUIDs.
   //! @param[in] integer $count Requested UUIDs number.
-  //! @return string|array If <i>$count = 1</i> (default) returns a string else returns an array of strings.
+  //! @return string|array If `$count = 1` (default) returns a string else returns an array of strings.
   //! @see http://docs.couchdb.org/en/latest/api/misc.html#get-uuids
   public function getUuids($count = 1) {
     if (is_int($count) and ($count > 0)) {
@@ -991,7 +991,7 @@ final class Couch {
   //! exists, but it performs a fast check on the name itself. To obtain information about a database, use getDbInfo()
   //! instead.
   //! @attention Only lowercase characters (a-z), digits (0-9), and any of the characters _, $, (, ), +, -, and / are
-  //! allowed. Must begin with a letter.</i></c>\n
+  //! allowed. Must begin with a letter.`</c>\n
   //! @param[in] string $name Database name.
   public function selectDb($name) {
     $this->dbName = $this->validateAndEncodeDbName($name);
@@ -1072,12 +1072,12 @@ final class Couch {
   //! @details Writes a new version of the database file, removing any unused sections from the new version during write.
   //! Because a new file is temporary created for this purpose, you will need twice the current storage space of the
   //! specified database in order for the compaction routine to complete.<br />
-  //! Removes old revisions of documents from the database, up to the per-database limit specified by the <i>_revs_limit</i>
+  //! Removes old revisions of documents from the database, up to the per-database limit specified by the `_revs_limit`
   //! database setting.<br />
   //! Compaction can only be requested on an individual database; you cannot compact all the databases for a CouchDB
   //! instance.<br />
   //! The compaction process runs as a background process. You can determine if the compaction process is operating on a
-  //! database by obtaining the database meta information, the <i>compact_running</i> value of the returned database
+  //! database by obtaining the database meta information, the `compact_running` value of the returned database
   //! structure will be set to true. You can also obtain a list of running processes to determine whether compaction is
   //! currently running, using getActiveTasks().
   //! @attention Requires admin privileges.
@@ -1182,7 +1182,7 @@ final class Couch {
   //! The replication process only copies the last revision of a document, so all previous revisions that were only on
   //! the source database are not copied to the destination database.<br />
   //! Changes on the master will not automatically replicate to the slaves. To make replication continuous, you must set
-  //! <i>\$continuous = TRUE</i>. At this time, CouchDB does not remember continuous replications over a server restart.
+  //! `\$continuous = TRUE`. At this time, CouchDB does not remember continuous replications over a server restart.
   //! Specifying a local source database and a remote target database is called push replication and a remote source and
   //! local target is called pull replication. As of CouchDB 0.9, pull replication is a lot more efficient and resistant
   //! to errors, and it is suggested that you use pull replication in most cases, especially if your documents are large
@@ -1194,8 +1194,8 @@ final class Couch {
   //! @param[in] string $sourceDbUrl todo
   //! @param[in] string $targetDbUrl
   //! @param[in] boolean $createTargetDb The target database has to exist and is not implicitly created. You can force
-  //! the creation setting <i>\$createTargetDb = TRUE</i>.<br />
-  //! @param[in] boolean $continuous When you set <i>\$continuous = TRUE</i> CouchDB will not stop after replicating all
+  //! the creation setting `\$createTargetDb = TRUE`.<br />
+  //! @param[in] boolean $continuous When you set `\$continuous = TRUE` CouchDB will not stop after replicating all
   //! missing documents from the source to the target.<br />
   //! At the time of writing, CouchDB doesn't remember continuous replications over a server restart. For the time being,
   //! you are required to trigger them again when you restart CouchDB. In the future, CouchDB will allow you to define
@@ -1478,7 +1478,7 @@ final class Couch {
 
 
   //! @brief Inserts or updates a document into the selected database.
-  //! @details Whether the <i>\$doc</i> has an id we use a different HTTP method. Using POST CouchDB generates an id for the doc,
+  //! @details Whether the `\$doc` has an id we use a different HTTP method. Using POST CouchDB generates an id for the doc,
   //! using PUT instead we need to specify one. We can still use the function getUuids() to ask CouchDB for some ids.
   //! This is an internal detail. You have only to know that CouchDB can generate the document id for you.
   //! @param[in] Doc $doc The document you want insert or update.
@@ -1538,7 +1538,7 @@ final class Couch {
 
 
   //! @brief Makes a duplicate of the specified document. If you want to overwrite an existing document, you need to
-  //! specify the target document's revision with a <i>\$rev</i> parameter.
+  //! specify the target document's revision with a `\$rev` parameter.
   //! @details If you want copy a special document you must specify his type.
   //! @param[in] string $sourceDocId The source document id.
   //! @param[in] string $targetDocId The destination document id.
@@ -1598,7 +1598,7 @@ final class Couch {
 
 
   //! @brief Inserts, updates and deletes documents in a bulk.
-  //! @details Documents that are updated or deleted must contain the <i>rev</i> number. To delete a document, you should
+  //! @details Documents that are updated or deleted must contain the `rev` number. To delete a document, you should
   //! call delete() method on your document. When creating new documents the document ID is optional. For updating existing
   //! documents, you must provide the document ID and revision.
   //! @param[in] array $docs An array of documents you want insert, delete or update.
@@ -1609,7 +1609,7 @@ final class Couch {
   //! You can ask CouchDB to check that all the documents pass your validation functions. If even one fails, none of the
   //! documents are written. If all documents pass validation, then all documents will be updated, even if that introduces
   //! a conflict for some or all of the documents.
-  //! @param[in] boolean $newEdits (optional) When <i>false</i> CouchDB pushes existing revisions instead of creating
+  //! @param[in] boolean $newEdits (optional) When `false` CouchDB pushes existing revisions instead of creating
   //! new ones. The response will not include entries for any of the successful revisions (since their rev IDs are
   //! already known to the sender), only for the ones that had errors. Also, the conflict error will never appear,
   //! since in this mode conflicts are allowed.

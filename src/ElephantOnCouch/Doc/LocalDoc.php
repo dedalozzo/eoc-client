@@ -17,14 +17,14 @@ namespace ElephantOnCouch\Doc;
 abstract class LocalDoc extends AbstractDoc {
 
 
-  //! @brief Removes <i>_local/</i> from he document identifier.
+  //! @brief Removes `_local/` from he document identifier.
   protected function fixDocId() {
     if (isset($this->meta['_id']))
       $this->meta['_id'] = preg_replace('%\A_local/%m', "", $this->meta['_id']);
   }
 
 
-  //! @brief Gets the document path: <i>_local/</i>.
+  //! @brief Gets the document path: `_local/`.
   //! @return string
   public function getPath() {
     return "_local/";

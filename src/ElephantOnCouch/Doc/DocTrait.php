@@ -61,14 +61,14 @@ trait DocTrait {
   }
 
 
-  //! @brief This implementation returns <i>false</i>.
+  //! @brief This implementation returns `false`.
   //! @return boolean
   public function hasType() {
     return FALSE;
   }
 
 
-  //! Assigns the given associative array to the <i>$meta</i> array, the array that stores the document's metadata..
+  //! Assigns the given associative array to the `$meta` array, the array that stores the document's metadata..
   //! @param[in] array $array An associative array.
   public function assignArray(array $array) {
     if (Helper\ArrayHelper::isAssociative($array)) {
@@ -80,7 +80,7 @@ trait DocTrait {
   }
 
 
-  //! @brief Given an instance of a standard class, this function assigns every single object's property to the <i>$meta</i>
+  //! @brief Given an instance of a standard class, this function assigns every single object's property to the `$meta`
   //! array, the array that stores the document's metadata.
   public function assignObject(\stdClass $object) {
     $this->meta = array_merge(get_object_vars($object), $this->meta);

@@ -23,7 +23,7 @@ interface DocInterface {
   function getId();
 
 
-  //! @brief Returns <i>true</i> if the document has an identifier, <i>false</i> otherwise.
+  //! @brief Returns `true` if the document has an identifier, `false` otherwise.
   //! @return boolean
   function issetId();
 
@@ -39,10 +39,10 @@ interface DocInterface {
   function setClass($value);
 
 
-  //! @brief Returns <i>true</i> if your document class already defines his type internally, <i>false</i> otherwise.
+  //! @brief Returns `true` if your document class already defines his type internally, `false` otherwise.
   //! @details Sometime happens you have two classes with the same name but located under different namespaces. In case,
   //! you should provide a type yourself for at least one of these classes, to avoid Couch.SaveDoc() using the same type
-  //! for both. Default implementation should return <i>false</i>.
+  //! for both. Default implementation should return `false`.
   //! @return boolean
   function hasType();
 
@@ -53,7 +53,7 @@ interface DocInterface {
 
 
   //! @brief Gets the document path.
-  //! @details Returns an empty string for standard document, <i>_local/</i> for local document and <i>_design/</i> for
+  //! @details Returns an empty string for standard document, `_local/` for local document and `_design/` for
   //! design document.
   //! @return string
   function getPath();

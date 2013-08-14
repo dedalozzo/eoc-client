@@ -41,7 +41,7 @@ class ArrayHelper {
 
 
   //! @brief Converts the given JSON into an array.
-  //! @param[in] bool $assoc When <i>true</i>, returned objects will be converted into associative arrays.
+  //! @param[in] bool $assoc When `true`, returned objects will be converted into associative arrays.
   //! @return array
   public static function fromJson($json, $assoc) {
     $data = json_decode((string)$json, $assoc);

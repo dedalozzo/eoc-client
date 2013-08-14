@@ -22,7 +22,7 @@ class DocOpts extends AbstractOpts {
   //@{
 
   //! @brief Ignores the class name to avoid the creation of an instance of that class.
-  //! @details When <i>true</i> ignores the class name, previously saved in the special attribute <i>class</i>, to
+  //! @details When `true` ignores the class name, previously saved in the special attribute `class`, to
   //! avoid the creation of an instance of that particular class. You want use this property when the interpreter can't
   //! load class due to namespace resolution problem or because the class definition is missing.
   private $ignoreClass = FALSE;
@@ -125,7 +125,7 @@ class DocOpts extends AbstractOpts {
   }
 
 
-  //! @brief You can fetch the bodies of multiple revisions at once using this option. Using <i>$revs = 'all'</i> you can
+  //! @brief You can fetch the bodies of multiple revisions at once using this option. Using `$revs = 'all'` you can
   //! fetch all leaf revisions; alternatively you can specify an array of revisions. The JSON returns an array of objects
   //! with an "ok" key pointing to the document, or a "missing" key pointing to the rev string.
   //! @details CouchDB will return something like this:

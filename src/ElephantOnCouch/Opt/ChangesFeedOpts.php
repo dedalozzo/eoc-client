@@ -106,8 +106,8 @@ class ChangesFeedOpts extends AbstractOpts {
   }
 
 
-  //! @brief Specifies how many revisions are returned in the changes array. The default, <i>main_only</i>, will only
-  //! return the winning revision; <i>all_docs</i> will return all the conflicting revisions.
+  //! @brief Specifies how many revisions are returned in the changes array. The default, `main_only`, will only
+  //! return the winning revision; `all_docs` will return all the conflicting revisions.
   //! @param[in] bool $style The feed style.
   public function setStyle($style) {
     if (array_key_exists($style, self::$supportedStyles))
@@ -120,7 +120,7 @@ class ChangesFeedOpts extends AbstractOpts {
   //! @brief Period in milliseconds after which an empty line is sent in the results. Overrides any timeout to keep the
   //! feed alive indefinitely.
   //! @param[in] integer $heartbeat Period in milliseconds after which an empty line is sent in the results.
-  //! @warning Only applicable for <i>longpoll</i> or <i>continuous</i> feeds.
+  //! @warning Only applicable for `longpoll` or `continuous` feeds.
   public function setHeartbeat($heartbeat = self::DEFAULT_HEARTBEAT) {
     $feed = $this->options['feed'];
 
@@ -135,7 +135,7 @@ class ChangesFeedOpts extends AbstractOpts {
   //! @brief Maximum period in milliseconds to wait for a change before the response is sent, even if there are no results.
   //! @details Note that 60000 is also the default maximum timeout to prevent undetected dead connections.
   //! @param[in] integer $timeout Maximum period to wait before the response is sent. Must be a positive integer.
-  //! @warning Only applicable for <i>longpoll</i> or <i>continuous</i> feeds.
+  //! @warning Only applicable for `longpoll` or `continuous` feeds.
   public function setTimeout($timeout = self::DEFAULT_TIMEOUT) {
     $feed = $this->options['feed'];
 

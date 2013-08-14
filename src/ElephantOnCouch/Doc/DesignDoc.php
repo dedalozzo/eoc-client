@@ -52,7 +52,7 @@ final class DesignDoc extends Doc {
   }
 
 
-  //! @brief Removes <i>_design/</i> from he document identifier.
+  //! @brief Removes `_design/` from he document identifier.
   protected function fixDocId() {
     if (isset($this->meta['_id']))
       $this->meta['_id'] = preg_replace('%\A_design/%m', "", $this->meta['_id']);
@@ -67,7 +67,7 @@ final class DesignDoc extends Doc {
   public function setType($value) {}
 
 
-  //! @brief Gets the document path: <i>_design/</i>.
+  //! @brief Gets the document path: `_design/`.
   //! @return string
   public function getPath() {
     return "_design/";
@@ -104,7 +104,7 @@ final class DesignDoc extends Doc {
 
 
   //! @brief Adds a special handler to the design document.
-  //! @details This method checks the existence of the property <i>$name</i>, in fact a design document can have sections
+  //! @details This method checks the existence of the property `$name`, in fact a design document can have sections
   //! with multiple handlers, but in some cases there is one and only one handler per section, so that handler doesn't
   //! have a name.
   //! @param[in] DesignHandler $handler An instance of a subclass of the abstract class DesignHandler.
@@ -134,7 +134,7 @@ final class DesignDoc extends Doc {
 
   //! @brief Removes the handler.
   //! @details Some handlers belong to a section. For example a view ViewHandler belongs to the 'views' section. To specify
-  //! the appropriate section name, you shoudl use the static method <i>getSection</i> available for every handler
+  //! the appropriate section name, you shoudl use the static method `getSection` available for every handler
   //! implementation.
   //! @param[in] string $section The section's name (views, updates, shows, filters, etc).
   //! @param[in] string $name (optional) The handler's name.
