@@ -16,7 +16,7 @@ class TimeHelper {
   //! @brief Returns a string with the elapsed time, from the provided timestamp, in days, hours, minutes and seconds.
   //! @param[in] string $timestamp A timestamp in seconds/microseconds.
   //! @param[in] string $micro When <i>true</i> the timestamp is expressed in microseconds otherwise in seconds.
-  //! @return associated array
+  //! @return associative array
   public static function since($timestamp, $micro = FALSE) {
     $microsecondsInASecond = 1000000;
     $secondsInAMinute = 60;
