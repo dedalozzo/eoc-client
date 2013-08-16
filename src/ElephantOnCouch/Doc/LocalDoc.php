@@ -14,7 +14,7 @@ namespace ElephantOnCouch\Doc;
 //! configurations.<br />
 //! Inherit from LocalDoc if you want create a persistent class that is not replicable.
 //! @nosubgrouping
-abstract class LocalDoc extends AbstractDoc {
+class LocalDoc extends AbstractDoc {
 
 
   //! @brief Removes `_local/` from he document identifier.

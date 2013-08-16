@@ -13,9 +13,8 @@ use ElephantOnCouch\Attachment\Attachment;
 
 
 //! @brief Standard documents are replicable documents.
-//! @details Inherit from this class if you want
 //! @nosubgrouping
-abstract class Doc extends AbstractDoc {
+class Doc extends AbstractDoc {
 
   const ATTACHMENTS = "_attachments";
   const REVS_INFO = "_revs_info";

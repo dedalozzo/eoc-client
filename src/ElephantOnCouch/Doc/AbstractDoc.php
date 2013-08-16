@@ -19,6 +19,6 @@ use ElephantOnCouch\Couch;
 //! You should instead inherit your persistent classes from the abstract Doc or LocalDoc (in case of local documents).
 //! @attention Don't inherit from this superclass!
 //! @nosubgrouping
-abstract class AbstractDoc implements DocInterface {
-  use DocTrait;
+abstract class AbstractDoc implements IDoc {
+  use TDoc;
 }

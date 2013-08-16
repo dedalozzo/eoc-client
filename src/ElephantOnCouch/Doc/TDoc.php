@@ -1,7 +1,7 @@
 <?php
 
-//! @file DocTrait.php
-//! @brief This file contains the ${CLASS_NAME} class.
+//! @file TDoc.php
+//! @brief This file contains the TDoc trait.
 //! @details
 //! @author Filippo F. Fadda
 
@@ -14,7 +14,7 @@ use ElephantOnCouch\Couch;
 
 
 //! @cond HIDDEN_SYMBOLS
-trait DocTrait {
+trait TDoc {
   use Helper\Properties;
 
   protected $meta = [];
