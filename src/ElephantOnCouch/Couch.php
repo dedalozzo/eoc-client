@@ -509,7 +509,7 @@ final class Couch {
 
 
   // This method sets the document class and type in case the document hasn't one.
-  private function setDocInfo(Doc\DocInterface $doc) {
+  private function setDocInfo(Doc\IDoc $doc) {
     // Sets the class name.
     $class = get_class($doc);
     $doc->setClass($class);
@@ -1487,7 +1487,7 @@ final class Couch {
   //! This increases the risk of the documents not being stored in the event of a failure, since the documents are not
   //! written to disk immediately.
   //! @see http://docs.couchdb.org/en/latest/api/documents.html#put-db-doc
-  public function saveDoc(Doc\DocInterface $doc, $batchMode = FALSE) {
+  public function saveDoc(Doc\IDoc $doc, $batchMode = FALSE) {
     $this->checkForDb();
 
     // We never use the POST method.
