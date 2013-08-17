@@ -118,6 +118,9 @@ final class Couch {
   // Socket or cURL handle.
   private $handle;
 
+  // The current transaction.
+  private $transaction = NULL;
+
   private static $defaultSocketTimeout;
 
   // Used to know if the constructor has been already called.
@@ -841,6 +844,64 @@ final class Couch {
     }
     else
       throw new \InvalidArgumentException("\$count must be a positive integer.");
+  }
+
+  //@}
+
+
+  //! @name Transaction Management Methods
+  // @{
+
+  // Ends the transaction.
+  private function endTransaction() {
+    if (is_array($this->transaction)) {
+
+      foreach ($this->transaction as $doc)
+        unset($doc);
+
+      unset($this->transaction);
+    }
+  }
+
+  //! @brief Starts a new transaction.
+  public function begin() {
+    if (is_null($this->transaction))
+      $this->transaction = [];
+    else
+      throw new \RuntimeException("A transaction is already in progress.");
+  }
+
+
+  //! @brief Alias of begin().
+  public function startTransaction() {
+    $this->begin();
+  }
+
+
+  //! @brief Commits the current transaction, making its changes permanent, finally ends the transaction.
+  //! @detauls In case of error rolls back the transaction.
+  //! @param[in] boolean $immediately (optional) Makes sure all uncommited database changes are written and synchronized
+  //! to the disk immediately.
+  //! @param[in] boolean $newEdits (optional) When `false` CouchDB pushes existing revisions instead of creating
+  //! new ones. The response will not include entries for any of the successful revisions (since their rev IDs are
+  //! already known to the sender), only for the ones that had errors. Also, the conflict error will never appear,
+  //! since in this mode conflicts are allowed.
+  //! @return Response
+  public function commit($immediately = FALSE, $newEdits = TRUE) {
+    try {
+      $this->performBulkOperations($this->transaction, $immediately, TRUE, $newEdits);
+      $this->endTransaction();
+    }
+    catch (\Exception $e) {
+      $this->rollback();
+      throw $e;
+    }
+  }
+
+
+  //! @brief Rolls back the current transaction, canceling its changes, finally ends the transaction.
+  public function rollback() {
+    $this->endTransaction();
   }
 
   //@}
