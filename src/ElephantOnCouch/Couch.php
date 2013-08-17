@@ -1543,16 +1543,20 @@ final class Couch {
   //! using PUT instead we need to specify one. We can still use the function getUuids() to ask CouchDB for some ids.
   //! This is an internal detail. You have only to know that CouchDB can generate the document id for you.
   //! @param[in] Doc $doc The document you want insert or update.
-  //! @param[in] bool $batchMode You can write documents to the database at a higher rate by using the batch option. This
-  //! collects document writes together in memory (on a user-by-user basis) before they are committed to disk.
-  //! This increases the risk of the documents not being stored in the event of a failure, since the documents are not
-  //! written to disk immediately.
+  //! @param[in] bool $batchMode (optional) You can write documents to the database at a higher rate by using the batch
+  //! option. This collects document writes together in memory (on a user-by-user basis) before they are committed to
+  //! disk. This increases the risk of the documents not being stored in the event of a failure, since the documents are
+  //! not written to disk immediately. This parameter is ignored in case a transaction is in progress.
   //! @see http://docs.couchdb.org/en/latest/api/documents.html#put-db-doc
   public function saveDoc(Doc\IDoc $doc, $batchMode = FALSE) {
-    $this->checkForDb();
 
-    // We never use the POST method.
-    $method = Request::PUT_METHOD;
+    // If there is a transaction in progress, adds the document to the transaction and returns.
+    if ($this->transaction) {
+      $this->transaction[] = $doc;
+      return;
+    }
+
+    $this->checkForDb();
 
     // Whether the document has an id we use a different HTTP method. Using POST CouchDB generates an id for the doc
     // using PUT we need to specify one. We can still use the function getUuids() to ask CouchDB for some ids.
@@ -1560,6 +1564,9 @@ final class Couch {
       $doc->setid(Generator\UUID::generate(Generator\UUID::UUID_RANDOM, Generator\UUID::FMT_STRING));
 
     $this->setDocInfo($doc);
+
+    // We never use the POST method.
+    $method = Request::PUT_METHOD;
 
     $path = "/".$this->dbName."/".$doc->getPath().$doc->getId();
 
@@ -1582,6 +1589,13 @@ final class Couch {
   //! @param[in] string $path The document path.
   //! @see http://docs.couchdb.org/en/latest/api/documents.html#delete-db-doc
   public function deleteDoc($path, $docId, $rev) {
+
+    // If there is a transaction in progress, adds the document to the transaction and returns.
+    if ($this->transaction) {
+      $this->transaction[] = $doc;
+      return;
+    }
+
     $this->checkForDb();
     $this->validateDocPath($path);
     $this->validateAndEncodeDocId($docId);
