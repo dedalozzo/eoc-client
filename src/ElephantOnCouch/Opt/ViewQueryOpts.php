@@ -231,7 +231,7 @@ class ViewQueryOpts extends AbstractOpts {
   }
 
 
-  //! @brief Includes all the keys, even if a match is not found.
+  //! @brief Includes all the rows, even if a match for a key is not found.
   public function includeMissingKeys() {
     $this->includeMissingKeys = TRUE;
     return $this;
