@@ -1356,15 +1356,15 @@ final class Couch {
     else
       $includeMissingKeys = FALSE;
 
-    $response = $this->send($request, $chunkHook);
+    $result = $this->send($request, $chunkHook)->getBodyAsArray();
 
     // CouchDB doesn't return rows for the keys a match is not found. To make joins having a row for each key is essential.
     // The algorithm below overrides the response, adding a new row for every key hasn't been matched.
-    if ($includeMissingKeys && !empty($keys) && isset($response['rows'])) {
+    if ($includeMissingKeys && !empty($keys) && isset($result['rows'])) {
 
       // These are the rows for the matched keys.
       $matches = [];
-      foreach ($response['rows'] as $row)
+      foreach ($result['rows'] as $row)
         $matches[$row['key']] = $row;
 
       $rows = [];
@@ -1379,10 +1379,10 @@ final class Couch {
           ];
 
       // Overrides the response, replacing rows.
-      $response['rows'] = $rows;
+      $result['rows'] = $rows;
     }
 
-    return $response;
+    return $result;
   }
 
 
