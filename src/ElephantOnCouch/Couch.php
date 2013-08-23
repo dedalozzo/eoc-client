@@ -526,6 +526,34 @@ final class Couch {
   }
 
 
+  private function addMissingRows($keys, &$rows) {
+    // CouchDB doesn't return rows for the keys a match is not found. To make joins having a row for each key is essential.
+    // The algorithm below overrides the response, adding a new row for every key hasn't been matched.
+    if (!empty($keys) && isset($rows)) {
+
+      // These are the rows for the matched keys.
+      $matches = [];
+      foreach ($rows as $row)
+        $matches[$row['key']] = $row;
+
+      $allRows = [];
+      foreach ($keys as $key)
+        if (isset($matches[$key])) // Match found.
+        $allRows[] = $matches[$key];
+        else // No match found.
+        $allRows[] = [
+          'id' => NULL,
+          'key' => $key,
+          'value' => NULL
+        ];
+
+      // Overrides the response, replacing rows.
+      $rows = $allRows;
+    }
+
+  }
+
+
   //! @brief This method is used to send a Request to CouchDB.
   //! @details If you want call a not supported CouchDB API, you can use this function to send your request.<br />
   //! You can also provide an instance of a class that implements the ChunkHook interface, to deal with a chunked
@@ -1358,29 +1386,8 @@ final class Couch {
 
     $result = $this->send($request, $chunkHook)->getBodyAsArray();
 
-    // CouchDB doesn't return rows for the keys a match is not found. To make joins having a row for each key is essential.
-    // The algorithm below overrides the response, adding a new row for every key hasn't been matched.
-    if ($includeMissingKeys && !empty($keys) && isset($result['rows'])) {
-
-      // These are the rows for the matched keys.
-      $matches = [];
-      foreach ($result['rows'] as $row)
-        $matches[$row['key']] = $row;
-
-      $rows = [];
-      foreach ($keys as $key)
-        if (isset($matches[$key])) // Match found.
-          $rows[] = $matches[$key];
-        else // No match found.
-          $rows[] = [
-            'id' => NULL,
-            'key' => $key,
-            'value' => NULL
-          ];
-
-      // Overrides the response, replacing rows.
-      $result['rows'] = $rows;
-    }
+    if ($includeMissingKeys)
+      $this->addMissingRows($keys, $result['rows']);
 
     return $result;
   }
