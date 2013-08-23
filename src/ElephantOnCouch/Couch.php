@@ -526,9 +526,10 @@ final class Couch {
   }
 
 
+  // CouchDB doesn't return rows for the keys a match is not found. To make joins having a row for each key is essential.
+  // The algorithm below overrides the rows, adding a new row for every key hasn't been matched.
   private function addMissingRows($keys, &$rows) {
-    // CouchDB doesn't return rows for the keys a match is not found. To make joins having a row for each key is essential.
-    // The algorithm below overrides the response, adding a new row for every key hasn't been matched.
+
     if (!empty($keys) && isset($rows)) {
 
       // These are the rows for the matched keys.
@@ -1421,15 +1422,24 @@ final class Couch {
 
     $array = $handler->asArray();
 
-    if (is_array($keys))
+    if (!empty($keys))
       $array['keys'] = $keys;
 
     $request->setBody(json_encode($array));
 
-    if (isset($opts))
+    if (isset($opts)) {
       $request->setMultipleQueryParamsAtOnce($opts->asArray());
+      $includeMissingKeys = $opts->issetIncludeMissingKeys();
+    }
+    else
+      $includeMissingKeys = FALSE;
 
-    return $this->send($request, $chunkHook);
+    $result = $this->send($request, $chunkHook)->getBodyAsArray();
+
+    if ($includeMissingKeys)
+      $this->addMissingRows($keys, $result['rows']);
+
+    return $result;
   }
 
   //@}
