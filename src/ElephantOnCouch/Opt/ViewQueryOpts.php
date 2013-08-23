@@ -12,8 +12,18 @@ namespace ElephantOnCouch\Opt;
 //! @brief To set the query arguments you must create an instance of this class. Use it when you query a CouchDB View with
 //! the methods Couch.queryAllDocs(), Couch.queryView() and Couch.queryTempView().
 //! @nosubgrouping
-//! @todo Add 'list' and 'callback' properties.
+//! @todo Add 'list' property
+//! @todo Add 'callback' property.
 class ViewQueryOpts extends AbstractOpts {
+
+  private $includeMissingKeys = FALSE;
+
+
+  public function reset() {
+    $this->includeMissingKeys = FALSE;
+    parent::reset();
+  }
+
 
   //! @brief Returns only documents that match the specified key.
   //! @param[in] string $value The key.
@@ -214,10 +224,23 @@ class ViewQueryOpts extends AbstractOpts {
   }
 
 
-  //! @brief Includes an update_seq value indicating which sequence id of the database the view reflects.
+  //! @brief Includes an `update_seq` value indicating which sequence id of the database the view reflects.
   public function includeUpdateSeq() {
     $this->options['update_seq'] = "true";
     return $this;
+  }
+
+
+  //! @brief Includes all the keys, even if a match is not found.
+  public function includeMissingKeys() {
+    $this->includeMissingKeys = TRUE;
+    return $this;
+  }
+
+
+  //! @brief Returns `true` if includeMissingKeys() has been called before.
+  public function issetIncludeMissingKeys() {
+    return $this->includeMissingKeys;
   }
 
 }

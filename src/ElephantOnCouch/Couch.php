@@ -1337,7 +1337,6 @@ final class Couch {
   //! @see http://docs.couchdb.org/en/latest/api/design.html#post-db-design-design-doc-view-view-name
   public function queryView($designDocName, $viewName, array $keys = NULL, Opt\ViewQueryOpts $opts = NULL, Hook\ChunkHook $chunkHook = NULL) {
     $this->checkForDb();
-
     $this->validateAndEncodeDocId($designDocName);
 
     if (empty($viewName))
@@ -1350,10 +1349,40 @@ final class Couch {
       $request->setBody(json_encode(['keys' => $keys]));
     }
 
-    if (isset($opts))
+    if (isset($opts)) {
       $request->setMultipleQueryParamsAtOnce($opts->asArray());
+      $includeMissingKeys = $opts->issetIncludeMissingKeys();
+    }
+    else
+      $includeMissingKeys = FALSE;
 
-    return $this->send($request, $chunkHook);
+    $response = $this->send($request, $chunkHook);
+
+    // CouchDB doesn't return rows for the keys a match is not found. To make joins having a row for each key is essential.
+    // The algorithm below overrides the response, adding a new row for every key hasn't been matched.
+    if ($includeMissingKeys && !empty($keys) && isset($response['rows'])) {
+
+      // These are the rows for the matched keys.
+      $matches = [];
+      foreach ($response['rows'] as $row)
+        $matches[$row['key']] = $row;
+
+      $rows = [];
+      foreach ($keys as $key)
+        if (isset($matches[$key])) // Match found.
+          $rows[] = $matches[$key];
+        else // No match found.
+          $rows[] = [
+            'id' => NULL,
+            'key' => $key,
+            'value' => NULL
+          ];
+
+      // Overrides the response, replacing rows.
+      $response['rows'] = $rows;
+    }
+
+    return $response;
   }
 
 
@@ -1471,7 +1500,6 @@ final class Couch {
   //! @see http://docs.couchdb.org/en/latest/api/documents.html#head-db-doc
   public function getDocEtag($docId) {
     $this->checkForDb();
-
     $this->validateAndEncodeDocId($docId);
 
     $path = "/".$this->dbName."/".$docId;
