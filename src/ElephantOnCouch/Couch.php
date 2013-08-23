@@ -1327,7 +1327,7 @@ final class Couch {
   //! @param[in] string $designDocName The design document's name.
   //! @param[in] string $viewName The view's name.
   //! @param[in] array $keys (optional) Used to retrieve just the view rows matching that set of keys. Rows are returned
-  //! in the order of the specified keys. Combining this feature with include_docs=true results in the so-called
+  //! in the order of the specified keys. Combining this feature with ViewQueryOpts.includeDocs() results in the so-called
   //! multi-document-fetch feature.
   //! @param[in] ViewQueryOpts $opts (optional) Query options to get additional information, grouping results, include
   //! docs, etc.
@@ -1589,13 +1589,6 @@ final class Couch {
   //! @param[in] string $path The document path.
   //! @see http://docs.couchdb.org/en/latest/api/documents.html#delete-db-doc
   public function deleteDoc($path, $docId, $rev) {
-
-    // If there is a transaction in progress, adds the document to the transaction and returns.
-    if ($this->transaction) {
-      $this->transaction[] = $doc;
-      return;
-    }
-
     $this->checkForDb();
     $this->validateDocPath($path);
     $this->validateAndEncodeDocId($docId);
