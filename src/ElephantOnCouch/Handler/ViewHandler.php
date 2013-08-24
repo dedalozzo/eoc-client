@@ -74,8 +74,9 @@ final class ViewHandler extends DesignHandler {
 
   //! @brief Creates a ViewHandler class instance.
   //! @param[in] string $name Handler name.
-  public function __construct($name) {
+  public function __construct($name, $language = "php") {
     $this->setName($name);
+    $this->setLanguage($language);
   }
 
 
