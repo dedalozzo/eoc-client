@@ -144,8 +144,8 @@ class DbInfo {
       $buffer .= "File Opened Since: ".sprintf($since, $time['days'], $time['hours'], $time['minutes'], $time['seconds']).PHP_EOL;
     }
 
-    $buffer .= "Disk Size: ".$this->diskSize/(1024*1024*1024)." GB".PHP_EOL;
-    $buffer .= "Data Size: ".$this->dataSize/(1024*1024*1024)." GB".PHP_EOL;
+    $buffer .= "Disk Size: ".round($this->diskSize/(1024*1024*1024), 3)." GB".PHP_EOL;
+    $buffer .= "Data Size: ".round($this->dataSize/(1024*1024*1024), 3)." GB".PHP_EOL;
     $buffer .= "Disk Format Version: ".$this->diskFormatVersion.PHP_EOL;
 
     $compactRunning = ($this->compactRunning) ? 'active' : 'inactive';
