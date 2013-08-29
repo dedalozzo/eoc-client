@@ -1553,7 +1553,7 @@ final class Couch {
     // If there are any options, add them to the request.
     if (isset($opts)) {
       $request->setMultipleQueryParamsAtOnce($opts->asArray());
-      $ignoreClass = $opts->ignoreClass;
+      $ignoreClass = $opts->issetIgnoreClass();
     }
     else
       $ignoreClass = FALSE;
