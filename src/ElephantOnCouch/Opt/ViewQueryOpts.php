@@ -114,7 +114,7 @@ class ViewQueryOpts extends AbstractOpts {
   public function setGroupLevel($value) {
     if (is_int($value) && $value > 0) {
       $this->groupResults(); // This parameter is used only if 'group' is 'true'.
-      $this->options["limit"] = $value;
+      $this->options["group_level"] = $value;
     }
     else
       throw new \Exception("\$value must be a positive integer.");
