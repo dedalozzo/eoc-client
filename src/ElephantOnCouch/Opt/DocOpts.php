@@ -16,27 +16,13 @@ use ElephantOnCouch\Helper\Properties;
 //! to the Couch.getDoc() method.
 //! @nosubgrouping
 class DocOpts extends AbstractOpts {
-  use Properties;
 
-  //! @name Properties
-  //@{
-
-  //! @brief Ignores the class name to avoid the creation of an instance of that class.
-  //! @details When `true` ignores the class name, previously saved in the special attribute `class`, to
-  //! avoid the creation of an instance of that particular class. You want use this property when the interpreter can't
-  //! load class due to namespace resolution problem or because the class definition is missing.
   private $ignoreClass = FALSE;
 
-  //@}
 
-
-  public function setIgnoreClass($value) {
-    $this->ignoreClass = (boolean)$value;
-  }
-
-
-  public function getIgnoreClass() {
-    return $this->ignoreClass;
+  public function reset() {
+    $this->ignoreClass = FALSE;
+    parent::reset();
   }
 
 
@@ -147,6 +133,22 @@ class DocOpts extends AbstractOpts {
   public function includeLatest() {
     $this->options['latest'] = 'true';
     return $this;
+  }
+
+
+  //! @brief Ignores the class name to avoid the creation of an instance of that class.
+  //! @details When `true` ignores the class name, previously saved in the special attribute `class`, to avoid the
+  //! creation of an instance of that particular class. You want use this property when the interpreter can't load class
+  //! due to namespace resolution problem or because the class definition is missing.
+  public function ignoreClass() {
+    $this->ignoreClass = TRUE;
+    return $this;
+  }
+
+
+  //! @brief Returns `true` if ignoreClass() has been called before.
+  public function issetIgnoreClass() {
+    return $this->ignoreClass;
   }
 
 }
