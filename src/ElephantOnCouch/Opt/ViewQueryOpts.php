@@ -61,7 +61,7 @@ class ViewQueryOpts extends AbstractOpts {
   //! @name First and Last Documents Identifiers
   //! @brief First and last documents to be included in the output.
   //! @details If you expect to have multiple documents emit identical keys, you'll need to use `startDocId` in
-  //! addition to `$startKey` to paginate correctly. The reason is that `startKey` alone will no longer be
+  //! addition to `startKey` to paginate correctly. The reason is that `startKey` alone will no longer be
   //! sufficient to uniquely identify a row. Those parameters are useless if you don't provide a `startKey`. In fact,
   //! CouchDB will first look at the `startKey` parameter, then it will use the `startDocId` parameter to further
   //! redefine the beginning of the range if multiple potential staring rows have the same key but different document IDs.
