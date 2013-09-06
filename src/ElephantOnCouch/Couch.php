@@ -26,7 +26,7 @@ use ElephantOnCouch\Message\Response;
 //! @todo Add SSL support.
 //! @todo Add Post File support.
 //! @todo Add Memcached support. Remember to use Memcached extension, not memcache.
-//! @todo Implement getDbChanges().
+//! @todo Test getDbChanges().
 //! @todo Implement getSecurityObj().
 //! @todo Implement setSecurityObj().
 //! @todo Implement cancelReplication().
