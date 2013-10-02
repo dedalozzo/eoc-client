@@ -209,7 +209,6 @@ class ViewQueryOpts extends AbstractOpts {
   //! values to do that). For efficient paging you'll need to use start key and limit.
   //! Allowed values: positive integers.
   //! @param[in] integer $number The number of rows to skip.
-  //! @exception Exception <c>Message: `\$number must be a positive integer.`</c>
   public function skipDocs($number) {
     if (is_int($number) && $number > 0)
       $this->options["skip"] = $number;
