@@ -60,6 +60,13 @@ trait TDoc {
   }
 
 
+  //! @brief Returns the object type.
+  //! @return string
+  public function getType() {
+    return $this->meta['type'];
+  }
+
+
   //! @brief This implementation returns `false`.
   //! @return boolean
   public function hasType() {
