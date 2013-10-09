@@ -10,7 +10,6 @@ namespace ElephantOnCouch\Doc;
 
 
 use ElephantOnCouch\Helper;
-use ElephantOnCouch\Couch;
 
 
 //! @cond HIDDEN_SYMBOLS
