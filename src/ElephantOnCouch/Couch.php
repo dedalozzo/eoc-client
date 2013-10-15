@@ -132,8 +132,9 @@ final class Couch {
   //! a scheme like tcp://, ssl:// or tls://; if no scheme is present, tcp:// will be used.
   //! @param[in] string $userName (optional) User name.
   //! @param[in] string $password (optional) Password.
+  //! @param[in] string $persistent (optional) When `true` the client uses a persistent connection.
   //! @see http://www.ietf.org/rfc/rfc3986.txt
-  public function __construct($server = self::DEFAULT_SERVER, $userName = "", $password = "") {
+  public function __construct($server = self::DEFAULT_SERVER, $userName = "", $password = "", $persistent = TRUE) {
     self::initialize();
 
     // Parses the URI string '$server' to retrieve scheme, host and port and assigns matches to the relative class members.
@@ -153,8 +154,12 @@ final class Couch {
 
     // PHP sockets are the default transport mode.
     if (self::$transport == self::SOCKET_TRANSPORT) {
+
       // Establishes a connection within the server.
-      $this->handle = @pfsockopen($this->scheme.$this->host, $this->port, $errno, $errstr, $this->timeout);
+      if ($persistent)
+        $this->handle = @pfsockopen($this->scheme.$this->host, $this->port, $errno, $errstr, $this->timeout);
+      else
+        $this->handle = @fsockopen($this->scheme.$this->host, $this->port, $errno, $errstr, $this->timeout);
 
       if (!is_resource($this->handle))
         throw new \ErrorException($errstr, $errno);
