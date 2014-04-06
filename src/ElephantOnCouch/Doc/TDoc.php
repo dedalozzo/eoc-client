@@ -74,7 +74,16 @@ trait TDoc {
   }
 
 
-  //! Assigns the given associative array to the `$meta` array, the array that stores the document's metadata..
+  //! @brief Given a JSON object, this function assigns every single object's property to the `$meta` array, the array
+  //! that stores the document's metadata.
+  //! @param[in] string $json A JSON object.
+  public function assignJson($json) {
+    $this->meta = array_merge(Helper\ArrayHelper::fromJson($json, TRUE), $this->meta);
+    $this->fixDocId();
+  }
+
+
+  //! Assigns the given associative array to the `$meta` array, the array that stores the document's metadata.
   //! @param[in] array $array An associative array.
   public function assignArray(array $array) {
     if (Helper\ArrayHelper::isAssociative($array)) {
