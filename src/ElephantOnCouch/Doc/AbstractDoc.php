@@ -10,9 +10,6 @@
 namespace ElephantOnCouch\Doc;
 
 
-use ElephantOnCouch\Couch;
-
-
 //! @brief The abstract document is the ancestor of the other document classes.
 //! @details This class encapsulates common properties and methods to provide persistence. Since it's an abstract class,
 //! you can't create an instance of it.<br />
