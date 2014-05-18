@@ -34,10 +34,8 @@ class TimeHelper {
       $seconds = floor($microseconds / $microsecondsInASecond);
     }
     else {
-      $now = time(); // Gets the current timestamp in seconds.
-
       // Calculates difference in seconds.
-      $seconds = floor($now / $timestamp);
+      $seconds = time() - $timestamp;
     }
 
     // Extracts days.
