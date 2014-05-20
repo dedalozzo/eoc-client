@@ -12,79 +12,57 @@ namespace ElephantOnCouch\Doc;
 use ElephantOnCouch\Helper;
 
 
-//! @cond HIDDEN_SYMBOLS
+//! @brief Implements the IDoc interface and add many functions.
+//! @see AbstractDoc.dox
 trait TDoc {
   use Helper\Properties;
 
   protected $meta = [];
 
 
-  //! @brief Removes tha path from the document identifier, because CouchDB returns it for local and design documents.
-  //! @details Both LocalDoc and DesignDoc override this method.
   abstract protected function fixDocId();
 
 
-  //! @brief Gets the document path.
-  //! @details Both LocalDoc and DesignDoc override this method.
-  //! @return string
   abstract public function getPath();
 
 
-  //! @brief Resets the metadata.
   public function resetMetadata() {
     unset($this->meta);
     $this->meta = [];
   }
 
 
-  //! @brief Checks the document for the given attribute.
-  //! @return boolean
   public function isMetadataPresent($name) {
     return (array_key_exists($name, $this->meta)) ? TRUE : FALSE;
   }
 
 
-  //! @brief Sets the full name space class name into the the provided metadata into the metadata array.
-  //! @details The method Couch.getDoc will use this to create an object of the same class you previously stored using
-  //! Couch.saveDoc() method.
-  //! @param[in] string $value The full namespace class name, like returned from get_class() function.
   public function setClass($value) {
     $this->meta['class'] = $value;
   }
 
 
-  //! @brief Sets the object type.
-  //! @param[in] string $value Usually the lowercase class name purged of his namespace.
   public function setType($value) {
     $this->meta['type'] = $value;
   }
 
 
-  //! @brief Returns the object type.
-  //! @return string
   public function getType() {
     return $this->meta['type'];
   }
 
 
-  //! @brief This implementation returns `false`.
-  //! @return boolean
   public function hasType() {
     return FALSE;
   }
 
 
-  //! @brief Given a JSON object, this function assigns every single object's property to the `$meta` array, the array
-  //! that stores the document's metadata.
-  //! @param[in] string $json A JSON object.
   public function assignJson($json) {
     $this->meta = array_merge(Helper\ArrayHelper::fromJson($json, TRUE), $this->meta);
     $this->fixDocId();
   }
 
 
-  //! Assigns the given associative array to the `$meta` array, the array that stores the document's metadata.
-  //! @param[in] array $array An associative array.
   public function assignArray(array $array) {
     if (Helper\ArrayHelper::isAssociative($array)) {
       $this->meta = array_merge($array, $this->meta);
@@ -95,25 +73,37 @@ trait TDoc {
   }
 
 
-  //! @brief Given an instance of a standard class, this function assigns every single object's property to the `$meta`
-  //! array, the array that stores the document's metadata.
   public function assignObject(\stdClass $object) {
     $this->meta = array_merge(get_object_vars($object), $this->meta);
     $this->fixDocId();
   }
 
 
-  //! @brief Returns the document representation as a JSON object.
-  //! @return JSON object
   public function asJson() {
     return json_encode($this->meta);
   }
 
 
-  //! @brief Returns the document representation as an associative array.
-  //! @return associative array
   public function asArray() {
     return $this->meta;
+  }
+
+
+  public function delete() {
+    $this->meta['_deleted'] == "true";
+  }
+
+
+  public function isDeleted() {
+    if ($this->meta['_deleted'] == "true")
+      return TRUE;
+    else
+      return FALSE;
+  }
+
+
+  public function getRevisions() {
+    return (array_key_exists('_revisions', $this->meta)) ? $this->meta['_revisions'] : NULL;
   }
 
 
@@ -161,26 +151,4 @@ trait TDoc {
       unset($this->meta['_rev']);
   }
 
-
-  //! @brief Marks the document as deleted. To be effected the document must be saved.
-  public function delete() {
-    $this->meta['_deleted'] == "true";
-  }
-
-
-  //! @brief Indicates that this document has been deleted and previous revisions will be removed on next compaction run.
-  public function isDeleted() {
-    if ($this->meta['_deleted'] == "true")
-      return TRUE;
-    else
-      return FALSE;
-  }
-
-
-  //! @brief The document revisions.
-  public function getRevisions() {
-    return (array_key_exists('_revisions', $this->meta)) ? $this->meta['_revisions'] : NULL;
-  }
-
 }
-//! @endcond

@@ -17,6 +17,18 @@ namespace ElephantOnCouch\Doc;
 //! @nosubgrouping
 interface IDoc {
 
+  //! @brief Sets the object type.
+  //! @param[in] string $value Usually the class name purged of his namespace.
+  function setType($value);
+
+
+  //! @brief Returns `true` if your document class already defines his type internally, `false` otherwise.
+  //! @details Sometime happens you have two classes with the same name but located under different namespaces. In case,
+  //! you should provide a type yourself for at least one of these classes, to avoid Couch.SaveDoc() using the same type
+  //! for both. Default implementation should return `false`.
+  //! @return boolean
+  function hasType();
+
 
   //! @brief Gets the document identifier.
   //! @return string
@@ -28,8 +40,12 @@ interface IDoc {
   function issetId();
 
 
-  //! Sets the document identifier. Mandatory and immutable.
+  //! @brief Sets the document identifier. Mandatory and immutable.
   function setId($value);
+
+
+  //! @brief Unset the document identifier.
+  function unsetId();
 
 
   //! @brief Sets the full name space class name into the the provided metadata into the metadata array.
@@ -37,19 +53,6 @@ interface IDoc {
   //! Couch.saveDoc() method.
   //! @param[in] string $value The full namespace class name, like returned from get_class() function.
   function setClass($value);
-
-
-  //! @brief Returns `true` if your document class already defines his type internally, `false` otherwise.
-  //! @details Sometime happens you have two classes with the same name but located under different namespaces. In case,
-  //! you should provide a type yourself for at least one of these classes, to avoid Couch.SaveDoc() using the same type
-  //! for both. Default implementation should return `false`.
-  //! @return boolean
-  function hasType();
-
-
-  //! @brief Sets the object type.
-  //! @param[in] string $value Usually the class name purged of his namespace.
-  function setType($value);
 
 
   //! @brief Gets the document path.

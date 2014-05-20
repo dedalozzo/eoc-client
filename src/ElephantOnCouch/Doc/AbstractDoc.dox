@@ -45,11 +45,25 @@ class AbstractDoc {
   public function assignObject(\stdClass $object) {}
 
 
+  //! @brief Marks the document as deleted. To be effected the document must be saved.
+  public function delete() {}
+
+
   //! @brief Indicates that this document has been deleted and previous revisions will be removed on next compaction run.
   public function isDeleted() {}
 
 
   //! @brief Gets the document revisions.
   public function getRevisions() {}
+
+
+  //! @brief This implementation returns `false`.
+  //! @return boolean
+  public function hasType() {}
+
+
+  //! @brief Returns the object type.
+  //! @return string
+  public function getType() {}
 
 }
