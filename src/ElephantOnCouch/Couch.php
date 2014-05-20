@@ -561,7 +561,7 @@ final class Couch {
 
 
   //! @brief This method is used to send a Request to CouchDB.
-  //! @details If you want call a not supported CouchDB API, you can use this function to send your request.<br />
+  //! @details If you want call a not supported CouchDB API, you can use this function to send your request.<br>
   //! You can also provide an instance of a class that implements the ChunkHook interface, to deal with a chunked
   //! response.
   //! @param[in] Request $request The Request object.
@@ -1166,11 +1166,11 @@ final class Couch {
   //! @brief Starts a compaction for the current selected database.
   //! @details Writes a new version of the database file, removing any unused sections from the new version during write.
   //! Because a new file is temporary created for this purpose, you will need twice the current storage space of the
-  //! specified database in order for the compaction routine to complete.<br />
+  //! specified database in order for the compaction routine to complete.<br>
   //! Removes old revisions of documents from the database, up to the per-database limit specified by the `_revs_limit`
-  //! database setting.<br />
+  //! database setting.<br>
   //! Compaction can only be requested on an individual database; you cannot compact all the databases for a CouchDB
-  //! instance.<br />
+  //! instance.<br>
   //! The compaction process runs as a background process. You can determine if the compaction process is operating on a
   //! database by obtaining the database meta information, the `compact_running` value of the returned database
   //! structure will be set to true. You can also obtain a list of running processes to determine whether compaction is
@@ -1228,7 +1228,7 @@ final class Couch {
   //! @details Default CouchDB configuration use delayed commit to improve performances. So CouchDB allows operations to
   //! be run against the disk without an explicit fsync after each operation. Synchronization takes time (the disk may
   //! have to seek, on some platforms the hard disk cache buffer is flushed, etc.), so requiring an fsync for each update
-  //! deeply limits CouchDB's performance for non-bulk writers.<br />
+  //! deeply limits CouchDB's performance for non-bulk writers.<br>
   //! Delayed commit should be left set to true in the configuration settings. Anyway, you can still tell CouchDB to make
   //! an fsync, calling the ensure_full_commit method.
   //! @return string The timestamp of the last time the database file was opened.
@@ -1273,9 +1273,9 @@ final class Couch {
   //! @details The replication is an incremental one way process involving two databases (a source and a destination).
   //! The aim of the replication is that at the end of the process, all active documents on the source database are also
   //! in the destination database and all documents that were deleted in the source databases are also deleted (if
-  //! exists) on the destination database.<br />
+  //! exists) on the destination database.<br>
   //! The replication process only copies the last revision of a document, so all previous revisions that were only on
-  //! the source database are not copied to the destination database.<br />
+  //! the source database are not copied to the destination database.<br>
   //! Changes on the master will not automatically replicate to the slaves. To make replication continuous, you must set
   //! `\$continuous = TRUE`. At this time, CouchDB does not remember continuous replications over a server restart.
   //! Specifying a local source database and a remote target database is called push replication and a remote source and
@@ -1289,9 +1289,9 @@ final class Couch {
   //! @param[in] string $sourceDbUrl todo
   //! @param[in] string $targetDbUrl
   //! @param[in] boolean $createTargetDb The target database has to exist and is not implicitly created. You can force
-  //! the creation setting `\$createTargetDb = TRUE`.<br />
+  //! the creation setting `$createTargetDb = TRUE`.<br>
   //! @param[in] boolean $continuous When you set `\$continuous = TRUE` CouchDB will not stop after replicating all
-  //! missing documents from the source to the target.<br />
+  //! missing documents from the source to the target.<br>
   //! At the time of writing, CouchDB doesn't remember continuous replications over a server restart. For the time being,
   //! you are required to trigger them again when you restart CouchDB. In the future, CouchDB will allow you to define
   //! permanent continuous replications that survive a server restart without you having to do anything.
@@ -1329,8 +1329,6 @@ final class Couch {
   // @{
 
   //! @brief Returns a built-in view of all documents in this database. If keys are specified returns only certain rows.
-  //! @param[in] string $designDocName The design document's name.
-  //! @param[in] string $viewName The view's name.
   //! @param[in] array $keys (optional) Used to retrieve just the view rows matching that set of keys. Rows are returned
   //! in the order of the specified keys. Combining this feature with ViewQueryOpts.includeDocs() results in the so-called
   //! multi-document-fetch feature.
@@ -1689,10 +1687,10 @@ final class Couch {
   //! document within CouchDB does not actually remove the document from the database, instead, the document is marked
   //! as deleted (and a new revision is created). This is to ensure that deleted documents are replicated to other
   //! databases as having been deleted. This also means that you can check the status of a document and identify that
-  //! the document has been deleted.<br />
+  //! the document has been deleted.<br>
   //! The purging of old documents is not replicated to other databases. If you are replicating between databases and
-  //! have deleted a large number of documents you should run purge on each database.<br />
-  //! Purging documents does not remove the space used by them on disk. To reclaim disk space, you should run compactDb().<br />
+  //! have deleted a large number of documents you should run purge on each database.<br>
+  //! Purging documents does not remove the space used by them on disk. To reclaim disk space, you should run compactDb().<br>
   //! @param[in] array $refs An array of references used to identify documents and revisions to delete. The array must
   //! contains instances of the DocRef class.
   //! @return Response
@@ -1723,7 +1721,7 @@ final class Couch {
   //! @param[in] boolean $fullCommit (optional) Makes sure all uncommited database changes are written and synchronized
   //! to the disk immediately.
   //! @param[in] boolean $allOrNothing (optional) In all-or-nothing mode, either all documents are written to the database,
-  //! or no documents are written to the database, in the event of a system failure during commit.<br />
+  //! or no documents are written to the database, in the event of a system failure during commit.<br>
   //! You can ask CouchDB to check that all the documents pass your validation functions. If even one fails, none of the
   //! documents are written. If all documents pass validation, then all documents will be updated, even if that introduces
   //! a conflict for some or all of the documents.
