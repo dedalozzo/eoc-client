@@ -18,8 +18,10 @@ class QueryResult implements \IteratorAggregate, \Countable, \ArrayAccess {
   protected $result;
 
 
+  //! @brief Creates an instance of the class
+  //! @param[in] array $result The result of a CouchDB's query converted from JSON to array.
   public function __construct($result) {
-    $this->result = $result;
+    $this->result = &$result;
   }
 
 
@@ -70,7 +72,7 @@ class QueryResult implements \IteratorAggregate, \Countable, \ArrayAccess {
 
   //! @brief Whether or not an offset exists.
   //! @details This method is executed when using `isset()` or `empty()` on objects implementing ArrayAccess.
-  //! @param[in] $offset An offset to check for.
+  //! @param[in] interger $offset An offset to check for.
   //! @return bool Returns `true` on success or `false` on failure.
   public function offsetExists($offset) {
     return isset($this->result['rows'][$offset]);
@@ -79,7 +81,7 @@ class QueryResult implements \IteratorAggregate, \Countable, \ArrayAccess {
 
   //! @brief Returns the value at specified offset.
   //! @details This method is executed when checking if offset is `empty()`.
-  //! @param[in] $offset The offset to retrieve.
+  //! @param[in] integer $offset The offset to retrieve.
   //! @return Can return all value types.
   public function offsetGet($offset)  {
     return $this->result['rows'][$offset];
