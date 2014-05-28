@@ -9,14 +9,14 @@
 namespace ElephantOnCouch\Doc;
 
 
-use ElephantOnCouch\Helper;
+use ElephantOnCouch\Extension;
 
 
 //! @brief This class represent a document reference and it's used in Couch.purgeDocs() method.
 //! @details Instead to provide a full document, couch.purgeDocs() accepts an array of DocRef. Every DocRef has an ID and
 //! a list of revisions you can add calling addRev().
 final class DocRefsArray {
-  use Helper\Properties;
+  use Extension\TProperty;
 
   private $id;
   private $revs;

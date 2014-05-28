@@ -1,17 +1,17 @@
 <?php
 
-//! @file Properties.php
-//! @brief This file contains the Properties trait.
+//! @file TProperty.php
+//! @brief This file contains the TProperty trait.
 //! @details
 //! @author Filippo F. Fadda
 
 
-namespace ElephantOnCouch\Helper;
+namespace ElephantOnCouch\Extension;
 
 
 //! @brief This trait can be used by a class to emulate the C# properties.
 //! @see http://www.programmazione.it/index.php?entity=eitem&idItem=48399
-trait Properties {
+trait TProperty {
 
   public function __get($name) {
     if (method_exists($this, ($method = 'get'.ucfirst($name))))
@@ -40,4 +40,5 @@ trait Properties {
     else
       throw new \BadMethodCallException("Method $method is not implemented for property $name.");
   }
+
 }

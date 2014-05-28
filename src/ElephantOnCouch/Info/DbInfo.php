@@ -9,17 +9,17 @@
 namespace ElephantOnCouch\Info;
 
 
-use ElephantOnCouch\Helper;
+use ElephantOnCouch\Extension;
 
 
 //! @brief This is an information only purpose class. It's used by Couch.getDbInfo() method.
-//! @details Since this class uses the `Properties` trait, you don't need to call the getter methods to obtain information
+//! @details Since this class uses the `TProperty` trait, you don't need to call the getter methods to obtain information
 //! about database.
 //! @nosubgrouping
 class DbInfo {
-  use Helper\Properties;
+  use Extension\TProperty;
 
-  //! @name Properties
+  //! @name TProperty
   //@{
 
   //! @brief Returns the database name.
@@ -61,7 +61,7 @@ class DbInfo {
 
   //! @brief Creates an instance based on the provided JSON array.
   public function __construct(array $info) {
-    if (Helper\ArrayHelper::isAssociative($info)) {
+    if (Extension\ArrayHelper::isAssociative($info)) {
       $this->name = $info['db_name'];
       $this->diskSize = $info['disk_size'];
       $this->dataSize = $info['data_size'];
@@ -139,7 +139,7 @@ class DbInfo {
     $buffer = "Name: ".$this->name.PHP_EOL;
 
     if ((float)$this->instanceStartTime > 0) {
-      $time = Helper\TimeHelper::since($this->instanceStartTime, TRUE);
+      $time = Extension\TimeHelper::since($this->instanceStartTime, TRUE);
       $since = '%d days, %d hours, %d minutes, %d seconds';
       $buffer .= "File Opened Since: ".sprintf($since, $time['days'], $time['hours'], $time['minutes'], $time['seconds']).PHP_EOL;
     }

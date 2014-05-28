@@ -9,18 +9,18 @@
 namespace ElephantOnCouch\Info;
 
 
-use ElephantOnCouch\Helper\Properties;
+use ElephantOnCouch\Extension\TProperty;
 use ElephantOnCouch\Couch;
 
 
 //! @brief This is an information only purpose class. It's used by Couch.getClientInfo() method.
-//! @details Since this class uses the `Properties` trait, you don't need to call the getter methods to obtain
+//! @details Since this class uses the `TProperty` trait, you don't need to call the getter methods to obtain
 //! information about the client.
 //! @nosubgrouping
 class ClientInfo {
-  use Properties;
+  use TProperty;
 
-  //! @name Properties
+  //! @name TProperty
   //@{
 
   //! @brief Client version.

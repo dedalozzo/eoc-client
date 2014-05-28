@@ -9,13 +9,13 @@
 namespace ElephantOnCouch\Doc;
 
 
-use ElephantOnCouch\Helper;
+use ElephantOnCouch\Extension;
 
 
 //! @brief Implements the IDoc interface and add many functions.
 //! @see AbstractDoc.dox
 trait TDoc {
-  use Helper\Properties;
+  use Extension\TProperty;
 
   protected $meta = [];
 
@@ -58,13 +58,13 @@ trait TDoc {
 
 
   public function assignJson($json) {
-    $this->meta = array_merge(Helper\ArrayHelper::fromJson($json, TRUE), $this->meta);
+    $this->meta = array_merge(Extension\ArrayHelper::fromJson($json, TRUE), $this->meta);
     $this->fixDocId();
   }
 
 
   public function assignArray(array $array) {
-    if (Helper\ArrayHelper::isAssociative($array)) {
+    if (Extension\ArrayHelper::isAssociative($array)) {
       $this->meta = array_merge($array, $this->meta);
       $this->fixDocId();
     }

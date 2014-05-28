@@ -10,7 +10,7 @@
 namespace ElephantOnCouch\Handler;
 
 
-use ElephantOnCouch\Helper\Properties;
+use ElephantOnCouch\Extension\TProperty;
 
 
 //! @brief This class defines the interface for all the concrete CouchDB's handlers.
@@ -18,5 +18,5 @@ use ElephantOnCouch\Helper\Properties;
 //! In case of CouchDB design documents' structure changes, you just need to create a new handler, starting from here.
 //! @nosubgrouping
 abstract class DesignHandler implements HandlerInterface {
-  use Properties; // This is a trait, not a namespace or a class.
+  use TProperty; // This is a trait, not a namespace or a class.
 }

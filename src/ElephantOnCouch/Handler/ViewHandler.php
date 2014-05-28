@@ -33,7 +33,7 @@ final class ViewHandler extends DesignHandler {
 
   private $options = [];
 
-  //! @name Properties
+  //! @name TProperty
   //@{
 
   //! @brief The view handler name.

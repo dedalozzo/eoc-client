@@ -9,7 +9,7 @@
 namespace ElephantOnCouch\Opt;
 
 
-use ElephantOnCouch\Helper\Properties;
+use ElephantOnCouch\Extension\TProperty;
 
 
 //! @brief To retrieve additional information about document, you can create a DocOpts instance and pass it as parameter
