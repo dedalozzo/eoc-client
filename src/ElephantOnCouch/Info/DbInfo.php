@@ -10,6 +10,7 @@ namespace ElephantOnCouch\Info;
 
 
 use ElephantOnCouch\Extension;
+use ElephantOnCouch\Helper;
 
 
 //! @brief This is an information only purpose class. It's used by Couch.getDbInfo() method.
@@ -139,7 +140,7 @@ class DbInfo {
     $buffer = "Name: ".$this->name.PHP_EOL;
 
     if ((float)$this->instanceStartTime > 0) {
-      $time = Extension\TimeHelper::since($this->instanceStartTime, TRUE);
+      $time = Helper\TimeHelper::since($this->instanceStartTime, TRUE);
       $since = '%d days, %d hours, %d minutes, %d seconds';
       $buffer .= "File Opened Since: ".sprintf($since, $time['days'], $time['hours'], $time['minutes'], $time['seconds']).PHP_EOL;
     }

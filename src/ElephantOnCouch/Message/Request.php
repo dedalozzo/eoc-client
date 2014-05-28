@@ -9,7 +9,7 @@
 namespace ElephantOnCouch\Message;
 
 
-use ElephantOnCouch\Extension;
+use ElephantOnCouch\Helper;
 
 
 //! @brief This class represents an HTTP request. Since CouchDB is a RESTful server, we need make requests through an
@@ -305,7 +305,7 @@ final class Request extends Message {
   //! @brief Used to set many parameters at once.
   //! @param[in] array $params An associative array of parameters.
   public function setMultipleQueryParamsAtOnce(array $params) {
-    if (Extension\ArrayHelper::isAssociative($params))
+    if (Helper\ArrayHelper::isAssociative($params))
       foreach ($params as $name => $value)
         $this->setQueryParam($name, $value);
     else

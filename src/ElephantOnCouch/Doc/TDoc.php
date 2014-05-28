@@ -10,6 +10,7 @@ namespace ElephantOnCouch\Doc;
 
 
 use ElephantOnCouch\Extension;
+use ElephantOnCouch\Helper;
 
 
 //! @brief Implements the IDoc interface and add many functions.
@@ -64,7 +65,7 @@ trait TDoc {
 
 
   public function assignArray(array $array) {
-    if (Extension\ArrayHelper::isAssociative($array)) {
+    if (Helper\ArrayHelper::isAssociative($array)) {
       $this->meta = array_merge($array, $this->meta);
       $this->fixDocId();
     }

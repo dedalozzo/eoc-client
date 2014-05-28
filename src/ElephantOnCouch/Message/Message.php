@@ -10,9 +10,8 @@
 namespace ElephantOnCouch\Message;
 
 
-use ElephantOnCouch\Extension;
 use ElephantOnCouch\Couch;
-use ElephantOnCouch\Exception;
+use ElephantOnCouch\Helper;
 
 
 //! @brief An HTTP Message can either be a Request or a Response. This class represents a generic message with common
@@ -213,7 +212,7 @@ abstract class Message {
   //! @brief Used to set many header fields at once.
   //! @param[in] array $headerFields An associative array of header fields.
   public function setMultipleHeaderFieldsAtOnce(array $headerFields) {
-    if (Extension\ArrayHelper::isAssociative($headerFields))
+    if (Helper\ArrayHelper::isAssociative($headerFields))
       foreach ($headerFields as $name => $value)
         $this->setHeaderField($name, $value);
     else
@@ -250,14 +249,14 @@ abstract class Message {
   //! @param[in] bool $assoc When `true`, returned objects will be converted into associative arrays.
   //! @return associative array
   public function getBodyAsArray($assoc = TRUE) {
-    return Extension\ArrayHelper::fromJson($this->body, $assoc);
+    return Helper\ArrayHelper::fromJson($this->body, $assoc);
   }
 
 
   //! @brief Returns the Message entity-body JSON as an object.
   //! @return object
   public function getBodyAsObject() {
-    return Extension\ArrayHelper::toObject($this->getBodyAsArray(FALSE));
+    return Helper\ArrayHelper::toObject($this->getBodyAsArray(FALSE));
   }
 
 
