@@ -45,6 +45,15 @@ class QueryResult implements \IteratorAggregate, \Countable, \ArrayAccess {
   }
 
 
+  //! @brief Returns `true` in case there aren't rows, `false` otherwise.
+  //! @details Since the PHP core developers are noobs, `empty()` cannot be used on any class that implements ArrayAccess.
+  //! This method must be used in place of `empty()`.
+  //! @return boolean
+  public function isEmpty() {
+    return empty($this->result['rows']) ? TRUE : FALSE;
+  }
+
+
   //! @brief Returns an external iterator.
   //! @return An instance of `ArrayIterator`.
   public function getIterator() {
@@ -66,6 +75,7 @@ class QueryResult implements \IteratorAggregate, \Countable, \ArrayAccess {
   public function offsetExists($offset) {
     return isset($this->result['rows'][$offset]);
   }
+
 
   //! @brief Returns the value at specified offset.
   //! @details This method is executed when checking if offset is `empty()`.
