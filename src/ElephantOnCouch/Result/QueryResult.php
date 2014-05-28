@@ -37,10 +37,11 @@ class QueryResult implements \IteratorAggregate, \Countable, \ArrayAccess {
   }
 
 
-  //! @brief Returns an array of documents.
-  //! @returns array An array of documents.
+  //! @brief Returns the result as a real array of rows to be used with `array_column()` or other functions operating on
+  //! arrays.
+  //! @returns array An array of rows.
   public function asArray()  {
-    return $this->result;
+    return $this->result['rows'];
   }
 
 
