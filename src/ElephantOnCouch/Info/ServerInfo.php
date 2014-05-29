@@ -10,7 +10,7 @@
 namespace ElephantOnCouch\Info;
 
 
-use ElephantOnCouch\Extension\TProperty;
+use ElephantOnCouch\Extension;
 
 
 //! @brief This class contains the CouchDB's version and MOTD. It's used by Couch.getSvrInfo() method.
@@ -18,7 +18,7 @@ use ElephantOnCouch\Extension\TProperty;
 //! about server.
 //! @nosubgrouping
 class ServerInfo {
-  use TProperty;
+  use Extension\TProperty;
 
   //! @name TProperty
   //@{
