@@ -9,7 +9,6 @@
 namespace ElephantOnCouch\Doc;
 
 
-use ElephantOnCouch\Couch;
 use ElephantOnCouch\Handler;
 
 
