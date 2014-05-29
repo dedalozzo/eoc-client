@@ -10,12 +10,12 @@
 namespace ElephantOnCouch\Doc\Attachment;
 
 
-use ElephantOnCouch\Extension\TProperty;
+use ElephantOnCouch\Extension;
 
 
 //! @brief todo
 final class Attachment {
-  use TProperty; // This is a trait, not a namespace or a class.
+  use Extension\TProperty; // This is a trait, not a namespace or a class.
 
   // Default CouchDB attachment content type. Here just for documentation.
   //const DEFAULT_ATTACHMENT_CONTENT_TYPE = "application/octet-stream";
