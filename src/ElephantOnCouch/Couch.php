@@ -10,9 +10,6 @@
 namespace ElephantOnCouch;
 
 
-use ElephantOnCouch\Doc\DesignDoc;
-use ElephantOnCouch\Result\QueryResult;
-use ElephantOnCouch\Exception\ServerErrorException;
 use ElephantOnCouch\Message\Message;
 use ElephantOnCouch\Message\Request;
 use ElephantOnCouch\Message\Response;
@@ -1394,7 +1391,7 @@ final class Couch {
     if ($includeMissingKeys)
       $this->addMissingRows($keys, $result['rows']);
 
-    return new QueryResult($result);
+    return new Result\QueryResult($result);
   }
 
 
@@ -1443,7 +1440,7 @@ final class Couch {
     if ($includeMissingKeys)
       $this->addMissingRows($keys, $result['rows']);
 
-    return new QueryResult($result);
+    return new Result\QueryResult($result);
   }
 
   //@}
