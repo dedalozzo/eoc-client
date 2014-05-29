@@ -10,6 +10,7 @@ namespace ElephantOnCouch\Info;
 
 
 use ElephantOnCouch\Extension;
+use ElephantOnCouch\Helper;
 
 
 //! @brief This is an information only purpose class. It's used by Couch.getDbInfo() method.
