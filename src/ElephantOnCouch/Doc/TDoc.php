@@ -59,7 +59,7 @@ trait TDoc {
 
 
   public function assignJson($json) {
-    $this->meta = array_merge(Extension\ArrayHelper::fromJson($json, TRUE), $this->meta);
+    $this->meta = array_merge(Helper\ArrayHelper::fromJson($json, TRUE), $this->meta);
     $this->fixDocId();
   }
 
@@ -91,7 +91,7 @@ trait TDoc {
 
 
   public function delete() {
-    $this->meta['_deleted'] == "true";
+    $this->meta['_deleted'] = "true";
   }
 
 
