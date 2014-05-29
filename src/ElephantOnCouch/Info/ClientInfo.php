@@ -9,7 +9,7 @@
 namespace ElephantOnCouch\Info;
 
 
-use ElephantOnCouch\Extension\TProperty;
+use ElephantOnCouch\Extension;
 use ElephantOnCouch\Couch;
 
 
@@ -18,7 +18,7 @@ use ElephantOnCouch\Couch;
 //! information about the client.
 //! @nosubgrouping
 class ClientInfo {
-  use TProperty;
+  use Extension\TProperty;
 
   //! @name TProperty
   //@{
