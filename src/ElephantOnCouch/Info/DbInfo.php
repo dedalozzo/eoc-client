@@ -10,7 +10,6 @@ namespace ElephantOnCouch\Info;
 
 
 use ElephantOnCouch\Extension;
-use ElephantOnCouch\Helper;
 
 
 //! @brief This is an information only purpose class. It's used by Couch.getDbInfo() method.
@@ -62,7 +61,7 @@ class DbInfo {
 
   //! @brief Creates an instance based on the provided JSON array.
   public function __construct(array $info) {
-    if (Extension\ArrayHelper::isAssociative($info)) {
+    if (Helper\ArrayHelper::isAssociative($info)) {
       $this->name = $info['db_name'];
       $this->diskSize = $info['disk_size'];
       $this->dataSize = $info['data_size'];
