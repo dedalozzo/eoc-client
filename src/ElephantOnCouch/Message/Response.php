@@ -502,7 +502,7 @@ final class Response extends Message {
 
   /**
    * @brief Returns a list of all supported status codes.
-   * @return associative array
+   * @return array An associative array
    */
   public function getSupportedStatusCodes() {
     return self::$supportedStatusCodes;

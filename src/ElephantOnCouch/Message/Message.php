@@ -295,7 +295,7 @@ abstract class Message {
 
   /**
    * @brief Returns a list of all supported header fields.
-   * @return associative array
+   * @return array An associative array
    */
   public function getSupportedHeaderFields() {
     return static::$supportedHeaderFields;
@@ -315,7 +315,7 @@ abstract class Message {
   /**
    * @brief Returns the Message entity-body JSON as an array.
    * @param[in] bool $assoc When `true`, returned objects will be converted into associative arrays.
-   * @return associative array
+   * @return array An associative array
    */
   public function getBodyAsArray($assoc = TRUE) {
     return Helper\ArrayHelper::fromJson($this->body, $assoc);

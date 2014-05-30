@@ -427,7 +427,7 @@ final class Request extends Message {
 
   /**
    * @brief Returns a list of all supported methods.
-   * @return associative array
+   * @return array An associative array
    */
   public function getSupportedMethods() {
     return self::$supportedMethods;

@@ -91,7 +91,7 @@ interface IDoc {
 
   /**
    * @brief Returns the document representation as an associative array.
-   * @return associative array
+   * @return array An associative array
    */
   public function asArray();
 

@@ -307,7 +307,7 @@ final class Couch {
 
   /**
    * @brief Returns server statistics.
-   * @return associative array
+   * @return array An associative array
    * @see http://docs.couchdb.org/en/latest/api/server/common.html#stats
    */
   public function getStats() {
@@ -347,7 +347,7 @@ final class Couch {
   /**
    * @brief Returns a list of running tasks.
    * @attention Requires admin privileges.
-   * @return associative array
+   * @return array An associative array
    * @see http://docs.couchdb.org/en/latest/api/server/common.html#active-tasks
    */
   public function getActiveTasks() {
@@ -1572,7 +1572,7 @@ final class Couch {
   /**
    * @brief Returns basic information about the design document and his views.
    * @param[in] string $docName The design document's name.
-   * @return associative array
+   * @return array An associative array
    * @see http://docs.couchdb.org/en/latest/api/ddoc/common.html#get--db-_design-ddoc-_info
    */
   public function getDesignDocInfo($docName) {
