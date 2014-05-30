@@ -474,7 +474,7 @@ final class Response extends Message {
     $this->parseHeaderFields($rawMessage[0]);
 
     // $rawMessage[1] contains the entity-body.
-    // JUST REMOVED $this->body = $rawMessage[1];
+    $this->body = $rawMessage[1];
   }
 
 
