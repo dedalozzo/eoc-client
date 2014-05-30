@@ -1,14 +1,14 @@
 <?php
 
 /**
- * @file CurlClient.php
- * @brief This file contains the CurlClient class.
+ * @file CurlAdapter.php
+ * @brief This file contains the CurlAdapter class.
  * @details
  * @author Filippo F. Fadda
  */
 
 
-namespace ElephantOnCouch\Client;
+namespace ElephantOnCouch\Adapter;
 
 
 use ElephantOnCouch\Message\Request;
@@ -20,7 +20,7 @@ use ElephantOnCouch\Hook;
  * @brief An HTTP 1.1 client using cURL.
  * @attention To use this client, cURL must be installed on server.
  */
-class CurlClient extends AbstractClient {
+class CurlAdapter extends AbstractAdapter {
 
   // cURL handle.
   private $handle;
