@@ -129,7 +129,7 @@ final class DesignDoc extends Doc {
    * have a name.
    * @param[in] DesignIHandler $handler An instance of a subclass of the abstract class DesignIHandler.
    */
-  public function addHandler(Handler\DesignIHandler $handler) {
+  public function addHandler(Handler\IHandler $handler) {
     $section = $handler->getSection();
 
     if (property_exists($handler, "name")) {
