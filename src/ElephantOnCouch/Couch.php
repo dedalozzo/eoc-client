@@ -169,7 +169,7 @@ final class Couch {
    * @details This method is called by any other methods that interacts with CouchDB. You don't need to call, unless
    * you are making a not supported call to CouchDB.
    * @param[in] string $path Document path.
-   * @param[in] boolean $excludeLocal Document path.
+   * @param[in] bool $excludeLocal Document path.
    */
   public function validateDocPath($path, $excludeLocal = FALSE) {
     if (!array_key_exists($path, self::$supportedDocPaths))
@@ -438,9 +438,9 @@ final class Couch {
   /**
    * @brief Commits the current transaction, making its changes permanent, finally ends the transaction.
    * @details In case of error rolls back the transaction.
-   * @param[in] boolean $immediately (optional) Makes sure all uncommited database changes are written and synchronized
+   * @param[in] bool $immediately (optional) Makes sure all uncommited database changes are written and synchronized
    * to the disk immediately.
-   * @param[in] boolean $newEdits (optional) When `false` CouchDB pushes existing revisions instead of creating
+   * @param[in] bool $newEdits (optional) When `false` CouchDB pushes existing revisions instead of creating
    * new ones. The response will not include entries for any of the successful revisions (since their rev IDs are
    * already known to the sender), only for the ones that had errors. Also, the conflict error will never appear,
    * since in this mode conflicts are allowed.
@@ -898,9 +898,9 @@ final class Couch {
    * @param[in] string $sourceDbUrl Source database URL.
    * @param[in] string $targetDbUrl Destination database URL.
    * @param[in] string $proxy (optional) Specify the optional proxy used to perform the replication.
-   * @param[in] boolean $createTargetDb (optional) The target database has to exist and is not implicitly created. You
+   * @param[in] bool $createTargetDb (optional) The target database has to exist and is not implicitly created. You
    * can force the creation setting `$createTargetDb = true`.
-   * @param[in] boolean $continuous (optional) When `true` CouchDB will not stop after replicating all missing documents
+   * @param[in] bool $continuous (optional) When `true` CouchDB will not stop after replicating all missing documents
    * from the source to the target.\n
    * At the time of writing, CouchDB doesn't remember continuous replications over a server restart. For the time being,
    * you are required to trigger them again when you restart CouchDB. In the future, CouchDB will allow you to define
@@ -924,7 +924,7 @@ final class Couch {
       throw new \InvalidArgumentException("\$source_db_url and \$target_db_url must be non-empty strings.");
 
     if (!is_bool($continuous))
-      throw new \InvalidArgumentException("\$continuous must be a boolean.");
+      throw new \InvalidArgumentException("\$continuous must be a bool.");
     elseif ($continuous)
       $body["continuous"] = $continuous;
 
@@ -934,7 +934,7 @@ final class Couch {
 
     // create_target option
     if (!is_bool($createTargetDb))
-      throw new \InvalidArgumentException("\$createTargetDb must be a boolean.");
+      throw new \InvalidArgumentException("\$createTargetDb must be a bool.");
     elseif ($createTargetDb)
       $body["create_target"] = $createTargetDb;
 
@@ -1412,14 +1412,14 @@ final class Couch {
    * call delete() method on your document. When creating new documents the document ID is optional. For updating existing
    * documents, you must provide the document ID and revision.
    * @param[in] array $docs An array of documents you want insert, delete or update.
-   * @param[in] boolean $fullCommit (optional) Makes sure all uncommited database changes are written and synchronized
+   * @param[in] bool $fullCommit (optional) Makes sure all uncommited database changes are written and synchronized
    * to the disk immediately.
-   * @param[in] boolean $allOrNothing (optional) In all-or-nothing mode, either all documents are written to the database,
+   * @param[in] bool $allOrNothing (optional) In all-or-nothing mode, either all documents are written to the database,
    * or no documents are written to the database, in the event of a system failure during commit.\n
    * You can ask CouchDB to check that all the documents pass your validation functions. If even one fails, none of the
    * documents are written. If all documents pass validation, then all documents will be updated, even if that introduces
    * a conflict for some or all of the documents.
-   * @param[in] boolean $newEdits (optional) When `false` CouchDB pushes existing revisions instead of creating
+   * @param[in] bool $newEdits (optional) When `false` CouchDB pushes existing revisions instead of creating
    * new ones. The response will not include entries for any of the successful revisions (since their rev IDs are
    * already known to the sender), only for the ones that had errors. Also, the conflict error will never appear,
    * since in this mode conflicts are allowed.

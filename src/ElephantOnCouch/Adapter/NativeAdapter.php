@@ -18,10 +18,11 @@ use ElephantOnCouch\Hook;
 
 
 /**
- * @brief An HTTP 1.1 client using raw socket.
+ * @brief An HTTP 1.1 client using raw sockets.
  * @details This client is using HTTP/1.1 version.\n
  * Encoding is made according RFC 3986, using rawurlencode().\n
  * It supports 100-continue, chunked responses, persistent connections, etc.
+ * @nosubgrouping
  */
 class NativeAdapter extends AbstractAdapter {
 
@@ -34,15 +35,19 @@ class NativeAdapter extends AbstractAdapter {
   //! Maximum period to wait before the response is sent.
   const DEFAULT_TIMEOUT = 60000;
 
-  private static $defaultSocketTimeout;
+  protected static $defaultSocketTimeout;
 
   // Socket connection timeout in seconds, specified by a float.
-  private $timeout;
+  protected $timeout;
 
   // Socket handle.
-  private $handle;
+  protected $handle;
 
 
+  /**
+   * @copydoc AbstractAdapter::__construct()
+   * @param[in] bool $persistent (optional) When `true` the client uses a persistent connection.
+  */
   public function __construct($server = parent::DEFAULT_SERVER, $userName = "", $password = "", $persistent = TRUE) {
     $this->initialize();
 
@@ -61,6 +66,9 @@ class NativeAdapter extends AbstractAdapter {
   }
 
 
+  /**
+   * @copydoc AbstractAdapter::initialize()
+   */
   public function initialize() {
 
     if (!static::$initialized) {
@@ -76,9 +84,7 @@ class NativeAdapter extends AbstractAdapter {
   }
 
 
-  /**
-   * @brief Writes the entire request over the socket.
-   */
+  // Writes the entire request over the socket.
   protected function writeRequest($request) {
     $command = $request->getMethod()." ".$request->getPath().$request->getQueryString()." ".self::HTTP_VERSION;
 
@@ -207,6 +213,9 @@ class NativeAdapter extends AbstractAdapter {
   }
 
 
+  /**
+   * @copydoc AbstractAdapter::send()
+   */
   public function send(Request $request, Hook\IChunkHook $chunkHook = NULL) {
     $request->setHeaderField(Request::HOST_HF, $this->host.":".$this->port);
 

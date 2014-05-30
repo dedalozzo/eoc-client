@@ -17,8 +17,9 @@ use ElephantOnCouch\Hook;
 
 
 /**
- * @brief An HTTP 1.1 client using cURL.
- * @attention To use this client, cURL must be installed on server.
+ * @brief An HTTP 1.1 client adapter using cURL.
+ * @nosubgrouping
+ * @attention To use this client adapter, cURL must be installed on server.
  */
 class CurlAdapter extends AbstractAdapter {
 
@@ -26,6 +27,9 @@ class CurlAdapter extends AbstractAdapter {
   private $handle;
 
 
+  /**
+   * @copydoc AbstractAdapter::__construct()
+   */
   public function __construct($server = parent::DEFAULT_SERVER, $userName = "", $password = "") {
     $this->initialize();
 
@@ -44,12 +48,18 @@ class CurlAdapter extends AbstractAdapter {
   }
 
 
+  /**
+   * @copydoc AbstractAdapter::initialize()
+   */
   public function initialize() {
     if (!extension_loaded("curl"))
       throw new \RuntimeException("The cURL extension is not loaded.");
   }
 
 
+  /**
+   * @copydoc AbstractAdapter::send()
+   */
   public function send(Request $request, Hook\IChunkHook $chunkHook = NULL) {
     $opts = [];
 

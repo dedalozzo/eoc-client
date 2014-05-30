@@ -18,6 +18,7 @@ use ElephantOnCouch\Hook;
 
 /**
  * @brief An abstract HTTP client adapter.
+ * @nosubgrouping
  */
 abstract class AbstractAdapter {
 
@@ -58,7 +59,6 @@ abstract class AbstractAdapter {
    * a scheme like tcp://, ssl:// or tls://; if no scheme is present, tcp:// will be used.
    * @param[in] string $userName (optional) User name.
    * @param[in] string $password (optional) Password.
-   * @param[in] string $persistent (optional) When `true` the client uses a persistent connection.
    * @see http://www.ietf.org/rfc/rfc3986.txt
    */
   public function __construct($server = self::DEFAULT_SERVER, $userName = "", $password = "") {
