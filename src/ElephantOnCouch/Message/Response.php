@@ -396,7 +396,7 @@ final class Response extends Message {
       self::$supportedHeaderFields += parent::$supportedHeaderFields;
     }
 
-    $this->parseMessage($message);
+    $this->parseStatusCodeAndHeader($message);
   }
 
 
@@ -427,7 +427,7 @@ final class Response extends Message {
   }
 
 
-  protected function parseHeader($rawHeader) {
+  protected function parseHeaderFields($rawHeader) {
     $fields = explode("\r\n", preg_replace('/\x0D\x0A[\x09\x20]+/', ' ', $rawHeader));
 
     foreach ($fields as $field) {
@@ -448,7 +448,7 @@ final class Response extends Message {
   }
 
 
-  protected function parseMessage($rawMessage) {
+  protected function parseStatusCodeAndHeader($rawMessage) {
     if (!is_string($rawMessage))
       throw new \InvalidArgumentException("\$rawMessage must be a string.");
 
@@ -462,7 +462,7 @@ final class Response extends Message {
     // @see http://www.jmarshall.com/easy/http/#http1.1s5
     if ($this->statusCode == self::CONTINUE_SC) {
       $rawMessage = preg_split('/\r\n\r\n/', $rawMessage, 2)[1];
-      $this->parseMessage($rawMessage);
+      $this->parseStatusCodeAndHeader($rawMessage);
     }
 
     $rawMessage = preg_split('/\r\n\r\n/', $rawMessage, 2);
@@ -470,11 +470,11 @@ final class Response extends Message {
     if (empty($rawMessage))
       throw new \RuntimeException("The server didn't return a valid Response for the Request.");
 
-    // $message[0] contains header fields.
-    $this->parseHeader($rawMessage[0]);
+    // $rawMessage[0] contains header fields.
+    $this->parseHeaderFields($rawMessage[0]);
 
-    // $message[1] contains the entity-body.
-    $this->body = $rawMessage[1];
+    // $rawMessage[1] contains the entity-body.
+    // JUST REMOVED $this->body = $rawMessage[1];
   }
 
 
