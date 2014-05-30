@@ -29,7 +29,7 @@ interface IHandler {
   /**
    * @brief Returns `true` if the handler is consistent, `false` otherwise.
    * @attention You must always check the handler's consistence before every call to asArray() method.
-   * @return boolean
+   * @return bool
    */
   function isConsistent();
 

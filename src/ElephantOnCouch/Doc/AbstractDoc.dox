@@ -30,7 +30,7 @@ class AbstractDoc {
 
   /**
    * @brief Checks the document for the given attribute.
-   * @return boolean
+   * @return bool
    */
   public function isMetadataPresent($name) {}
 
@@ -75,7 +75,7 @@ class AbstractDoc {
 
   /**
    * @brief This implementation returns `false`.
-   * @return boolean
+   * @return bool
    */
   public function hasType() {}
 

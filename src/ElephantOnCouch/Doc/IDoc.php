@@ -33,7 +33,7 @@ interface IDoc {
    * @details Sometime happens you have two classes with the same name but located under different namespaces. In case,
    * you should provide a type yourself for at least one of these classes, to avoid Couch::saveDoc() using the same type
    * for both. Default implementation should return `false`.
-   * @return boolean
+   * @return bool
    */
   function hasType();
 
@@ -47,7 +47,7 @@ interface IDoc {
 
   /**
    * @brief Returns `true` if the document has an identifier, `false` otherwise.
-   * @return boolean
+   * @return bool
    */
   function issetId();
 

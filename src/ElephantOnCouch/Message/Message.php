@@ -225,7 +225,7 @@ abstract class Message {
   /**
    * @brief Returns `TRUE` in case exist the specified header field or `FALSE` in case it doesn't exist.
    * @param[in] string $name Header field name.
-   * @return boolean
+   * @return bool
    */
   public function hasHeaderField($name) {
     return (array_key_exists($name, $this->header)) ? TRUE : FALSE;
@@ -342,7 +342,7 @@ abstract class Message {
 
   /**
    * @brief Checks if the Message has a body.
-   * @return boolean
+   * @return bool
    */
   public function hasBody() {
     return (empty($this->body)) ? FALSE : TRUE;

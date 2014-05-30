@@ -32,7 +32,7 @@ class ViewQueryOpts extends AbstractOpts {
   /**
    * @brief Returns only documents that match the specified key.
    * @param[in] string $value The key.
-   * @param[in] boolean $encode (optional) JSON encodes `$value`.
+   * @param[in] bool $encode (optional) JSON encodes `$value`.
    */
   public function setKey($value, $encode = TRUE) {
     $this->options["key"] = $encode ? json_encode($value) : $value;
@@ -49,7 +49,7 @@ class ViewQueryOpts extends AbstractOpts {
   /**
    * @brief Defines the first key to be included in the range.
    * @param[in] string $value The key at which to start the range.
-   * @param[in] boolean $encode (optional) JSON encodes `$value`.
+   * @param[in] bool $encode (optional) JSON encodes `$value`.
    */
   public function setStartKey($value, $encode = TRUE) {
     $this->options["startkey"] = $encode ? json_encode($value) : $value;
@@ -60,7 +60,7 @@ class ViewQueryOpts extends AbstractOpts {
   /**
    * @brief Defines the last key to be included in the range.
    * @param[in] string $value The key at which to end the range.
-   * @param[in] boolean $encode (optional) JSON encodes `$value`.
+   * @param[in] bool $encode (optional) JSON encodes `$value`.
    */
   public function setEndKey($value, $encode = TRUE) {
     $this->options["endkey"] = $encode ? json_encode($value) : $value;
