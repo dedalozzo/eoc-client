@@ -11,7 +11,7 @@
 namespace ElephantOnCouch\Message;
 
 
-use ElephantOnCouch\Client;
+use ElephantOnCouch\Adapter;
 use ElephantOnCouch\Helper;
 
 
