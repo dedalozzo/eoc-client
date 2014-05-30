@@ -21,7 +21,7 @@ namespace ElephantOnCouch\Handler;
  * @nosubgrouping
  * @todo Check this class.
  */
-final class ValidateDocUpdateHandler extends DesignIHandler {
+final class ValidateDocUpdateHandler extends DesignHandler {
   const VALIDATE_DOC_UPDATE = "validate_doc_update";
 
   private $validateDocUpdate = "";

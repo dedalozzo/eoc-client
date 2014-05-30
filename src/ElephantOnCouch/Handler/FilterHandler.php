@@ -14,7 +14,7 @@ namespace ElephantOnCouch\Handler;
  * @brief
  * @todo To be documented and implemented.
  */
-final class FilterHandler extends DesignIHandler {
+final class FilterHandler extends DesignHandler {
   const FILTERS = "filters";
 
   private $name;

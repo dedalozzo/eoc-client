@@ -13,7 +13,7 @@ namespace ElephantOnCouch\Handler;
  * @brief
  * @todo To be documented and implemented.
  */
-final class RewriteHandler extends DesignIHandler {
+final class RewriteHandler extends DesignHandler {
   const REWRITES = "rewrites";
 
   private $name;

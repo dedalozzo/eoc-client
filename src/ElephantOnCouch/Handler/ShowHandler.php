@@ -13,7 +13,7 @@ namespace ElephantOnCouch\Handler;
  * @brief
  * @todo To be documented and implemented.
  */
-final class ShowHandler extends DesignIHandler {
+final class ShowHandler extends DesignHandler {
   const SHOWS = "shows";
 
   private $name;

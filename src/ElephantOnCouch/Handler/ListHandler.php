@@ -15,7 +15,7 @@ namespace ElephantOnCouch\Handler;
  * @brief
  * @todo To be documented and implemented.
  */
-final class ListHandler extends DesignIHandler {
+final class ListHandler extends DesignHandler {
   const LISTS = "lists";
 
   private $name;

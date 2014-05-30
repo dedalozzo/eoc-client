@@ -13,7 +13,7 @@ namespace ElephantOnCouch\Handler;
  * @brief
  * @todo To be documented and implemented.
  */
-final class UpdateHandler extends DesignIHandler {
+final class UpdateHandler extends DesignHandler {
   const UPDATES = "updates";
 
   private $name;
