@@ -1,25 +1,32 @@
 <?php
 
-//! @file ArrayHelper.php
-//! @brief This file contains the ArrayHelper class.
-//! @details
-//! @author Filippo F. Fadda
+/**
+ * @file ArrayHelper.php
+ * @brief This file contains the ArrayHelper class.
+ * @details
+ * @author Filippo F. Fadda
+ */
 
 
-//! @brief This is the helpers namespace.
+//! This is the helpers namespace.
 namespace ElephantOnCouch\Helper;
 
 
 use ElephantOnCouch\Exception\JSONErrorException;
 
 
-//! @brief Helper with common array methods.
-//! @nosubgrouping
+/**
+ * @brief Helper with common array methods.
+ * @nosubgrouping
+ */
 class ArrayHelper {
 
 
-  // @brief Checks if the array is associative.
-  // @return bool
+  /**
+   * @brief Checks if the array is associative.
+   * @param[in] array $array The array.
+   * @return bool
+   */
   public static function isAssociative(array $array) {
     return (0 !== count(array_diff_key($array, array_keys(array_keys($array)))) || count($array) == 0);
   }
@@ -33,16 +40,21 @@ class ArrayHelper {
   });*/
 
 
-  // @brief Converts the array to an object.
-  // @return object
+  /**
+   * @brief Converts the array to an object.
+   * @param[in] array $array The array to be converted.
+   * @return object
+   */
   public static function toObject(array $array) {
     return is_array($array) ? (object)array_map(__METHOD__, $array) : $array;
   }
 
 
-  //! @brief Converts the given JSON into an array.
-  //! @param[in] bool $assoc When `true`, returned objects will be converted into associative arrays.
-  //! @return array
+  /**
+   * @brief Converts the given JSON into an array.
+   * @param[in] bool $assoc When `true`, returned objects will be converted into associative arrays.
+   * @return array
+   */
   public static function fromJson($json, $assoc) {
     $data = json_decode((string)$json, $assoc);
 

@@ -9,15 +9,20 @@
 namespace ElephantOnCouch\Handler;
 
 
-//! @brief todo
-final class ShowHandler extends DesignHandler {
+/**
+ * @brief
+ * @todo To be documented and implemented.
+ */
+final class ShowHandler extends DesignIHandler {
   const SHOWS = "shows";
 
   private $name;
 
 
-  //! @brief Creates a ShowHandler class instance.
-  //! @param[in] string $name Handler name.
+  /**
+   * @brief Creates a ShowHandler class instance.
+   * @param[in] string $name Handler name.
+   */
   public function __construct($name) {
     $this->setName($name);
   }

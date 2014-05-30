@@ -49,20 +49,22 @@
  * Implements version 1, 3, 4 and 5
  */
 
+/**
+ * @file UUID.class.php
+ * @brief This file contains the UUID class.
+ * @details
+ * @author Fredrik Lindberg
+ */
 
-//! @file UUID.class.php
-//! @brief This file contains the UUID class.
-//! @details
-//! @author Fredrik Lindberg
-
-
-//! @brief The CouchDB's generators namespace.
+//! The CouchDB's generators namespace.
 namespace ElephantOnCouch\Generator;
 
 
-//! @brief Universally Unique IDentifier (RFC4122) %Generator.
-//! @details Implements version 1, 3, 4 and 5.
-//! @see http://tools.ietf.org/html/rfc4122
+/**
+ * @brief Universally Unique IDentifier (RFC4122) %Generator.
+ * @details Implements version 1, 3, 4 and 5.
+ * @see http://tools.ietf.org/html/rfc4122
+ */
 class UUID {
   /* UUID versions */
   const UUID_TIME	 = 1;	/* Time based UUID */

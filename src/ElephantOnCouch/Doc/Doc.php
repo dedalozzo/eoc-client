@@ -1,9 +1,11 @@
 <?php
 
-//! @file Doc.php
-//! @brief This file contains the Doc class.
-//! @details
-//! @author Filippo F. Fadda
+/**
+ * @file Doc.php
+ * @brief This file contains the Doc class.
+ * @details
+ * @author Filippo F. Fadda
+ */
 
 
 namespace ElephantOnCouch\Doc;
@@ -12,8 +14,11 @@ namespace ElephantOnCouch\Doc;
 use ElephantOnCouch\Doc\Attachment\Attachment;
 
 
-//! @brief Standard documents are replicable documents.
-//! @nosubgrouping
+/**
+ * @brief Standard documents are replicable documents.
+ * @nosubgrouping
+ * @todo To be documented.
+ */
 class Doc extends AbstractDoc {
 
   const ATTACHMENTS = "_attachments";
@@ -35,13 +40,19 @@ class Doc extends AbstractDoc {
   protected function fixDocId() {}
 
 
-  //! @brief Standard documents path is null.
-  //! @return empty string
+  /**
+   * @brief Standard documents path is null.
+   * @return empty string
+   */
   public function getPath() {
     return "";
   }
 
 
+  /**
+   * @brief
+   * @todo To be documented.
+   */
   public function getAttachments() {
     $attachments = [];
 
@@ -52,11 +63,19 @@ class Doc extends AbstractDoc {
   }
 
 
+  /**
+   * @brief
+   * @todo To be documented.
+   */
   public function addAttachment(Attachment $attachment) {
     $this->meta[self::ATTACHMENTS][$attachment->getName()] = $attachment->asArray();
   }
 
 
+  /**
+   * @brief
+   * @todo To be documented.
+   */
   public function removeAttachment($name) {
     if ($this->isMetadataPresent(self::ATTACHMENTS))
       if (array_key_exists($name, $this->meta[self::ATTACHMENTS]))
@@ -68,11 +87,19 @@ class Doc extends AbstractDoc {
   }
 
 
+  /**
+   * @brief
+   * @todo To be documented.
+   */
   public function getLocalSequence() {
     return $this->meta['_local_sequence'];
   }
 
 
+  /**
+   * @brief
+   * @todo To be documented.
+   */
   public function issetLocalSequence() {
     return $this->isMetadataPresent('_local_sequence');
   }

@@ -1,19 +1,24 @@
 <?php
 
-//! @file Attachment.php
-//! @brief This file contains the Attachment class.
-//! @details
-//! @author Filippo F. Fadda
+/*
+ * @file Attachment.php
+ * @brief This file contains the Attachment class.
+ * @details
+ * @author Filippo F. Fadda
+ */
 
 
-//! @brief The CouchDB's attachments namespace.
+//! The CouchDB's attachments namespace.
 namespace ElephantOnCouch\Doc\Attachment;
 
 
 use ElephantOnCouch\Extension;
 
 
-//! @brief todo
+/**
+ * @brief
+ * @todo To be documented.
+ */
 final class Attachment {
   use Extension\TProperty; // This is a trait, not a namespace or a class.
 

@@ -1,12 +1,14 @@
 <?php
 
-//! @file BadResponseException.php
-//! @brief This file contains the BadResponseException class.
-//! @details
-//! @author Filippo F. Fadda
+/**
+ * @file BadResponseException.php
+ * @brief This file contains the BadResponseException class.
+ * @details
+ * @author Filippo F. Fadda
+ */
 
 
-//! @brief The CouchDB's errors namespace.
+//! The CouchDB's errors namespace.
 namespace ElephantOnCouch\Exception;
 
 
@@ -14,7 +16,9 @@ use ElephantOnCouch\Message\Request;
 use ElephantOnCouch\Message\Response;
 
 
-//! @brief Exception thrown when a bad Response is received.
+/**
+ * @brief Exception thrown when a bad Response is received.
+ */
 class BadResponseException extends \RuntimeException {
   private $humanReadableError;
 
@@ -24,9 +28,11 @@ class BadResponseException extends \RuntimeException {
   protected $info = [];
 
 
-  //! @brief Creates a BadResponseException class instance.
-  //! @param[in] Response $request An instance of the Request class.
-  //! @param[in] Response $response An instance of the Response class.
+  /**
+   * @brief Creates a BadResponseException class instance.
+   * @param[in] Response $request An instance of the Request class.
+   * @param[in] Response $response An instance of the Response class.
+   */
   public function __construct(Request $request, Response $response) {
     $this->request = $request;
     $this->response = $response;
@@ -37,21 +43,27 @@ class BadResponseException extends \RuntimeException {
   }
 
 
-  //! @brief Returns the request.
-  //! @return a Request object.
+  /**
+   * @brief Returns the request.
+   * @return a Request object.
+   */
   public final function getRequest() {
     return $this->request;
   }
 
 
-  //! @brief Returns the response.
-  //! @return a Response object.
+  /**
+   * @brief Returns the response.
+   * @return a Response object.
+   */
   public final function getResponse() {
     return $this->response;
   }
 
 
-  //! @brief Overrides the magic method to get all the information about the error.
+  /**
+   * @brief Overrides the magic method to get all the information about the error.
+   */
   public function __toString() {
     $error = $this->response->getBodyAsArray();
 

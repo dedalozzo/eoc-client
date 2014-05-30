@@ -6,10 +6,10 @@ namespace ElephantOnCouch\Doc;
 
 class Doc {
 
-  //! @name Properties
-  //@{
+  /** @name Properties */
+  //!@{
 
 
-  //@}
+  //!@}
 
 }

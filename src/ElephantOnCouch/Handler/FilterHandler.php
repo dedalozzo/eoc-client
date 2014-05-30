@@ -1,23 +1,29 @@
 <?php
 
-//! @file FilterHandler.php
-//! @brief This file contains the FilterHandler class.
-//! @details
-//! @author Filippo F. Fadda
-
+/**
+ * @file FilterHandler.php
+ * @brief This file contains the FilterHandler class.
+ * @details
+ * @author Filippo F. Fadda
+ */
 
 namespace ElephantOnCouch\Handler;
 
 
-//! @brief todo
-final class FilterHandler extends DesignHandler {
+/**
+ * @brief
+ * @todo To be documented and implemented.
+ */
+final class FilterHandler extends DesignIHandler {
   const FILTERS = "filters";
 
   private $name;
 
 
-  //! @brief Creates a FilterHandler class instance.
-  //! @param[in] string $name Handler name.
+  /**
+   * @brief Creates a FilterHandler class instance.
+   * @param[in] string $name Handler name.
+   */
   public function __construct($name) {
     $this->setName($name);
   }
@@ -39,12 +45,10 @@ final class FilterHandler extends DesignHandler {
 
 
   public function isConsistent() {
-    // todo Implement isConsistent() method.
   }
 
 
   public function asArray() {
-    // todo Implement getAttributes() method.
   }
 
 }

@@ -9,15 +9,20 @@
 namespace ElephantOnCouch\Handler;
 
 
-//! @brief todo
-final class RewriteHandler extends DesignHandler {
+/**
+ * @brief
+ * @todo To be documented and implemented.
+ */
+final class RewriteHandler extends DesignIHandler {
   const REWRITES = "rewrites";
 
   private $name;
 
 
-  //! @brief Creates a RewriteHandler class instance.
-  //! @param[in] string $name Handler name.
+  /**
+   * @brief Creates a RewriteHandler class instance.
+   * @param[in] string $name Handler name.
+   */
   public function __construct($name) {
     $this->setName($name);
   }

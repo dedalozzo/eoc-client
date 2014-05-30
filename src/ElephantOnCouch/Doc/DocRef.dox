@@ -6,12 +6,12 @@ namespace ElephantOnCouch\Doc;
 
 class DocRef {
 
-  //! @name Properties
-  //@{
+  /** @name Properties */
+  //!@{
 
-  //! @brief The document identifier.
+  //! The document identifier.
   private $id;
 
-  //@}
+  //!@}
 
 }

@@ -8,62 +8,82 @@ class AbstractDoc {
 
   protected $meta = []; //!< Metadata array.
 
-  //! @name Properties
-  //@{
+  /** @name Properties */
+  //!@{
   public string $id; //!< Document identifier. Mandatory and immutable.
   public string $rev; //!< The current MVCC-token/revision of this document. Mandatory and immutable.
-  //@}
+  //!@}
 
 
-  //! @brief Removes tha path from the document identifier, because CouchDB returns it for local and design documents.
-  //! @details Both LocalDoc and DesignDoc override this method.
+  /**
+   * @brief Removes tha path from the document identifier, because CouchDB returns it for local and design documents.
+   * @details Both LocalDoc and DesignDoc override this method.
+   */
   abstract protected function fixDocId();
 
 
-  //! @brief Resets the metadata.
+  /**
+   * @brief Resets the metadata.
+   */
   public function resetMetadata() {}
 
 
-  //! @brief Checks the document for the given attribute.
-  //! @return boolean
+  /**
+   * @brief Checks the document for the given attribute.
+   * @return boolean
+   */
   public function isMetadataPresent($name) {}
 
 
-  //! @brief Given a JSON object, this function assigns every single object's property to the `$meta` array, the array
-  //! that stores the document's metadata.
-  //! @param[in] string $json A JSON object.
+  /**
+   * @brief Given a JSON object, this function assigns every single object's property to the `$meta` array, the array
+   * that stores the document's metadata.
+   * @param[in] string $json A JSON object.
+   */
   public function assignJson($json) {}
 
-
-  //! @brief Assigns the given associative array to the `$meta` array, the array that stores the document's metadata.
-  //! @param[in] array $array An associative array.
+  /**
+   * @brief Assigns the given associative array to the `$meta` array, the array that stores the document's metadata.
+   * @param[in] array $array An associative array.
+   */
   public function assignArray(array $array) {}
 
 
-  //! @brief Given an instance of a standard class, this function assigns every single object's property to the `$meta`
-  //! array, the array that stores the document's metadata.
+  /**
+   * @brief Given an instance of a standard class, this function assigns every single object's property to the `$meta`
+   * array, the array that stores the document's metadata.
+   */
   public function assignObject(\stdClass $object) {}
 
 
-  //! @brief Marks the document as deleted. To be effected the document must be saved.
+  /**
+   * @brief Marks the document as deleted. To be effected the document must be saved.
+   */
   public function delete() {}
 
-
-  //! @brief Indicates that this document has been deleted and previous revisions will be removed on next compaction run.
+  /**
+   * @brief Indicates that this document has been deleted and previous revisions will be removed on next compaction run.
+   */
   public function isDeleted() {}
 
 
-  //! @brief Gets the document revisions.
+  /**
+   * @brief Gets the document revisions.
+   */
   public function getRevisions() {}
 
 
-  //! @brief This implementation returns `false`.
-  //! @return boolean
+  /**
+   * @brief This implementation returns `false`.
+   * @return boolean
+   */
   public function hasType() {}
 
 
-  //! @brief Returns the object type.
-  //! @return string
+  /**
+   * @brief Returns the object type.
+   * @return string
+   */
   public function getType() {}
 
 }

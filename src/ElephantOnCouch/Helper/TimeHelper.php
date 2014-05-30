@@ -1,22 +1,28 @@
 <?php
 
-//! @file TimeHelper.php
-//! @brief This file contains the TimeHelper class.
-//! @details
-//! @author Filippo F. Fadda
+/**
+ * @file TimeHelper.php
+ * @brief This file contains the TimeHelper class.
+ * @details
+ * @author Filippo F. Fadda
+ */
 
 
 namespace ElephantOnCouch\Helper;
 
 
-//! @brief Helper with common methods to manipulate timestamps.
-//! @nosubgrouping
+/**
+ * @brief Helper with common methods to manipulate timestamps.
+ * @nosubgrouping
+ */
 class TimeHelper {
 
-  //! @brief Returns a string with the elapsed time, from the provided timestamp, in days, hours, minutes and seconds.
-  //! @param[in] string $timestamp A timestamp in seconds/microseconds.
-  //! @param[in] string $micro When `true` the timestamp is expressed in microseconds otherwise in seconds.
-  //! @return associative array
+  /**
+   * @brief Returns a string with the elapsed time, from the provided timestamp, in days, hours, minutes and seconds.
+   * @param[in] string $timestamp A timestamp in seconds/microseconds.
+   * @param[in] string $micro When `true` the timestamp is expressed in microseconds otherwise in seconds.
+   * @return associative array
+   */
   public static function since($timestamp, $micro = FALSE) {
     $microsecondsInASecond = 1000000;
     $secondsInAMinute = 60;

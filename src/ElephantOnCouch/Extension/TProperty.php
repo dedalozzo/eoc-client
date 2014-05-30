@@ -1,16 +1,20 @@
 <?php
 
-//! @file TProperty.php
-//! @brief This file contains the TProperty trait.
-//! @details
-//! @author Filippo F. Fadda
+/**
+ * @file TProperty.php
+ * @brief This file contains the TProperty trait.
+ * @details
+ * @author Filippo F. Fadda
+ */
 
 
 namespace ElephantOnCouch\Extension;
 
 
-//! @brief This trait can be used by a class to emulate the C# properties.
-//! @see http://www.programmazione.it/index.php?entity=eitem&idItem=48399
+/**
+ * @brief This trait can be used by a class to emulate the C# properties.
+ * @see http://www.programmazione.it/index.php?entity=eitem&idItem=48399
+ */
 trait TProperty {
 
   public function __get($name) {

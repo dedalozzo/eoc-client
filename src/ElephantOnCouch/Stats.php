@@ -1,10 +1,12 @@
 <?php
 
 
-//! @file Stats.php
-//! @brief This file contains the Stats class.
-//! @details
-//! @author Filippo F. Fadda
+/**
+ * @file Stats.php
+ * @brief This file contains the Stats class.
+ * @details
+ * @author Filippo F. Fadda
+ */
 
 
 namespace ElephantOnCouch;
@@ -41,7 +43,10 @@ namespace ElephantOnCouch;
  */
 
 
-//! @brief TODO
+/**
+ * @brief
+ * @todo To be implemented
+ */
 class Stats {
 
 }

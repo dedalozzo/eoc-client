@@ -1,9 +1,11 @@
 <?php
 
-//! @file DocRef.php
-//! @brief This file contains the DocRef class.
-//! @details
-//! @author Filippo F. Fadda
+/**
+ * @file DocRef.php
+ * @brief This file contains the DocRef class.
+ * @details
+ * @author Filippo F. Fadda
+ */
 
 
 namespace ElephantOnCouch\Doc;
@@ -12,15 +14,39 @@ namespace ElephantOnCouch\Doc;
 use ElephantOnCouch\Extension;
 
 
-//! @brief This class represent a document reference and it's used in Couch.purgeDocs() method.
-//! @details Instead to provide a full document, couch.purgeDocs() accepts an array of DocRef. Every DocRef has an ID and
-//! a list of revisions you can add calling addRev().
+/**
+ * @brief This class represent a document reference and it's used in Couch::purgeDocs() method.
+ * @details Instead to provide a full document, Couch.purgeDocs() accepts an array of DocRef. Every DocRef has an ID and
+ * a list of revisions you can add calling addRev().
+ */
 final class DocRefsArray {
   use Extension\TProperty;
 
   private $id;
   private $revs;
 
+
+  /**
+   * @brief Adds a document revision reference.
+   * @param[in] string $rev A document revision.
+   */
+  public function addRev($value) {
+    $this->revs[] = $value;
+  }
+
+
+  /**
+   * @brief Returns a document reference.
+   * @return associative array
+   */
+  public function asArray() {
+    $ref = [];
+    $ref[$this->id] = $this->revs;
+    return $ref;
+  }
+
+
+  //! @cond HIDDEN_SYMBOLS
 
   public function getId() {
     return $this->id;
@@ -44,20 +70,6 @@ final class DocRefsArray {
     unset($this->id);
   }
 
-
-  //! @brief Adds a document revision reference.
-  //! @param[in] string $rev A document revision.
-  public function addRev($value) {
-    $this->revs[] = $value;
-  }
-
-
-  //! @brief Returns a document reference.
-  //! @return associative array
-  public function asArray() {
-    $ref = [];
-    $ref[$this->id] = $this->revs;
-    return $ref;
-  }
+  //! @endcond
 
 }

@@ -1,9 +1,11 @@
 <?php
 
-//! @file TDoc.php
-//! @brief This file contains the TDoc trait.
-//! @details
-//! @author Filippo F. Fadda
+/**
+ * @file TDoc.php
+ * @brief This file contains the TDoc trait.
+ * @details
+ * @author Filippo F. Fadda
+ */
 
 
 namespace ElephantOnCouch\Doc;
@@ -13,8 +15,10 @@ use ElephantOnCouch\Extension;
 use ElephantOnCouch\Helper;
 
 
-//! @brief Implements the IDoc interface and add many functions.
-//! @see AbstractDoc.dox
+/**
+ * @brief Implements the IDoc interface and add many functions.
+ * @see AbstractDoc.dox
+ */
 trait TDoc {
   use Extension\TProperty;
 
