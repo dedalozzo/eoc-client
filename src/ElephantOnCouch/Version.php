@@ -28,7 +28,7 @@ class Version {
    * @return string The version number.
    */
   public static function getNumber() {
-    return "{${self::MAJOR}}.{${self::MINOR}}.{${self::MAINTENANCE}}";
+    return self::MAJOR.".".self::MINOR.".".self::MAINTENANCE;
   }
 
 } 
