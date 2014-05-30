@@ -11,7 +11,7 @@
 namespace ElephantOnCouch\Message;
 
 
-use ElephantOnCouch\Couch;
+use ElephantOnCouch\Client;
 use ElephantOnCouch\Helper;
 
 
@@ -21,6 +21,10 @@ use ElephantOnCouch\Helper;
  * @nosubgrouping
  */
 abstract class Message {
+
+  //! CR+LF (0x0D 0x0A). A Carriage Return followed by a Line Feed. We don't use PHP_EOL because HTTP wants CR+LF.
+  const CRLF = "\r\n";
+
 
   /** @name General Header Fields */
   //!@{
@@ -214,7 +218,7 @@ abstract class Message {
    * @return string
    */
   public function getHeaderAsString() {
-    return implode(Couch::CRLF, $this->getHeaderAsArray());
+    return implode(self::CRLF, $this->getHeaderAsArray());
   }
 
 

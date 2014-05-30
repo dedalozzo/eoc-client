@@ -28,9 +28,6 @@ class NativeClient extends AbstractClient {
   //! HTTP protocol version.
   const HTTP_VERSION = "HTTP/1.1";
 
-  //! CR+LF (0x0D 0x0A). A Carriage Return followed by a Line Feed. We don't use PHP_EOL because HTTP wants CR+LF.
-  const CRLF = "\r\n";
-
   //! Buffer dimension.
   const BUFFER_LENGTH = 8192;
 
@@ -93,11 +90,11 @@ class NativeClient extends AbstractClient {
       $request->setHeaderField(Message::CONTENT_LENGTH_HF, $request->getBodyLength());
 
     // Writes the request over the socket.
-    fputs($this->handle, $command.self::CRLF);
-    fputs($this->handle, $request->getHeaderAsString().self::CRLF);
-    fputs($this->handle, self::CRLF);
+    fputs($this->handle, $command.Message::CRLF);
+    fputs($this->handle, $request->getHeaderAsString().Message::CRLF);
+    fputs($this->handle, Message::CRLF);
     fputs($this->handle, $request->getBody());
-    fputs($this->handle, self::CRLF);
+    fputs($this->handle, Message::CRLF);
 
     // Reads the header.
     $header = "";
@@ -110,7 +107,7 @@ class NativeClient extends AbstractClient {
       $header .= $buffer;
 
       // The header is separated from the body by a newline, so we break when we read it.
-      if ($buffer == self::CRLF)
+      if ($buffer == Message::CRLF)
         break;
     }
 
@@ -129,7 +126,7 @@ class NativeClient extends AbstractClient {
 
         // If it's only a newline, this normally means it's read the total amount of data requested minus the newline
         // continue to next loop to make sure we're done.
-        if ($line == self::CRLF)
+        if ($line == Message::CRLF)
           continue;
 
         // The length of the block is expressed in hexadecimal.
@@ -173,7 +170,7 @@ class NativeClient extends AbstractClient {
         $buffer = fgets($this->handle, self::BUFFER_LENGTH);
 
         // The chunk response ends with a newline, so we break when we read it.
-        if ($buffer == self::CRLF)
+        if ($buffer == Message::CRLF)
           break;
       }
 

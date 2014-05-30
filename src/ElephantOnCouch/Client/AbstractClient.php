@@ -33,7 +33,6 @@ abstract class AbstractClient {
 	        (?P<port>:[0-9]+)?                               # Port
 	        $/ix';
 
-
   // Used to know if the constructor has been already called.
   protected static $initialized = FALSE;
 
