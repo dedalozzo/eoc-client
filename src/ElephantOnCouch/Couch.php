@@ -11,7 +11,7 @@
 namespace ElephantOnCouch;
 
 
-use ElephantOnCouch\Client\AbstractClient;
+use ElephantOnCouch\Adapter\AbstractAdapter;
 use ElephantOnCouch\Message\Request;
 use ElephantOnCouch\Message\Response;
 
@@ -60,7 +60,7 @@ final class Couch {
    * @brief Creates a Couch class instance.
    * @param[in] IClient $client An instance of a class that implements the IClient interface.
    */
-  public function __construct(AbstractClient $client) {
+  public function __construct(AbstractAdapter $client) {
     $this->client = $client;
   }
 
