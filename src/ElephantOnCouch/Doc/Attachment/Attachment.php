@@ -96,16 +96,16 @@ final class Attachment {
   public function save($overwrite = TRUE) {
     $mode = ($overwrite) ? "wb" : "xb";
 
-    $fd = @fopen($fileName, $mode);
+    $fd = @fopen($this->name, $mode);
     if (is_resource($fd)) {
       $bytes = fwrite($fd, $this->data);
       fclose($fd);
 
       if ($bytes === FALSE)
-        throw new \Exception("Error writing the file $fileName.");
+        throw new \Exception("Error writing the file `$this->name`.");
     }
     else
-      throw new \Exception("Cannot create the file $fileName.");
+      throw new \Exception("Cannot create the file `$this->name`.");
   }
 
 
