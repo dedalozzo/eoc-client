@@ -51,6 +51,8 @@ class NativeClient extends AbstractClient {
 
     parent::__construct($server, $userName, $password);
 
+    $this->timeout = static::$defaultSocketTimeout;
+
     // Establishes a connection within the server.
     if ($persistent)
       $this->handle = @pfsockopen($this->scheme.$this->host, $this->port, $errno, $errstr, $this->timeout);
