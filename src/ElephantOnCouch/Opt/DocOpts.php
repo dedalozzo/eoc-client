@@ -31,7 +31,7 @@ class DocOpts extends AbstractOpts {
    * @brief Includes information about the encoding of each document's attachments.
    */
   public function includeAttEncodingInfo() {
-    $this->options['att_encoding_info'] = 'true';
+    $this->options['att_encoding_info'] = TRUE;
     return $this;
   }
 
@@ -40,7 +40,7 @@ class DocOpts extends AbstractOpts {
    * @brief Includes a metadata structure that holds information about all the document's attachments.
    */
   public function includeAttachments() {
-    $this->options['attachments'] = 'true';
+    $this->options['attachments'] = TRUE;
     return $this;
   }
 
@@ -63,7 +63,7 @@ class DocOpts extends AbstractOpts {
    * @brief Includes information about document's conflicts.
    */
   public function includeConflicts() {
-    $this->options['conflicts'] = 'true';
+    $this->options['conflicts'] = TRUE;
     return $this;
   }
 
@@ -72,7 +72,7 @@ class DocOpts extends AbstractOpts {
    * @brief Includes information about deleted document's conflicts.
    */
   public function includeDeletedConflicts() {
-    $this->options['deleted_conflicts'] = 'true';
+    $this->options['deleted_conflicts'] = TRUE;
     return $this;
   }
 
@@ -81,7 +81,7 @@ class DocOpts extends AbstractOpts {
    * @brief Includes the sequence number of the revision in the database.
    */
   public function includeLocalSeq() {
-    $this->options['local_seq'] = 'true';
+    $this->options['local_seq'] = TRUE;
     return $this;
   }
 
@@ -90,7 +90,7 @@ class DocOpts extends AbstractOpts {
    * @brief Equals to calling includeRevsInfo(), includeConflicts() and includeDeletedConflicts().
    */
   public function includeMeta() {
-    $this->options['meta'] = 'true';
+    $this->options['meta'] = TRUE;
     return $this;
   }
 
@@ -110,7 +110,7 @@ class DocOpts extends AbstractOpts {
    @endcode
    */
   public function includeRevs() {
-    $this->options['revs'] = 'true';
+    $this->options['revs'] = TRUE;
     return $this;
   }
 
@@ -129,7 +129,7 @@ class DocOpts extends AbstractOpts {
    @endcode
    */
   public function includeRevsInfo() {
-    $this->options['revs_info'] = 'true';
+    $this->options['revs_info'] = TRUE;
     return $this;
   }
 
@@ -158,7 +158,7 @@ class DocOpts extends AbstractOpts {
    * new one.
    */
   public function includeLatest() {
-    $this->options['latest'] = 'true';
+    $this->options['latest'] = TRUE;
     return $this;
   }
 
