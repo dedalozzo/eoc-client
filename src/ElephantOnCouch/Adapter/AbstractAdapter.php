@@ -8,7 +8,6 @@
  */
 
 
-//! The HTTP clients namespace.
 namespace ElephantOnCouch\Adapter;
 
 
@@ -20,7 +19,7 @@ use ElephantOnCouch\Hook;
  * @brief An abstract HTTP client adapter.
  * @nosubgrouping
  */
-abstract class AbstractAdapter {
+abstract class AbstractAdapter implements IClientAdapter {
 
   //! Default server.
   const DEFAULT_SERVER = "127.0.0.1:5984";

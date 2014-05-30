@@ -11,7 +11,7 @@
 namespace ElephantOnCouch;
 
 
-use ElephantOnCouch\Adapter\AbstractAdapter;
+use ElephantOnCouch\Adapter\IClientAdapter;
 use ElephantOnCouch\Message\Request;
 use ElephantOnCouch\Message\Response;
 
@@ -49,7 +49,7 @@ final class Couch {
   // Current selected rawencoded database name.
   private $dbName;
 
-  // Socket or cURL client.
+  // Socket or cURL HTTP client adapter.
   private $client;
 
   // The current transaction.
@@ -60,8 +60,8 @@ final class Couch {
    * @brief Creates a Couch class instance.
    * @param[in] IClient $client An instance of a class that implements the IClient interface.
    */
-  public function __construct(AbstractAdapter $client) {
-    $this->client = $client;
+  public function __construct(IClientAdapter $adapter) {
+    $this->client = $adapter;
   }
 
 
