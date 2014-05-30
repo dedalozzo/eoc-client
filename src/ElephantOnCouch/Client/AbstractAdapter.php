@@ -1,15 +1,15 @@
 <?php
 
 /**
- * @file AbstractClient.php
- * @brief This file contains the AbstractClient class.
+ * @file AbstractAdapter.php
+ * @brief This file contains the AbstractAdapter class.
  * @details
  * @author Filippo F. Fadda
  */
 
 
 //! The HTTP clients namespace.
-namespace ElephantOnCouch\Client;
+namespace ElephantOnCouch\Adapter;
 
 
 use ElephantOnCouch\Message\Request;
@@ -17,9 +17,9 @@ use ElephantOnCouch\Hook;
 
 
 /**
- * @brief An abstract HTTP client.
+ * @brief An abstract HTTP client adapter.
  */
-abstract class AbstractClient {
+abstract class AbstractAdapter {
 
   //! Default server.
   const DEFAULT_SERVER = "127.0.0.1:5984";
@@ -53,7 +53,7 @@ abstract class AbstractClient {
 
 
   /**
-   * @brief Creates a Couch class instance.
+   * @brief Creates a client adapter instance.
    * @param[in] string $server Server must be expressed as host:port as defined by RFC 3986. It's also possible specify
    * a scheme like tcp://, ssl:// or tls://; if no scheme is present, tcp:// will be used.
    * @param[in] string $userName (optional) User name.
