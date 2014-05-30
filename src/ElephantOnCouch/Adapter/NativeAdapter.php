@@ -1,14 +1,14 @@
 <?php
 
 /**
- * @file NativeClient.php
- * @brief This file contains the NativeClient class.
+ * @file NativeAdapter.php
+ * @brief This file contains the NativeAdapter class.
  * @details
  * @author Filippo F. Fadda
  */
 
 
-namespace ElephantOnCouch\Client;
+namespace ElephantOnCouch\Adapter;
 
 
 use ElephantOnCouch\Message\Message;
@@ -23,7 +23,7 @@ use ElephantOnCouch\Hook;
  * Encoding is made according RFC 3986, using rawurlencode().\n
  * It supports 100-continue, chunked responses, persistent connections, etc.
  */
-class NativeClient extends AbstractClient {
+class NativeAdapter extends AbstractAdapter {
 
   //! HTTP protocol version.
   const HTTP_VERSION = "HTTP/1.1";
@@ -36,11 +36,11 @@ class NativeClient extends AbstractClient {
 
   private static $defaultSocketTimeout;
 
-  // Socket handle.
-  private $handle;
-
   // Socket connection timeout in seconds, specified by a float.
   private $timeout;
+
+  // Socket handle.
+  private $handle;
 
 
   public function __construct($server = parent::DEFAULT_SERVER, $userName = "", $password = "", $persistent = TRUE) {
@@ -79,7 +79,7 @@ class NativeClient extends AbstractClient {
   /**
    * @brief Writes the entire request over the socket.
    */
-  protected function writeRequest(Request $request) {
+  protected function writeRequest($request) {
     $command = $request->getMethod()." ".$request->getPath().$request->getQueryString()." ".self::HTTP_VERSION;
 
     // Writes the request over the socket.
@@ -91,10 +91,7 @@ class NativeClient extends AbstractClient {
   }
 
 
-  /**
-   * @brief Reads the the status code and the header of the response.
-   * @return string $statusCodeAndHeader A raw string witht the status code and the complete header.
-   */
+  // Reads the the status code and the header of the response.
   protected function readResponseStatusCodeAndHeader() {
     $statusCodeAndHeader = "";
 
@@ -114,13 +111,8 @@ class NativeClient extends AbstractClient {
   }
 
 
-  /**
-   * @brief Reads the entity-body of a chunked response.
-   * @param[in] Hook\IChunkHook $chunkHook An instance of a class that implements the IChunkHook interface.
-   * @return string $body The response entity-body.
-   * @see http://www.jmarshall.com/easy/http/#http1.1c2
-   */
-  protected function readChunkedResponseBody(Hook\IChunkHook $chunkHook) {
+  // Reads the entity-body of a chunked response (http://www.jmarshall.com/easy/http/#http1.1c2).
+  protected function readChunkedResponseBody($chunkHook) {
     $body = "";
 
     while (!feof($this->handle)) {
@@ -181,12 +173,8 @@ class NativeClient extends AbstractClient {
   }
 
 
-  /**
-   * @brief Reads the entity-body of a standard response.
-   * @param[in] Response $response The response object.
-   * @return string $body The response entity-body.
-   */
-  protected function readResponseBody(Response $response) {
+  // Reads the entity-body of a standard response.
+  protected function readStandardResponseBody($response) {
     $body = "";
 
     // Retrieves the body length from the header.
@@ -210,6 +198,15 @@ class NativeClient extends AbstractClient {
   }
 
 
+  // Reads the entity-body.
+  protected function readResponseBody($response, $chunkHook) {
+    if ($response->getHeaderFieldValue(Response::TRANSFER_ENCODING_HF) == "chunked")
+      return $this->readChunkedResponseBody($chunkHook);
+    else
+      return $this->readStandardResponseBody($response);
+  }
+
+
   public function send(Request $request, Hook\IChunkHook $chunkHook = NULL) {
     $request->setHeaderField(Request::HOST_HF, $this->host.":".$this->port);
 
@@ -220,22 +217,14 @@ class NativeClient extends AbstractClient {
     if ($request->hasBody())
       $request->setHeaderField(Message::CONTENT_LENGTH_HF, $request->getBodyLength());
 
-
+    // Writes the request over the socket.
     $this->writeRequest($request);
 
     // Creates the Response object.
     $response = new Response($this->readResponseStatusCodeAndHeader());
 
-    // Now it's time to read the response body.
-
-    // This might be a chunked response.
-    if ($response->getHeaderFieldValue(Response::TRANSFER_ENCODING_HF) == "chunked")
-      $body = $this->readChunkedResponseBody($chunkHook);
-    else // Normal response, not chunked.
-      $body = $this->readResponseBody($response);
-
     // Assigns the body to the response, if any is present.
-    $response->setBody($body);
+    $response->setBody($this->readResponseBody($response, $chunkHook));
 
     return $response;
   }
