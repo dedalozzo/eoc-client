@@ -127,7 +127,7 @@ class ViewQueryOpts extends AbstractOpts {
    * for the view.
    */
   public function groupResults() {
-    $this->options["group"] = TRUE;
+    $this->options["group"] = "true";
     return $this;
   }
 
@@ -157,7 +157,7 @@ class ViewQueryOpts extends AbstractOpts {
    * of the reduce function. To avoid this behaviour you must call this method.
    */
   public function doNotReduce() {
-    $this->options["reduce"] = FALSE;
+    $this->options["reduce"] = "false";
     return $this;
   }
 
@@ -169,7 +169,7 @@ class ViewQueryOpts extends AbstractOpts {
    * @warning You can call this method only if the view doesn't contain a reduce function.
    */
   public function includeDocs() {
-    $this->options["include_docs"] = TRUE;
+    $this->options["include_docs"] = "true";
     return $this;
   }
 
@@ -187,7 +187,7 @@ class ViewQueryOpts extends AbstractOpts {
    * @brief Tells CouchDB to not include end key in the result.
    */
   public function excludeEndKey() {
-    $this->options["inclusive_end"] = FALSE;
+    $this->options["inclusive_end"] = "false";
     return $this;
   }
 
@@ -240,7 +240,7 @@ class ViewQueryOpts extends AbstractOpts {
    * of the start key and end key options to get the expected results.
    */
   public function reverseOrderOfResults() {
-    $this->options["descending"] = TRUE;
+    $this->options["descending"] = "true";
     return $this;
   }
 
@@ -267,7 +267,7 @@ class ViewQueryOpts extends AbstractOpts {
    * @brief Includes conflict documents.
    */
   public function includeConflicts() {
-    $this->options["conflicts"] = TRUE;
+    $this->options["conflicts"] = "true";
     return $this;
   }
 
@@ -276,7 +276,7 @@ class ViewQueryOpts extends AbstractOpts {
    * @brief Includes an `update_seq` value indicating which sequence id of the database the view reflects.
    */
   public function includeUpdateSeq() {
-    $this->options['update_seq'] = TRUE;
+    $this->options['update_seq'] = "true";
     return $this;
   }
 

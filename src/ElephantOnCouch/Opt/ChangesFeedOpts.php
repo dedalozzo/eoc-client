@@ -108,7 +108,7 @@ class ChangesFeedOpts extends AbstractOpts {
    * @brief Reverses order of results to return the change results in descending sequence order (most recent change first).
    */
   public function reverseOrderOfResults() {
-    $this->options["descending"] = TRUE;
+    $this->options["descending"] = "true";
   }
 
 
@@ -175,7 +175,7 @@ class ChangesFeedOpts extends AbstractOpts {
    * @brief Automatically fetches and includes full documents.
    */
   public function includeDocs() {
-    $this->options["include_docs"] = TRUE;
+    $this->options["include_docs"] = "true";
   }
 
 

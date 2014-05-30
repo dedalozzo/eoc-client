@@ -1447,10 +1447,10 @@ final class Couch {
       $request->setHeaderField(Request::X_COUCHDB_FULL_COMMIT_HF, "delay_commit");
 
     if ($allOrNothing)
-      $operations['all_or_nothing'] = TRUE;
+      $operations['all_or_nothing'] = 'true';
 
     if (!$newEdits)
-      $operations['new_edits'] = FALSE;
+      $operations['new_edits'] = 'false';
 
     foreach ($docs as $doc) {
       $this->setDocInfo($doc);

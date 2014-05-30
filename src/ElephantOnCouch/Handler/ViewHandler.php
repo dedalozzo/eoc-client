@@ -169,7 +169,7 @@ final class ViewHandler extends DesignHandler {
    * @brief Makes documents' local sequence numbers available to map functions as a '_local_seq' document property.
    */
   public function includeLocalSeq() {
-    $this->options['local_seq'] = TRUE;
+    $this->options['local_seq'] = 'true';
   }
 
 
@@ -177,7 +177,7 @@ final class ViewHandler extends DesignHandler {
    * @brief Causes map functions to be called on design documents as well as regular documents.
    */
   public function includeDesignDocs() {
-    $this->options['include_design'] = TRUE;
+    $this->options['include_design'] = 'true';
   }
 
 

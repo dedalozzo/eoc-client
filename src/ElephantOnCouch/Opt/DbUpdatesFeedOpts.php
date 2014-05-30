@@ -96,7 +96,7 @@ class DbUpdatesFeedOpts extends AbstractOpts {
    * option the connection ends on timeout.
    */
   public function doNotKeepAlive() {
-    $this->options["heartbeat"] = FALSE;
+    $this->options["heartbeat"] = 'false';
     return $this;
   }
 
