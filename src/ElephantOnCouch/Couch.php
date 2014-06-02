@@ -240,7 +240,7 @@ final class Couch {
    * @todo Implement the method.
    */
   public function createAdminUser() {
-    throw new \BadMethodCallExcetpion("The method `createAdminUser()` is not available.");
+    throw new \BadMethodCallException("The method `createAdminUser()` is not available.");
   }
 
 
@@ -984,7 +984,7 @@ final class Couch {
    * @todo To be implemented and documented.
    */
   public function getReplicator() {
-    throw new \BadMethodCallExcetpion("The method `getReplicator()` is not available.");
+    throw new \BadMethodCallException("The method `getReplicator()` is not available.");
   }
 
   //!@}
@@ -1000,8 +1000,8 @@ final class Couch {
    * multi-document-fetch feature.
    * @param[in] ViewQueryOpts $opts (optional) Query options to get additional information, grouping results, include
    * docs, etc.
-   * @param[in] IChunkHook $chunkHook (optional) A class instance that implements the IChunkHook interface.
-   * @return ElephantOnCouch\Result\QueryResult The result of the query.
+   * @param[in] ChunkHook $chunkHook (optional) A class instance that implements the IChunkHook interface.
+   * @return Result::QueryResult The result of the query.
    * @see http://docs.couchdb.org/en/latest/api/database/bulk-api.html#get--db-_all_docs
    * @see http://docs.couchdb.org/en/latest/api/database/bulk-api.html#post--db-_all_docs
    */
