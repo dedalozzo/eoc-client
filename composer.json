@@ -1,6 +1,6 @@
 {
     "name": "3f/eoc-client",
-    "description": "ElephantOnCouch is a PHP Client Library for CouchDB.",
+    "description": "A PHP Client Library for CouchDB.",
     "keywords": ["couchdb", "client", "nosql"],
     "homepage": "http://github.com/dedalozzo/eoc-client",
     "type": "library",
