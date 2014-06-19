@@ -190,6 +190,7 @@ final class ViewHandler extends DesignHandler {
     $this->reduceFn = "_count";
   }
 
+
   /**
    * @brief Sets the reduce function to the built-in `_sum` function provided by CouchDB.
    * @details The built-in `_sum` reduce function will return a sum of mapped values. As with all reductions, you
