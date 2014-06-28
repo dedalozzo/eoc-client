@@ -90,9 +90,9 @@ class BadResponseException extends \RuntimeException {
     $this->info[] = "[Error Code] ".$this->response->getStatusCode();
     $this->info[] = "[Error Message] ".$this->humanReadableError;
     $this->info[] = "[Request]";
-    $this->info[] = $this->request;
+    $this->info[] = sprintf('%s', $this->request);
     $this->info[] = "[Response]";
-    $this->info[] = $this->response;
+    $this->info[] = sprintf('%s', $this->response);
 
     return implode(PHP_EOL, $this->info);
   }
