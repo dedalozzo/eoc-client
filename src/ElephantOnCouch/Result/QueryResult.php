@@ -72,7 +72,7 @@ class QueryResult implements \IteratorAggregate, \Countable, \ArrayAccess {
 
   /**
    * @brief Returns an external iterator.
-   * @return An instance of `ArrayIterator`.
+   * @return \ArrayIterator.
    */
   public function getIterator() {
     return new \ArrayIterator($this->result['rows']);
@@ -91,7 +91,7 @@ class QueryResult implements \IteratorAggregate, \Countable, \ArrayAccess {
   /**
    * @brief Whether or not an offset exists.
    * @details This method is executed when using `isset()` or `empty()` on objects implementing ArrayAccess.
-   * @param[in] interger $offset An offset to check for.
+   * @param[in] integer $offset An offset to check for.
    * @return bool Returns `true` on success or `false` on failure.
    */
   public function offsetExists($offset) {
@@ -103,7 +103,7 @@ class QueryResult implements \IteratorAggregate, \Countable, \ArrayAccess {
    * @brief Returns the value at specified offset.
    * @details This method is executed when checking if offset is `empty()`.
    * @param[in] integer $offset The offset to retrieve.
-   * @return Can return all value types.
+   * @return mixed Can return all value types.
    */
   public function offsetGet($offset)  {
     return $this->result['rows'][$offset];
