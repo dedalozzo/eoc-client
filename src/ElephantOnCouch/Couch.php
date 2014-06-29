@@ -1035,6 +1035,9 @@ final class Couch {
    * docs, etc.
    * @param[in] IChunkHook $chunkHook (optional) A class instance that implements the IChunkHook interface.
    * @return QueryResult The result of the query.
+   * @attention Multiple keys request to a reduce function only supports `group=true` (identical to `group-level=exact`,
+   * but it doesn't support `group_level` > 0.
+   * CouchDB raises "Multi-key fetchs for reduce view must include `group=true`" error, in case you use `group_level`.
    * @see http://docs.couchdb.org/en/latest/api/ddoc/views.html#get--db-_design-ddoc-_view-view
    * @see http://docs.couchdb.org/en/latest/api/ddoc/views.html#post--db-_design-ddoc-_view-view
    */
