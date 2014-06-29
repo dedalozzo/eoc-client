@@ -82,25 +82,27 @@ final class Couch {
 
   // CouchDB doesn't return rows for the keys a match is not found. To make joins having a row for each key is essential.
   // The algorithm below overrides the rows, adding a new row for every key hasn't been matched.
+  // The JSON encoding is necessary because we might have complex keys. A complex key is no more than an array.
   private function addMissingRows($keys, &$rows) {
 
     if (!empty($keys) && isset($rows)) {
 
       // These are the rows for the matched keys.
       $matches = [];
-      foreach ($rows as $row)
-        $matches[$row['key']] = $row;
+      foreach ($rows as $row) {
+        $hash = md5(json_encode($row['key']));
+        $matches[$hash] = $row;
+      }
 
       $allRows = [];
-      foreach ($keys as $key)
-        if (isset($matches[$key])) // Match found.
-        $allRows[] = $matches[$key];
+      foreach ($keys as $key) {
+        $hash = md5(json_encode($key));
+
+        if (isset($matches[$hash])) // Match found.
+          $allRows[] = $matches[$hash];
         else // No match found.
-        $allRows[] = [
-          'id' => NULL,
-          'key' => $key,
-          'value' => NULL
-        ];
+          $allRows[] = ['id' => NULL, 'key' => $key, 'value' => NULL];
+      }
 
       // Overrides the response, replacing rows.
       $rows = $allRows;
