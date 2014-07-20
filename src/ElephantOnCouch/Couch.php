@@ -896,7 +896,9 @@ final class Couch {
 
   /**
    * @brief Starts replication.
-   * @code startReplication("sourcedbname", "http://example.org/targetdbname", TRUE, TRUE); @endcode
+   @code
+     startReplication("sourcedbname", "http://example.org/targetdbname", TRUE, TRUE);
+   @endcode
    * @param[in] string $sourceDbUrl Source database URL.
    * @param[in] string $targetDbUrl Destination database URL.
    * @param[in] string $proxy (optional) Specify the optional proxy used to perform the replication.
