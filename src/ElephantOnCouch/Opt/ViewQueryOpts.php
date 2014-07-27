@@ -152,7 +152,16 @@ class ViewQueryOpts extends AbstractOpts {
 
 
   /**
-   * @brief Even is a reduce function is defined for the view, doesn't call it.
+   * @brief Calls the reduce function is defined.
+   */
+  public function reduce() {
+    $this->options["reduce"] = "true";
+    return $this;
+  }
+
+
+  /**
+   * @brief Even if a reduce function is defined for the view, doesn't call it.
    * @details If a view contains both a map and reduce function, querying that view will by default return the result
    * of the reduce function. To avoid this behaviour you must call this method.
    */
