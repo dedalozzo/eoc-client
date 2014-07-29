@@ -65,6 +65,16 @@ final class Couch {
   }
 
 
+  /**
+   * @brief Returns a CouchDB wild card.
+   * @details A standard object is translated to JSON as `{}` same of a JavaScript empty object.
+   * @return \StdClass
+   */
+  public static function WildCard() {
+    return new \StdClass();
+  }
+
+
   // This method sets the document class and type in case the document hasn't one.
   private function setDocInfo(Doc\IDoc $doc) {
     // Sets the class name.
