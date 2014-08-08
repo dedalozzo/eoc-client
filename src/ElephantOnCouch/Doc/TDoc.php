@@ -37,6 +37,12 @@ trait TDoc {
   }
 
 
+  public function unsetMetadata($name) {
+    if (array_key_exists($name, $this->meta))
+      unset($this->meta['name']);
+  }
+
+
   public function isMetadataPresent($name) {
     return (array_key_exists($name, $this->meta)) ? TRUE : FALSE;
   }

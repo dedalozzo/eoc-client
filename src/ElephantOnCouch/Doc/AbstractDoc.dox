@@ -29,6 +29,13 @@ class AbstractDoc {
 
 
   /**
+   * @brief Removes an metadata previously set.
+   * @param[in] string $name The metadata name.
+   */
+  public function unsetMetadata($name) {}
+
+
+  /**
    * @brief Checks the document for the given attribute.
    * @return bool
    */
