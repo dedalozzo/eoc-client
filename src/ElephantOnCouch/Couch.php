@@ -71,7 +71,7 @@ final class Couch {
    * @return \StdClass
    */
   public static function WildCard() {
-    return new \StdClass();
+    return new \stdClass();
   }
 
 
