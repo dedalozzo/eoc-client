@@ -165,12 +165,10 @@ final class Couch {
         throw new Exception\ServerErrorException($request, $response);
       default:
         throw new Exception\UnknownResponseException($request, $response);
-        break;
     }
 
     return $response;
   }
-
 
 
   /** @name Validation and Encoding Methods */
@@ -218,27 +216,16 @@ final class Couch {
 
 
   /**
-   * @brief This method raise an exception when the user provides an invalid document identifier.
+   * @brief Encodes the document id.
    * @details This method is called by any other methods that interacts with CouchDB. You don't need to call, unless
    * you are making a not supported call to CouchDB.
    * @param string $docId Document id.
    */
   public function validateAndEncodeDocId(&$docId) {
-    # \A[\w_-]++\z
-    #
-    # Options: case insensitive
-    #
-    # Assert position at the beginning of the string «\A»
-    # Match a single character present in the list below «[\w_-]++»
-    #    Between one and unlimited times, as many times as possible, without giving back (possessive) «++»
-    #    A word character (letters, digits, and underscores) «\w»
-    #    The character “_” «_»
-    #    The character “-” «-»
-    # Assert position at the very end of the string «\z»
-    if (preg_match('/\A[\w_-]++\z/i', $docId))
+    if (!empty($docId))
       $docId = rawurlencode($docId);
     else
-      throw new \InvalidArgumentException("You must provide a valid \$docId.");
+      throw new \InvalidArgumentException("\$docId must be a non-empty string.");
   }
 
   //!@}
@@ -282,7 +269,7 @@ final class Couch {
    * @brief Returns an object that contains MOTD, server and client and PHP versions.
    * @details The MOTD can be specified in CouchDB configuration files. This function returns more information
    * compared to the CouchDB standard REST call.
-   * @return ServerInfo
+   * @return Info\ServerInfo
    */
   public function getServerInfo() {
     $response = $this->send(new Request(Request::GET_METHOD, "/"));
@@ -293,7 +280,7 @@ final class Couch {
 
   /**
    * @brief Returns information about the ElephantOnCouch client.
-   * @return ClientInfo
+   * @return Info\ClientInfo
    */
   public function getClientInfo() {
     return new Info\ClientInfo();
@@ -712,7 +699,7 @@ final class Couch {
 
   /**
    * @brief Returns information about the selected database.
-   * @return DbInfo
+   * @return Info\DbInfo
    * @see http://docs.couchdb.org/en/latest/api/database/common.html#get--db
    */
   public function getDbInfo() {
@@ -1015,7 +1002,7 @@ final class Couch {
    * @param[in] ViewQueryOpts $opts (optional) Query options to get additional information, grouping results, include
    * docs, etc.
    * @param[in] ChunkHook $chunkHook (optional) A class instance that implements the IChunkHook interface.
-   * @return Result::QueryResult The result of the query.
+   * @return Result\QueryResult The result of the query.
    * @see http://docs.couchdb.org/en/latest/api/database/bulk-api.html#get--db-_all_docs
    * @see http://docs.couchdb.org/en/latest/api/database/bulk-api.html#post--db-_all_docs
    */
@@ -1048,7 +1035,7 @@ final class Couch {
    * @param[in] ViewQueryOpts $opts (optional) Query options to get additional information, grouping results, include
    * docs, etc.
    * @param[in] IChunkHook $chunkHook (optional) A class instance that implements the IChunkHook interface.
-   * @return QueryResult The result of the query.
+   * @return Result\QueryResult The result of the query.
    * @attention Multiple keys request to a reduce function only supports `group=true` (identical to `group-level=exact`,
    * but it doesn't support `group_level` > 0.
    * CouchDB raises "Multi-key fetchs for reduce view must include `group=true`" error, in case you use `group_level`.
@@ -1098,7 +1085,7 @@ final class Couch {
    * docs, etc.
    * @param[in] string $language The language used to implement the map and reduce functions.
    * @param[in] IChunkHook $chunkHook (optional) A class instance that implements the IChunkHook interface.
-   * @return QueryResult The result of the query.
+   * @return Result\QueryResult The result of the query.
    * @see http://docs.couchdb.org/en/latest/api/database/temp-views.html#post--db-_temp_view
    */
   public function queryTempView($mapFn, $reduceFn = "", array $keys = NULL, Opt\ViewQueryOpts $opts = NULL, $language = 'php', Hook\IChunkHook $chunkHook = NULL) {
