@@ -17,9 +17,9 @@ use ElephantOnCouch\Doc\Attachment\Attachment;
 /**
  * @brief Standard documents are replicable documents.
  * @nosubgrouping
- * @todo To be documented.
  */
 class Doc extends AbstractDoc {
+  const SEPARATOR = '::'; //!< Used to separate the ID from the version number.
 
   const ATTACHMENTS = "_attachments";
   const REVS_INFO = "_revs_info";
@@ -41,8 +41,17 @@ class Doc extends AbstractDoc {
 
 
   /**
+   * @brief Prunes the ID of its version number, if any.
+   * @return string
+   */
+  public function getUnversionId() {
+    return strtok($this->meta['_id'], self::SEPARATOR);
+  }
+
+
+  /**
    * @brief Standard documents path is null.
-   * @return empty string
+   * @return string An empty string.
    */
   public function getPath() {
     return "";
