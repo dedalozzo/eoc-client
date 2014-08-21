@@ -129,10 +129,7 @@ trait TDoc {
 
 
   public function setId($value) {
-    if (!empty($value))
-      $this->meta['_id'] = (string)$value;
-    else
-      throw new \Exception("\$id must be a non-empty string.");
+    $this->meta['_id'] = (string)$value;
   }
 
 
@@ -153,7 +150,7 @@ trait TDoc {
 
 
   public function setRev($value) {
-    $this->meta['_id'] = (string)$value;
+    $this->meta['_rev'] = (string)$value;
   }
 
 
