@@ -38,14 +38,6 @@ final class Couch {
   const DESIGN_DOC_PATH = "_design/";  //!< Path for design documents.
   //!@}
 
-  // Stores the document paths supported by CouchDB.
-  private static $supportedDocPaths = [
-    self::STD_DOC_PATH => NULL,
-    self::LOCAL_DOC_PATH => NULL,
-    self::DESIGN_DOC_PATH => NULL
-  ];
-
-
   // Current selected rawencoded database name.
   private $dbName;
 
@@ -182,11 +174,15 @@ final class Couch {
    * @param[in] bool $excludeLocal Document path.
    */
   public function validateDocPath($path, $excludeLocal = FALSE) {
-    if (!array_key_exists($path, self::$supportedDocPaths))
-      throw new \InvalidArgumentException("Invalid document path.");
+    if (empty($path)) // STD_DOC_PATH
+      return;
 
-    if ($excludeLocal && ($path == self::LOCAL_DOC_PATH))
+    if ($path == self::DESIGN_DOC_PATH)
+      return;
+    elseif ($path == self::LOCAL_DOC_PATH && $excludeLocal)
       throw new \InvalidArgumentException("Local document doesn't have attachments.");
+    else
+      throw new \InvalidArgumentException("Invalid document path.");
   }
 
 
