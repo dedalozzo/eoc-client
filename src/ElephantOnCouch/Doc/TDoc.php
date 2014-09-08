@@ -39,7 +39,7 @@ trait TDoc {
 
   public function unsetMetadata($name) {
     if (array_key_exists($name, $this->meta))
-      unset($this->meta['name']);
+      unset($this->meta[$name]);
   }
 
 
