@@ -993,7 +993,7 @@ final class Couch {
   /**
    * @brief Returns a built-in view of all documents in this database. If keys are specified returns only certain rows.
    * @param[in] array $keys (optional) Used to retrieve just the view rows matching that set of keys. Rows are returned
-   * in the order of the specified keys. Combining this feature with ViewQueryOpts.includeDocs() results in the so-called
+   * in the order of the specified keys. Combining this feature with Opt\ViewQueryOpts.includeDocs() results in the so-called
    * multi-document-fetch feature.
    * @param[in] ViewQueryOpts $opts (optional) Query options to get additional information, grouping results, include
    * docs, etc.
@@ -1026,7 +1026,7 @@ final class Couch {
    * @param[in] string $designDocName The design document's name.
    * @param[in] string $viewName The view's name.
    * @param[in] array $keys (optional) Used to retrieve just the view rows matching that set of keys. Rows are returned
-   * in the order of the specified keys. Combining this feature with ViewQueryOpts.includeDocs() results in the so-called
+   * in the order of the specified keys. Combining this feature with Opt\ViewQueryOpts.includeDocs() results in the so-called
    * multi-document-fetch feature.
    * @param[in] ViewQueryOpts $opts (optional) Query options to get additional information, grouping results, include
    * docs, etc.
@@ -1075,7 +1075,7 @@ final class Couch {
    * @param[in] string $mapFn The map function.
    * @param[in] string $reduceFn The reduce function.
    * @param[in] array $keys (optional) Used to retrieve just the view rows matching that set of keys. Rows are returned
-   * in the order of the specified keys. Combining this feature with include_docs=true results in the so-called
+   * in the order of the specified keys. Combining this feature with Opt\ViewQueryOpts.includeDocs() results in the so-called
    * multi-document-fetch feature.
    * @param[in] ViewQueryOpts $opts (optional) Query options to get additional information, grouping results, include
    * docs, etc.
