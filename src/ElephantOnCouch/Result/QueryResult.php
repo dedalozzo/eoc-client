@@ -17,9 +17,11 @@ namespace ElephantOnCouch\Result;
  * as an array.
  * @nosubgrouping
  */
-class QueryResult implements \IteratorAggregate, \Countable, \ArrayAccess {
+class QueryResult implements \IteratorAggregate, \Countable, \ArrayAccess, \SeekableIterator {
 
-  protected $result;
+  private $result;
+  private $rows;
+  private $position;
 
 
   /**
@@ -28,6 +30,7 @@ class QueryResult implements \IteratorAggregate, \Countable, \ArrayAccess {
    */
   public function __construct($result) {
     $this->result = &$result;
+    $this->rows = &$this->result['rows'];
   }
 
 
@@ -45,7 +48,7 @@ class QueryResult implements \IteratorAggregate, \Countable, \ArrayAccess {
    * @return integer The result of the reduce function.
    */
   public function getReducedValue() {
-    return empty($this->result['rows']) ? 0 : $this->result['rows'][0]['value'];
+    return empty($this->rows) ? 0 : $this->rows[0]['value'];
   }
 
 
@@ -55,7 +58,7 @@ class QueryResult implements \IteratorAggregate, \Countable, \ArrayAccess {
    * @returns array An array of rows.
    */
   public function asArray()  {
-    return $this->result['rows'];
+    return $this->rows;
   }
 
 
@@ -66,7 +69,7 @@ class QueryResult implements \IteratorAggregate, \Countable, \ArrayAccess {
    * @return bool
    */
   public function isEmpty() {
-    return empty($this->result['rows']) ? TRUE : FALSE;
+    return empty($this->rows) ? TRUE : FALSE;
   }
 
 
@@ -75,7 +78,7 @@ class QueryResult implements \IteratorAggregate, \Countable, \ArrayAccess {
    * @return \ArrayIterator.
    */
   public function getIterator() {
-    return new \ArrayIterator($this->result['rows']);
+    return new \ArrayIterator($this->rows);
   }
 
 
@@ -84,7 +87,7 @@ class QueryResult implements \IteratorAggregate, \Countable, \ArrayAccess {
    * @return integer Number of documents.
    */
   public function count() {
-    return count($this->result['rows']);
+    return count($this->rows);
   }
 
 
@@ -95,7 +98,7 @@ class QueryResult implements \IteratorAggregate, \Countable, \ArrayAccess {
    * @return bool Returns `true` on success or `false` on failure.
    */
   public function offsetExists($offset) {
-    return isset($this->result['rows'][$offset]);
+    return isset($this->rows[$offset]);
   }
 
 
@@ -106,7 +109,62 @@ class QueryResult implements \IteratorAggregate, \Countable, \ArrayAccess {
    * @return mixed Can return all value types.
    */
   public function offsetGet($offset)  {
-    return $this->result['rows'][$offset];
+    return $this->rows[$offset];
+  }
+
+
+  /**
+   * @brief Seeks to a given position in the iterator.
+   * @param[in] int $position The position to seek for.
+   */
+  public function seek($position) {
+    if (!isset($this->rows[$position]))
+      throw new \OutOfBoundsException("Invalid seek position ($position).");
+
+    $this->position = $position;
+  }
+
+
+  /**
+   * @brief Returns the current element.
+   * @return mixed Can return all value types.
+   */
+  public function current() {
+    return $this->rows[$this->position];
+  }
+
+
+  /**
+   * @brief Returns the key of the current element.
+   * @return scalar Scalar on success, or `null` on failure.
+   */
+  public function key() {
+    return $this->position;
+  }
+
+
+  /**
+   * @brief Moves the current position to the next element.
+   */
+  public function next() {
+    ++$this->position;
+  }
+
+
+  /**
+   * @brief Rewinds back to the first element of the Iterator.
+   */
+  public function rewind() {
+    $this->position = 0;
+  }
+
+
+  /**
+   * @brief Checks if current position is valid.
+   * @return bool Returns `true` on success or `false` on failure.
+   */
+  public function valid() {
+    return isset($this->rows[$this->position]);
   }
 
 
