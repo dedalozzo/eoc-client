@@ -25,8 +25,6 @@ trait TDoc {
   protected $meta = [];
 
 
-
-
   abstract protected function fixDocId();
 
 
