@@ -24,6 +24,8 @@ trait TDoc {
 
   protected $meta = [];
 
+  protected $ghost = FALSE;
+
 
   abstract protected function fixDocId();
 
@@ -65,6 +67,11 @@ trait TDoc {
 
   public function hasType() {
     return FALSE;
+  }
+
+
+  public function isGhost() {
+    return $this->ghost;
   }
 
 

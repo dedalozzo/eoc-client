@@ -1284,6 +1284,7 @@ final class Couch {
    * @see http://docs.couchdb.org/en/latest/api/document/common.html#put--db-docid
    */
   public function saveDoc(Doc\IDoc $doc, $batchMode = FALSE) {
+    if ($this->ghost) throw new \LogicException("Saving a ghost document lead to potential data loss.");
 
     // If there is a transaction in progress, adds the document to the transaction and returns.
     if ($this->transaction) {

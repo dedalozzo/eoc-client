@@ -41,6 +41,19 @@ class Doc extends AbstractDoc {
 
 
   /**
+   * @brief Creates a ghost object.
+   * @details Sometimes you have to call dynamic methods of this class, without the need to initialize the object,
+   * reading from database. A ghost object can't be saved
+   */
+  public static function createGhost($id) {
+    $instance = new static();
+    $instance->id = $id;
+    $instance->ghost = TRUE;
+    return $instance;
+  }
+
+
+  /**
    * @brief Prunes the ID of its version number, if any.
    * @return string
    */

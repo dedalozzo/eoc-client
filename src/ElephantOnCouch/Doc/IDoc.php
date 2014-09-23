@@ -39,6 +39,14 @@ interface IDoc {
 
 
   /**
+   * @brief Returns `true` if the current object is just a ghost, `false` otherwise.
+   * @return bool
+   * @see http://en.wikipedia.org/wiki/Lazy_loading#Ghost
+   */
+  function isGhost();
+
+
+  /**
    * @brief Gets the document identifier.
    * @return string
    */
