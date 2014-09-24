@@ -14,7 +14,7 @@ class DesignDoc {
    * @details CouchDB will automatically use the right interpreter for the various handlers stored into this design
    * document.
    */
-  public string $language;
+  string $language;
 
   //!@}
 

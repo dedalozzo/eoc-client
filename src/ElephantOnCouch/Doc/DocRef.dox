@@ -10,7 +10,7 @@ class DocRef {
   //!@{
 
   //! The document identifier.
-  private $id;
+  string $id;
 
   //!@}
 
