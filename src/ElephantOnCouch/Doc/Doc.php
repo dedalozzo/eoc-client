@@ -19,8 +19,6 @@ use ElephantOnCouch\Doc\Attachment\Attachment;
  * @nosubgrouping
  */
 class Doc extends AbstractDoc {
-  const SEPARATOR = '::'; //!< Used to separate the ID from the version number.
-
   const ATTACHMENTS = "_attachments";
   const REVS_INFO = "_revs_info";
   const CONFLICTS = "_conflicts";
@@ -38,15 +36,6 @@ class Doc extends AbstractDoc {
 
 
   protected function fixDocId() {}
-
-
-  /**
-   * @brief Prunes the ID of its version number, if any.
-   * @return string
-   */
-  public function getUnversionId() {
-    return strtok($this->meta['_id'], self::SEPARATOR);
-  }
 
 
   /**
