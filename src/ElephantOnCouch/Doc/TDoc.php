@@ -100,7 +100,7 @@ trait TDoc {
   }
 
 
-  public function delete() {
+  public function markAsDeleted() {
     $this->meta['_deleted'] = "true";
   }
 
