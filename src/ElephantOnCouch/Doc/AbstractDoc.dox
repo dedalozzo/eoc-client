@@ -66,7 +66,7 @@ class AbstractDoc {
   /**
    * @brief Marks the document as deleted. To be effected the document must be saved.
    */
-  public function delete() {}
+  public function markAsDeleted() {}
 
   /**
    * @brief Indicates that this document has been deleted and previous revisions will be removed on next compaction run.
