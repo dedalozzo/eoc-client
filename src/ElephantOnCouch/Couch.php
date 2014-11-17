@@ -33,9 +33,11 @@ final class Couch {
 
   /** @name Document Paths */
   //!@{
+
   const STD_DOC_PATH = ""; //!< Path for standard documents.
   const LOCAL_DOC_PATH = "_local/";  //!< Path for local documents.
   const DESIGN_DOC_PATH = "_design/";  //!< Path for design documents.
+
   //!@}
 
   // Current selected rawencoded database name.
