@@ -48,6 +48,11 @@ trait TDoc {
   }
 
 
+  public function getMetadata($name) {
+    return $this->meta[$name];
+  }
+
+
   public function setClass($value) {
     $this->meta['class'] = $value;
   }
