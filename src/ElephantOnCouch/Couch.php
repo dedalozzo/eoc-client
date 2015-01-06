@@ -1598,7 +1598,7 @@ final class Couch {
    * @todo To be implemented and documented.
    */
   public function showDoc($designDocName, $showName, $docId = NULL) {
-    throw new \BadMethodCallExcetpion("The method `showDoc()` is not available.");
+    throw new \BadMethodCallException("The method `showDoc()` is not available.");
     // Invokes the show handler without a document
     // /db/_design/design-doc/_show/show-name
     // Invokes the show handler for the given document
@@ -1620,7 +1620,7 @@ final class Couch {
    * @todo To be implemented and documented.
    */
   public function listDocs($designDocName, $listName, $docId = NULL) {
-    throw new \BadMethodCallExcetpion("The method `listDocs() is not available.");
+    throw new \BadMethodCallException("The method `listDocs() is not available.");
     // Invokes the list handler to translate the given view results
     // Invokes the list handler to translate the given view results for certain documents
     // GET /db/_design/examples/_list/index-posts/posts-by-date?descending=true&limit=10
@@ -1639,7 +1639,7 @@ final class Couch {
    * @todo To be implemented and documented.
    */
   public function callUpdateDocFunc($designDocName, $funcName) {
-    throw new \BadMethodCallExcetpion("The method callUpdateDocFunc()` is not available.");
+    throw new \BadMethodCallException("The method callUpdateDocFunc()` is not available.");
     // Invokes the update handler without a document
     // /db/_design/design-doc/_update/update-name
     // Invokes the update handler for the given document
