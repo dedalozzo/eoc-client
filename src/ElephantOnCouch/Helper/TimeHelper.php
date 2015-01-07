@@ -18,7 +18,8 @@ namespace ElephantOnCouch\Helper;
 class TimeHelper {
 
   /**
-   * @brief Returns a string with the elapsed time, from the provided timestamp, in days, hours, minutes and seconds.
+   * @brief Returns an associative array with the elapsed time, from the provided timestamp, in days, hours, minutes and
+   * seconds.
    * @param[in] string $timestamp A timestamp in seconds/microseconds.
    * @param[in] string $micro When `true` the timestamp is expressed in microseconds otherwise in seconds.
    * @return array An associative array
