@@ -29,10 +29,10 @@ class AbstractDoc {
 
 
   /**
-   * @brief Removes an metadata previously set.
-   * @param[in] string $name The metadata name.
+   * @brief Returns the metadata.
+   * @return mixed
    */
-  public function unsetMetadata($name) {}
+  public function getMetadata($name) {}
 
 
   /**
@@ -40,6 +40,23 @@ class AbstractDoc {
    * @return bool
    */
   public function isMetadataPresent($name) {}
+
+
+  /**
+   * @brief Sets the metadata to the provided value.
+   * @param[in] string $name The metadata name.
+   * @param[in] mixed $value The metadata value.
+   * @param[in] bool $override When `true` overrides the metadata value.
+   * @param[in] bool $allowNull When `true` allows a `null` value.
+   */
+  public function setMetadata($name, $value, $override = TRUE, $allowNull = TRUE) {
+
+
+  /**
+   * @brief Removes an metadata previously set.
+   * @param[in] string $name The metadata name.
+   */
+  public function unsetMetadata($name) {}
 
 
   /**
