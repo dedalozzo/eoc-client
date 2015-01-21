@@ -37,9 +37,8 @@ trait TDoc {
   }
 
 
-  public function unsetMetadata($name) {
-    if (array_key_exists($name, $this->meta))
-      unset($this->meta[$name]);
+  public function getMetadata($name) {
+    return @$this->meta[$name];
   }
 
 
@@ -48,8 +47,20 @@ trait TDoc {
   }
 
 
-  public function getMetadata($name) {
-    return $this->meta[$name];
+  public function setMetadata($name, $value, $override = TRUE, $allowNull = TRUE) {
+    if (is_null($value) && !$allowNull)
+      return;
+
+    if ($this->isMetadataPresent($name) && !$override)
+      return;
+
+    $this->meta[$name] = $value;
+  }
+
+
+  public function unsetMetadata($name) {
+    if (array_key_exists($name, $this->meta))
+      unset($this->meta[$name]);
   }
 
 
