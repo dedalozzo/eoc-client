@@ -156,7 +156,7 @@ final class DesignDoc extends Doc {
   /**
    * @brief Removes the handler.
    * @details Some handlers belong to a section. For example a view ViewHandler belongs to the 'views' section. To specify
-   * the appropriate section name, you shoudl use the static method `getSection` available for every handler
+   * the appropriate section name, you should use the static method `getSection` available for every handler
    * implementation.
    * @param[in] string $section The section's name (views, updates, shows, filters, etc).
    * @param[in] string $name (optional) The handler's name.
