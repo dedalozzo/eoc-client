@@ -85,14 +85,14 @@ trait TDoc {
 
 
   public function assignJson($json) {
-    $this->meta = array_merge(Helper\ArrayHelper::fromJson($json, TRUE), $this->meta);
+    $this->meta = array_merge($this->meta, Helper\ArrayHelper::fromJson($json, TRUE));
     $this->fixDocId();
   }
 
 
   public function assignArray(array $array) {
     if (Helper\ArrayHelper::isAssociative($array)) {
-      $this->meta = array_merge($array, $this->meta);
+      $this->meta = array_merge($this->meta, $array);
       $this->fixDocId();
     }
     else
@@ -101,7 +101,7 @@ trait TDoc {
 
 
   public function assignObject(\stdClass $object) {
-    $this->meta = array_merge(get_object_vars($object), $this->meta);
+    $this->meta = array_merge($this->meta, get_object_vars($object));
     $this->fixDocId();
   }
 
