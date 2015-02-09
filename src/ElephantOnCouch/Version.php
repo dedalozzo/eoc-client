@@ -20,7 +20,7 @@ class Version {
 
   const MAJOR = '0'; //!< Major release number.
   const MINOR = '3'; //!< Minor release number.
-  const MAINTENANCE = '1'; //!< Maintenance release number (bug fixes only).
+  const MAINTENANCE = '2'; //!< Maintenance release number (bug fixes only).
 
 
   /**
@@ -28,7 +28,7 @@ class Version {
    * @return string The version number.
    */
   public static function getNumber() {
-    return self::MAJOR.".".self::MINOR.".".self::MAINTENANCE;
+    return static::MAJOR.".".static::MINOR.".".static::MAINTENANCE;
   }
 
 } 
