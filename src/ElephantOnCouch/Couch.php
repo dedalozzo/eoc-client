@@ -371,7 +371,6 @@ final class Couch {
 
 
   /**
-   *
    * @brief Returns a list of generated UUIDs.
    * @param[in] integer $count Requested UUIDs number.
    * @return string|array If `$count == 1` (default) returns a string else returns an array of strings.
@@ -1620,7 +1619,7 @@ final class Couch {
    * @todo To be implemented and documented.
    */
   public function listDocs($designDocName, $listName, $docId = NULL) {
-    throw new \BadMethodCallException("The method `listDocs() is not available.");
+    throw new \BadMethodCallException("The method `listDocs()` is not available.");
     // Invokes the list handler to translate the given view results
     // Invokes the list handler to translate the given view results for certain documents
     // GET /db/_design/examples/_list/index-posts/posts-by-date?descending=true&limit=10
@@ -1639,7 +1638,7 @@ final class Couch {
    * @todo To be implemented and documented.
    */
   public function callUpdateDocFunc($designDocName, $funcName) {
-    throw new \BadMethodCallException("The method callUpdateDocFunc()` is not available.");
+    throw new \BadMethodCallException("The method `callUpdateDocFunc()` is not available.");
     // Invokes the update handler without a document
     // /db/_design/design-doc/_update/update-name
     // Invokes the update handler for the given document
