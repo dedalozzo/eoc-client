@@ -21,8 +21,9 @@ use ElephantOnCouch\Hook;
  */
 abstract class AbstractAdapter implements IClientAdapter {
 
-  //! Default server.
-  const DEFAULT_SERVER = "127.0.0.1:5984";
+  const DEFAULT_SERVER = "127.0.0.1:5984"; //!< Default server.
+  const DEFAULT_HOST = "127.0.0.1"; //!< Default host.
+  const DEFAULT_PORT = "5984"; //!< Default port.
 
   const SCHEME_HOST_PORT_URI = '/^
 	        (?P<scheme>tcp:\/\/|ssl:\/\/|tls:\/\/)?          # Scheme
@@ -65,8 +66,8 @@ abstract class AbstractAdapter implements IClientAdapter {
     // Parses the URI string '$server' to retrieve scheme, host and port and assigns matches to the relative class members.
     if (preg_match(self::SCHEME_HOST_PORT_URI, $server, $matches)) {
       $this->scheme = isset($matches['scheme']) ? $matches['scheme'] : "tcp://";
-      $this->host = isset($matches['host']) ? $matches['host'] : "localhost";
-      $this->port = isset($matches['port']) ? substr($matches['port'], 1) : "80";
+      $this->host = isset($matches['host']) ? $matches['host'] : self::DEFAULT_HOST;
+      $this->port = isset($matches['port']) ? substr($matches['port'], 1) : self::DEFAULT_PORT;
     }
     else // Match attempt failed.
       throw new \InvalidArgumentException(sprintf("'%s' is not a valid URI.", $server));
