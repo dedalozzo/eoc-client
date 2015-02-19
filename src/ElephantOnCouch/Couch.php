@@ -7,7 +7,7 @@
  * @author Filippo F. Fadda
  */
 
-//! This is the main ElephantOnCouch library namespace.
+//! This is the main Elephant on Couch library namespace.
 namespace ElephantOnCouch;
 
 
@@ -277,7 +277,7 @@ final class Couch {
 
 
   /**
-   * @brief Returns information about the ElephantOnCouch client.
+   * @brief Returns information about the Elephant on Couch client.
    * @return Info\ClientInfo
    */
   public function getClientInfo() {
@@ -630,7 +630,7 @@ final class Couch {
    * @brief Sets the database name to use.
    * @details You should call this method before just after the constructor. CouchDB is a RESTful server implementation,
    * that means that you can't establish a permanent connection with it, but you just call APIs through HTTP requests.
-   * In every call you have to specify the database name (when a database is required). The ElephantOnCouch client stores this
+   * In every call you have to specify the database name (when a database is required). The Elephant on Couch client stores this
    * information for us, so we don't need to pass the database name as parameter to every method call. The purpose of
    * this method, is to avoid you repeat database name every time. The function doesn't check if the database really
    * exists, but it performs a fast check on the name itself. To obtain information about a database, use getDbInfo()
