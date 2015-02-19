@@ -32,7 +32,6 @@ abstract class AbstractOpts {
 
   /**
    * @brief Returns an associative array of the chosen options.
-   * @details Used internally by ElephantOnCouch methods.
    * @return array An associative array
    */
   public function asArray() {
