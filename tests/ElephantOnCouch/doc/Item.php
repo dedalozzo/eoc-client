@@ -6,7 +6,7 @@
 //! @author Filippo F. Fadda
 
 
-use ElephantOnCouch\Doc\Doc;
+use EoC\Doc\Doc;
 
 
 class Item extends Doc {

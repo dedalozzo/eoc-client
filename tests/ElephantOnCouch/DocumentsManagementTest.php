@@ -6,10 +6,10 @@ $start = microtime(true);
 
 $loader = require_once __DIR__ . "/../vendor/autoload.php";
 
-use ElephantOnCouch\ElephantOnCouch;
-use ElephantOnCouch\ResponseException;
-use ElephantOnCouch\DocOpts;
-use ElephantOnCouch\Docs\Doc;
+use EoC\ElephantOnCouch;
+use EoC\ResponseException;
+use EoC\DocOpts;
+use EoC\Docs\Doc;
 
 const COUCH_USER = "pippo";
 const COUCH_PASSWORD = "calippo";

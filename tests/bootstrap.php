@@ -6,7 +6,7 @@
 //! @author Filippo F. Fadda
 
 
-use ElephantOnCouch\ElephantOnCouch;
+use EoC\ElephantOnCouch;
 //use ElephantOnCouch\ResponseException;
 //use ElephantOnCouch\Docs\Doc;
 
