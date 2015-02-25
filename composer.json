@@ -1,6 +1,6 @@
 {
     "name": "3f/eoc-client",
-    "description": "A PHP Client Library for CouchDB.",
+    "description": "The most advanced CouchDB Client Library.",
     "keywords": ["couchdb", "client", "nosql"],
     "homepage": "http://github.com/dedalozzo/eoc-client",
     "type": "library",
