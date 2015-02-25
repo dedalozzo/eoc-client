@@ -6,7 +6,7 @@
 
 Elephant on Couch Client
 ========================
-Lint is a wrapper to `php -l` command.
+EoC Client is the most advanced CouchDB Client Library.
 
 
 Composer Installation
