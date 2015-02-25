@@ -26,7 +26,7 @@ use EoC\Message\Response;
 final class Couch {
 
   //! The user agent name.
-  const USER_AGENT_NAME = "ElephantOnCouch";
+  const USER_AGENT_NAME = "EoC Client";
 
   //! Default CouchDB revisions limit number.
   const REVS_LIMIT = 1000;
