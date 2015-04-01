@@ -21,9 +21,9 @@ use Lint\Lint;
  * language. This handler instead let you write your views directly in PHP.\n
  * If you have specified 'php' as your design document language, this handler makes a syntax check on your map and
  * reduce functions.\n
- * To create a permanent view, the functions must first be saved into special design document. Every design document has
- * a special 'views' attribute, that stores mandatory map function and an optional reduce function. Using this handler
- * you can write these functions directly in PHP.\n
+ * To create a permanent view, map and reduce functions must first be saved into special design document. Every design
+ * document has a special `views` attribute, that stores mandatory map function and an optional reduce function. Using
+ * this handler you can write these functions directly in PHP.\n
  * All the views in one design document are indexed whenever any of them gets queried.
  * @nosubgrouping
  * @todo: Add support for seq_indexed option.
