@@ -28,9 +28,9 @@ sudo mv composer.phar /usr/local/bin/composer
 
 EoC Client Installation
 -----------------------
-Once you have installed Composer, it's easy install Lint.
+Once you have installed Composer, it's easy install EoC Client.
 
-1. Edit your `composer.json` file, adding Lint to the require section:
+1. Edit your `composer.json` file, adding EoC Client to the require section:
 ```sh
 {
     "require": {
