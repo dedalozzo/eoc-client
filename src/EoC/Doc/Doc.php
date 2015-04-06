@@ -79,7 +79,7 @@ class Doc extends AbstractDoc {
       if (array_key_exists($name, $this->meta[self::ATTACHMENTS]))
         unset($this->meta[self::ATTACHMENTS][$name]);
       else
-        throw new \Exception("Can't find '$name' attachment in the document.");
+        throw new \Exception("Can't find `$name` attachment in the document.");
     else
       throw new \Exception("The document doesn't have any attachment.");
   }
