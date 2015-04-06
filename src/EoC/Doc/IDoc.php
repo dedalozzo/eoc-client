@@ -14,7 +14,7 @@ namespace EoC\Doc;
 /**
  * @brief To become persistent a class must implement at least this interface.
  * @details For your convenience you would inherit your persistent classes from Doc or LocalDoc (in case of local
- * documents), because they already implements this interface. Else, if your model don't let you do that (PHP doesn't
+ * documents), because they already implements this interface. Else, if your model won't let you do that (PHP doesn't
  * support multiple inheritance), you might use the TDoc, since it provides properties and methods to interact
  * with CouchDB. As last chance you can implement this interface.
  * @nosubgrouping
