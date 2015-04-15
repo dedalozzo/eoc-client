@@ -1,7 +1,7 @@
 <?php
 
 
-namespace ElephantOnCouch\Doc;
+namespace EoC\Doc;
 
 
 class AbstractDoc {
@@ -10,8 +10,10 @@ class AbstractDoc {
 
   /** @name Properties */
   //!@{
+
   string $id; //!< Document identifier. Mandatory and immutable.
   string $rev; //!< The current MVCC-token/revision of this document. Mandatory and immutable.
+
   //!@}
 
 
@@ -49,7 +51,7 @@ class AbstractDoc {
    * @param[in] bool $override When `true` overrides the metadata value.
    * @param[in] bool $allowNull When `true` allows a `null` value.
    */
-  public function setMetadata($name, $value, $override = TRUE, $allowNull = TRUE) {
+  public function setMetadata($name, $value, $override = TRUE, $allowNull = TRUE) {}
 
 
   /**
