@@ -988,7 +988,12 @@ final class Couch {
   //!@}
 
 
-  /** @name Query Documents Methods */
+  /** @name Query Documents Methods
+   * @details Queries are the primary mechanism for retrieving a result set from a view. The result of a query is an
+   * instance of `QueryResult`, a class that implements the [IteratorAggregate](http://php.net/manual/en/class.iteratoraggregate.php),
+   * [Countable](http://php.net/manual/en/class.countable.php) and [ArrayAccess](http://php.net/manual/en/class.arrayaccess.php)
+   * interfaces, so you can use the result set as an array.
+   */
   //!@{
 
   /**
