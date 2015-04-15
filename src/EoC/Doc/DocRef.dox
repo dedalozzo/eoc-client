@@ -9,8 +9,7 @@ class DocRef {
   /** @name Properties */
   //!@{
 
-  //! The document identifier.
-  string $id;
+  string $id; //!< The document identifier.
 
   //!@}
 
