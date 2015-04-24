@@ -52,7 +52,7 @@ final class Couch {
 
   /**
    * @brief Creates a Couch class instance.
-   * @param[in] IClient $client An instance of a class that implements the IClient interface.
+   * @param[in] IClientAdapter $adapter An instance of a class that implements the IClientAdapter interface.
    */
   public function __construct(IClientAdapter $adapter) {
     $this->client = $adapter;
@@ -62,7 +62,7 @@ final class Couch {
   /**
    * @brief Returns a CouchDB wild card.
    * @details A standard object is translated to JSON as `{}` same of a JavaScript empty object.
-   * @return \StdClass
+   * @return [stdClass](http://php.net/manual/en/language.types.object.php)
    */
   public static function WildCard() {
     return new \stdClass();
@@ -267,7 +267,7 @@ final class Couch {
    * @brief Returns an object that contains MOTD, server and client and PHP versions.
    * @details The MOTD can be specified in CouchDB configuration files. This function returns more information
    * compared to the CouchDB standard REST call.
-   * @return Info\ServerInfo
+   * @return Info::ServerInfo
    */
   public function getServerInfo() {
     $response = $this->send(new Request(Request::GET_METHOD, "/"));
@@ -278,7 +278,7 @@ final class Couch {
 
   /**
    * @brief Returns information about the Elephant on Couch client.
-   * @return Info\ClientInfo
+   * @return Info::ClientInfo
    */
   public function getClientInfo() {
     return new Info\ClientInfo();
@@ -696,7 +696,7 @@ final class Couch {
 
   /**
    * @brief Returns information about the selected database.
-   * @return Info\DbInfo
+   * @return Info::DbInfo
    * @see http://docs.couchdb.org/en/latest/api/database/common.html#get--db
    */
   public function getDbInfo() {
@@ -1004,7 +1004,7 @@ final class Couch {
    * @param[in] ViewQueryOpts $opts (optional) Query options to get additional information, grouping results, include
    * docs, etc.
    * @param[in] ChunkHook $chunkHook (optional) A class instance that implements the IChunkHook interface.
-   * @return Result\QueryResult The result of the query.
+   * @return Result::QueryResult The result of the query.
    * @see http://docs.couchdb.org/en/latest/api/database/bulk-api.html#get--db-_all_docs
    * @see http://docs.couchdb.org/en/latest/api/database/bulk-api.html#post--db-_all_docs
    */
@@ -1037,7 +1037,7 @@ final class Couch {
    * @param[in] ViewQueryOpts $opts (optional) Query options to get additional information, grouping results, include
    * docs, etc.
    * @param[in] IChunkHook $chunkHook (optional) A class instance that implements the IChunkHook interface.
-   * @return Result\QueryResult The result of the query.
+   * @return Result::QueryResult The result of the query.
    * @attention Multiple keys request to a reduce function only supports `group=true` (identical to `group-level=exact`,
    * but it doesn't support `group_level` > 0.
    * CouchDB raises "Multi-key fetchs for reduce view must include `group=true`" error, in case you use `group_level`.
@@ -1087,7 +1087,7 @@ final class Couch {
    * docs, etc.
    * @param[in] string $language The language used to implement the map and reduce functions.
    * @param[in] IChunkHook $chunkHook (optional) A class instance that implements the IChunkHook interface.
-   * @return Result\QueryResult The result of the query.
+   * @return Result::QueryResult The result of the query.
    * @see http://docs.couchdb.org/en/latest/api/database/temp-views.html#post--db-_temp_view
    */
   public function queryTempView($mapFn, $reduceFn = "", array $keys = NULL, Opt\ViewQueryOpts $opts = NULL, $language = 'php', Hook\IChunkHook $chunkHook = NULL) {
@@ -1476,10 +1476,12 @@ final class Couch {
 
   /**
    * @brief Returns the minimal amount of information about the specified attachment.
+   * @param[in] string $fileName The attachment's name.
    * @param[in] string $docId The document's identifier.
+   * @param[in] string $path The document's path.
+   * @param[in] string $rev (optional) The document's revision.
    * @return string The document's revision.
    * @see http://docs.couchdb.org/en/latest/api/document/attachments.html#db-doc-attachment
-   * @todo Document parameters.
    */
   public function getAttachmentInfo($fileName, $path, $docId, $rev = NULL) {
     $this->checkForDb();
@@ -1500,9 +1502,12 @@ final class Couch {
 
   /**
    * @brief Retrieves the attachment from the specified document.
+   * @param[in] string $fileName The attachment's name.
+   * @param[in] string $docId The document's identifier.
+   * @param[in] string $path The document's path.
+   * @param[in] string $rev (optional) The document's revision.
    * @see http://docs.couchdb.org/en/latest/api/document/attachments.html#get--db-docid-attname
    * @see http://docs.couchdb.org/en/latest/api/document/attachments.html#http-range-requests
-   * @todo Document parameters.
    * @todo Add support for Range request, using header "Range: bytes=0-12".
    */
   public function getAttachment($fileName, $path, $docId, $rev = NULL) {
@@ -1524,8 +1529,11 @@ final class Couch {
 
   /**
    * @brief Inserts or updates an attachment to the specified document.
+   * @param[in] string $fileName The attachment's name.
+   * @param[in] string $docId The document's identifier.
+   * @param[in] string $path The document's path.
+   * @param[in] string $rev (optional) The document's revision.
    * @see http://docs.couchdb.org/en/latest/api/document/attachments.html#put--db-docid-attname
-   * @todo Document parameters.
    */
   public function putAttachment($fileName, $path, $docId, $rev = NULL) {
     $this->checkForDb();
@@ -1551,8 +1559,11 @@ final class Couch {
 
   /**
    * @brief Deletes an attachment from the document.
+   * @param[in] string $fileName The attachment's name.
+   * @param[in] string $docId The document's identifier.
+   * @param[in] string $path The document's path.
+   * @param[in] string $rev The document's revision.
    * @see http://docs.couchdb.org/en/latest/api/document/attachments.html#delete--db-docid-attname
-   * @todo Document parameters.
    */
   public function deleteAttachment($fileName, $path, $docId, $rev) {
     $this->checkForDb();
