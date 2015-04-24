@@ -180,10 +180,12 @@ class ChangesFeedOpts extends AbstractOpts {
 
 
   /**
-   * @brief
-   * @param[in] string $filter Filter function from a design document to get updates.  designdoc/filtername
+   * @brief Sets a filter function.
+   * @param[in] string $designDocName The design document's name.
+   * @param[in] string $filterName Filter function from a design document to get updates.
+   * @todo Implement the setFilter() method.
    */
-  public function setFilter(\SplString $designDocName, $filterName) {
+  public function setFilter($designDocName, $filterName) {
     //if (is_string($designDocName) && !empty($designDocName)) &&
   }
 
