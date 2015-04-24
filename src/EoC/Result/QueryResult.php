@@ -72,7 +72,7 @@ class QueryResult implements \IteratorAggregate, \Countable, \ArrayAccess {
 
   /**
    * @brief Returns an external iterator.
-   * @return \ArrayIterator.
+   * @return [ArrayIterator](http://php.net/manual/en/class.arrayiterator.php).
    */
   public function getIterator() {
     return new \ArrayIterator($this->result['rows']);
