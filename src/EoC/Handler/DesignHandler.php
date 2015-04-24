@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @file DesignIHandler.php
+ * @file DesignHandler.php
  * @brief This file contains the DesignIHandler class.
  * @details
  * @author Filippo F. Fadda
