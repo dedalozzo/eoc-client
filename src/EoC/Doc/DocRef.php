@@ -28,7 +28,7 @@ final class DocRefsArray {
 
   /**
    * @brief Adds a document revision reference.
-   * @param[in] string $rev A document revision.
+   * @param[in] string $value A document revision.
    */
   public function addRev($value) {
     $this->revs[] = $value;
