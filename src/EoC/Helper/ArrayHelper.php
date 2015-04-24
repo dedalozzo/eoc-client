@@ -52,6 +52,7 @@ class ArrayHelper {
 
   /**
    * @brief Converts the given JSON into an array.
+   * @param[in] string $json A JSON object.
    * @param[in] bool $assoc When `true`, returned objects will be converted into associative arrays.
    * @return array
    */
