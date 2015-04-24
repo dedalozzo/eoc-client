@@ -50,7 +50,7 @@
  */
 
 /**
- * @file UUID.class.php
+ * @file UUID.php
  * @brief This file contains the UUID class.
  * @details
  * @author Fredrik Lindberg
