@@ -22,7 +22,7 @@ class TimeHelper {
    * seconds.
    * @param[in] string $timestamp A timestamp in seconds/microseconds.
    * @param[in] string $micro When `true` the timestamp is expressed in microseconds otherwise in seconds.
-   * @return array An associative array
+   * @retval array An associative array
    */
   public static function since($timestamp, $micro = FALSE) {
     $microsecondsInASecond = 1000000;

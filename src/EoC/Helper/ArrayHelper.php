@@ -25,7 +25,7 @@ class ArrayHelper {
   /**
    * @brief Checks if the array is associative.
    * @param[in] array $array The array.
-   * @return bool
+   * @retval bool
    */
   public static function isAssociative(array $array) {
     return (0 !== count(array_diff_key($array, array_keys(array_keys($array)))) || count($array) == 0);
@@ -43,7 +43,7 @@ class ArrayHelper {
   /**
    * @brief Converts the array to an object.
    * @param[in] array $array The array to be converted.
-   * @return object
+   * @retval object
    */
   public static function toObject(array $array) {
     return is_array($array) ? (object)array_map(__METHOD__, $array) : $array;
@@ -54,7 +54,7 @@ class ArrayHelper {
    * @brief Converts the given JSON into an array.
    * @param[in] string $json A JSON object.
    * @param[in] bool $assoc When `true`, returned objects will be converted into associative arrays.
-   * @return array
+   * @retval array
    */
   public static function fromJson($json, $assoc) {
     $data = json_decode((string)$json, $assoc);

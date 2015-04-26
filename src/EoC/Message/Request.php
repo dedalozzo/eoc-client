@@ -291,7 +291,7 @@ final class Request extends Message {
 
   /**
    * Returns a comprehensible representation of the HTTP Request to be used for debugging purpose.
-   * @return string
+   * @retval string
    */
   public function __toString() {
     $request = [
@@ -306,7 +306,7 @@ final class Request extends Message {
 
   /**
    * @brief Retrieves the HTTP method used by the current request.
-   * @return string
+   * @retval string
    */
   public function getMethod() {
     return $this->method;
@@ -339,7 +339,7 @@ final class Request extends Message {
 
   /**
    * @brief Gets the absolute path for the current request.
-   * @return string
+   * @retval string
    */
   public function getPath() {
     return $this->path;
@@ -387,7 +387,7 @@ final class Request extends Message {
 
   /**
    * @brief Generates URL-encoded query string.
-   * @return string
+   * @retval string
    */
   public function getQueryString() {
     if (empty($this->queryParams))
@@ -427,7 +427,7 @@ final class Request extends Message {
 
   /**
    * @brief Returns a list of all supported methods.
-   * @return array An associative array
+   * @retval array An associative array
    */
   public function getSupportedMethods() {
     return self::$supportedMethods;

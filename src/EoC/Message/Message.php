@@ -202,7 +202,7 @@ abstract class Message {
 
   /**
    * @brief Returns an array of well-formed header fields. Ex: <c>Content-Type: application/json</c>.
-   * @return array of strings
+   * @retval array of strings
    */
   public function getHeaderAsArray() {
     $wellformedHeader = [];
@@ -215,7 +215,7 @@ abstract class Message {
 
   /**
    * @brief Returns the header string.
-   * @return string
+   * @retval string
    */
   public function getHeaderAsString() {
     return implode(self::CRLF, $this->getHeaderAsArray());
@@ -225,7 +225,7 @@ abstract class Message {
   /**
    * @brief Returns `TRUE` in case exist the specified header field or `FALSE` in case it doesn't exist.
    * @param[in] string $name Header field name.
-   * @return bool
+   * @retval bool
    */
   public function hasHeaderField($name) {
     return (array_key_exists($name, $this->header)) ? TRUE : FALSE;
@@ -235,7 +235,7 @@ abstract class Message {
   /**
    * @brief Returns the value for the header identified by the specified name or `FALSE` in case it doesn't exist.
    * @param[in] string $name Header field name.
-   * @return string
+   * @retval string
    */
   public function getHeaderFieldValue($name) {
     if ($this->hasHeaderField($name))
@@ -295,7 +295,7 @@ abstract class Message {
 
   /**
    * @brief Returns a list of all supported header fields.
-   * @return array An associative array
+   * @retval array An associative array
    */
   public function getSupportedHeaderFields() {
     return static::$supportedHeaderFields;
@@ -305,7 +305,7 @@ abstract class Message {
   /**
    * @brief Returns the Message entity-body as raw string. The string can be in JSON, XML or a proprietary format,
    * depends by the server implementation.
-   * @return string
+   * @retval string
    */
   public function getBody() {
     return $this->body;
@@ -315,7 +315,7 @@ abstract class Message {
   /**
    * @brief Returns the Message entity-body JSON as an array.
    * @param[in] bool $assoc When `true`, returned objects will be converted into associative arrays.
-   * @return array An associative array
+   * @retval array An associative array
    */
   public function getBodyAsArray($assoc = TRUE) {
     return Helper\ArrayHelper::fromJson($this->body, $assoc);
@@ -324,7 +324,7 @@ abstract class Message {
 
   /**
    * @brief Returns the Message entity-body JSON as an object.
-   * @return object
+   * @retval object
    */
   public function getBodyAsObject() {
     return Helper\ArrayHelper::toObject($this->getBodyAsArray(FALSE));
@@ -342,7 +342,7 @@ abstract class Message {
 
   /**
    * @brief Checks if the Message has a body.
-   * @return bool
+   * @retval bool
    */
   public function hasBody() {
     return (empty($this->body)) ? FALSE : TRUE;
@@ -351,7 +351,7 @@ abstract class Message {
 
   /**
    * @brief Returns the body length.
-   * @return integer
+   * @retval integer
    */
   public function getBodyLength() {
     return strlen($this->body);

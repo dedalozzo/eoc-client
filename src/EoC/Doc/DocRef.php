@@ -37,7 +37,7 @@ final class DocRefsArray {
 
   /**
    * @brief Returns a document reference.
-   * @return array An associative array
+   * @retval array An associative array
    */
   public function asArray() {
     $ref = [];

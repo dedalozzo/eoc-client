@@ -42,7 +42,7 @@ class AttachmentInfo {
   /**
    * @brief Codec used to compress the attachment.
    * @details Only available if attachment’s `content_type` is in list of compressible types.
-   * @return string|bool The codec name or `false` if the attachment is not compressed.
+   * @retval string|bool The codec name or `false` if the attachment is not compressed.
    */
   public function getContentEncoding() {
     if ($this->response->hasHeaderField(Response::CONTENT_ENCODING_HF))
@@ -55,7 +55,7 @@ class AttachmentInfo {
   /**
    * @brief Attachment size.
    * @details If a codec was used to compress the file, the method returns the compressed size.
-   * @return integer
+   * @retval integer
    */
   public function getSize() {
     return $this->response->getHeaderFieldValue(Response::CONTENT_LENGTH_HF);
@@ -64,7 +64,7 @@ class AttachmentInfo {
 
   /**
    * @brief Base64 encoded MD5 binary digest.
-   * @return integer
+   * @retval integer
    */
   public function getMD5() {
     return $this->response->getHeaderFieldValue(Response::CONTENT_MD5_HF);
@@ -73,7 +73,7 @@ class AttachmentInfo {
 
   /**
    * @brief Double quoted base64 encoded MD5 binary digest
-   * @return integer
+   * @retval integer
    */
   public function getDoubleQuotedMD5() {
     return $this->response->getHeaderFieldValue(Response::ETAG_HF);

@@ -35,7 +35,7 @@ final class DesignDoc extends Doc {
    * @brief Creates an instance of DesignDoc class.
    * @param[in] string $name The design document name.
    * @param[in] string $language The programming language used by the design document for his handlers.
-   * @return DesignDoc An instance of the class.
+   * @retval DesignDoc An instance of the class.
    */
   public static function create($name, $language = "php") {
     $instance = new self();
@@ -82,7 +82,7 @@ final class DesignDoc extends Doc {
 
   /**
    * @brief Gets the document path: `_design/`.
-   * @return string
+   * @retval string
    */
   public function getPath() {
     return "_design/";

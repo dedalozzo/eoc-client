@@ -402,7 +402,7 @@ final class Response extends Message {
 
   /**
    * Returns a comprehensible representation of the HTTP Response to be used for debugging purpose.
-   * @return string
+   * @retval string
    */
   public function __toString() {
     $response = [
@@ -480,7 +480,7 @@ final class Response extends Message {
 
   /**
    * @brief Returns the HTTP Status Code for the current response.
-   * @return string
+   * @retval string
    */
   public function getStatusCode() {
     return $this->statusCode;
@@ -502,7 +502,7 @@ final class Response extends Message {
 
   /**
    * @brief Returns a list of all supported status codes.
-   * @return array An associative array
+   * @retval array An associative array
    */
   public function getSupportedStatusCodes() {
     return self::$supportedStatusCodes;

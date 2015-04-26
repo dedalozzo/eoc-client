@@ -45,7 +45,7 @@ class BadResponseException extends \RuntimeException {
 
   /**
    * @brief Returns the request.
-   * @return a Request object.
+   * @retval a Request object.
    */
   public final function getRequest() {
     return $this->request;
@@ -54,7 +54,7 @@ class BadResponseException extends \RuntimeException {
 
   /**
    * @brief Returns the response.
-   * @return a Response object.
+   * @retval a Response object.
    */
   public final function getResponse() {
     return $this->response;

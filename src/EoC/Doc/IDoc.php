@@ -33,21 +33,21 @@ interface IDoc {
    * @details Sometime happens you have two classes with the same name but located under different namespaces. In case,
    * you should provide a type yourself for at least one of these classes, to avoid Couch::saveDoc() using the same type
    * for both. Default implementation should return `false`.
-   * @return bool
+   * @retval bool
    */
   function hasType();
 
 
   /**
    * @brief Gets the document identifier.
-   * @return string
+   * @retval string
    */
   function getId();
 
 
   /**
    * @brief Returns `true` if the document has an identifier, `false` otherwise.
-   * @return bool
+   * @retval bool
    */
   function issetId();
 
@@ -77,21 +77,21 @@ interface IDoc {
    * @brief Gets the document path.
    * @details Returns an empty string for standard document, `_local/` for local document and `_design/` for
    * design document.
-   * @return string
+   * @retval string
    */
   function getPath();
 
 
   /**
    * @brief Returns the document representation as a JSON object.
-   * @return JSON object
+   * @retval JSON object
    */
   function asJson();
 
 
   /**
    * @brief Returns the document representation as an associative array.
-   * @return array An associative array
+   * @retval array An associative array
    */
   public function asArray();
 

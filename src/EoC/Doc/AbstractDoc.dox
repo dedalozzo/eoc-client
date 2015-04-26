@@ -32,14 +32,14 @@ class AbstractDoc {
 
   /**
    * @brief Returns the metadata.
-   * @return mixed
+   * @retval mixed
    */
   public function getMetadata($name) {}
 
 
   /**
    * @brief Checks the document for the given attribute.
-   * @return bool
+   * @retval bool
    */
   public function isMetadataPresent($name) {}
 
@@ -101,14 +101,14 @@ class AbstractDoc {
 
   /**
    * @brief This implementation returns `false`.
-   * @return bool
+   * @retval bool
    */
   public function hasType() {}
 
 
   /**
    * @brief Returns the object type.
-   * @return string
+   * @retval string
    */
   public function getType() {}
 

@@ -40,7 +40,7 @@ class Doc extends AbstractDoc {
 
   /**
    * @brief Standard documents path is null.
-   * @return string An empty string.
+   * @retval string An empty string.
    */
   public function getPath() {
     return "";

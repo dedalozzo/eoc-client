@@ -32,7 +32,7 @@ class LocalDoc extends AbstractDoc {
 
   /**
    * @brief Gets the document path: `_local/`.
-   * @return string
+   * @retval string
    */
   public function getPath() {
     return "_local/";

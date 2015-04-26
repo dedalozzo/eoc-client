@@ -25,7 +25,7 @@ class Version {
 
   /**
    * @brief Returns the version number as string.
-   * @return string The version number.
+   * @retval string The version number.
    */
   public static function getNumber() {
     return static::MAJOR.".".static::MINOR.".".static::MAINTENANCE;

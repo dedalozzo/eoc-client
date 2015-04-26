@@ -92,7 +92,7 @@ abstract class AbstractAdapter implements IClientAdapter {
    * response.
    * @param[in] Request $request The Request object.
    * @param[in] IChunkHook $chunkHook (optional) A class instance that implements the IChunkHook interface.
-   * @return Response
+   * @retval Response
    */
   abstract public function send(Request $request, Hook\IChunkHook $chunkHook = NULL);
 
