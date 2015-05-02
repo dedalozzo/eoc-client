@@ -117,15 +117,12 @@ trait TDoc {
 
 
   public function delete() {
-    $this->meta['_deleted'] = "true";
+    $this->meta['_deleted'] = TRUE;
   }
 
 
   public function isDeleted() {
-    if ($this->meta['_deleted'] == "true")
-      return TRUE;
-    else
-      return FALSE;
+    return $this->meta['_deleted'];
   }
 
 
