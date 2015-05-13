@@ -1,5 +1,12 @@
 <?php
 
+/**
+ * @file QueryDocumentsTest.php
+ * @brief This file contains the QueryDocumentsTest class.
+ * @details
+ * @author Filippo F. Fadda
+ */
+
 error_reporting (E_ALL & ~(E_NOTICE | E_STRICT));
 
 $start = microtime(true);

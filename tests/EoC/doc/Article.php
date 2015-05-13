@@ -1,9 +1,11 @@
 <?php
 
-//! @file Article.php
-//! @brief This file contains the Article class.
-//! @details
-//! @author Filippo F. Fadda
+/**
+ * @file Article.php
+ * @brief This file contains the Article class.
+ * @details
+ * @author Filippo F. Fadda
+ */
 
 
 require_once(__DIR__ . "/Item.php");

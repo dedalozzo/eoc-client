@@ -1,9 +1,11 @@
 <?php
 
-//! @file Item.php
-//! @brief This file contains the Item class.
-//! @details
-//! @author Filippo F. Fadda
+/**
+ * @file Item.php
+ * @brief This file contains the Item class.
+ * @details
+ * @author Filippo F. Fadda
+ */
 
 
 use EoC\Doc\Doc;

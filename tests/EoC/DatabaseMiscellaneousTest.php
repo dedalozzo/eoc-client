@@ -1,9 +1,11 @@
 <?php
 
-//! @file DatabaseMiscellaneousTest.php
-//! @brief This file contains the DatabaseMiscellaneousTest class.
-//! @details
-//! @author Filippo F. Fadda
+/**
+ * @file DatabaseMiscellaneousTest.php
+ * @brief This file contains the DatabaseMiscellaneousTest class.
+ * @details
+ * @author Filippo F. Fadda
+ */
 
 
 class DatabaseTest extends PHPUnit_Framework_TestCase {

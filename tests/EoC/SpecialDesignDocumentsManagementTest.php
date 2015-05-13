@@ -1,9 +1,11 @@
 <?php
 
-//! @file SpecialDesignDocumentsManagementTest.php
-//! @brief This file contains the SpecialDesignDocumentsManagementTest class.
-//! @details
-//! @author Filippo F. Fadda
+/**
+ * @file SpecialDesignDocumentsManagementTest.php
+ * @brief This file contains the SpecialDesignDocumentsManagementTest class.
+ * @details
+ * @author Filippo F. Fadda
+ */
 
 
 class SpecialDesignDocumentsManagementTest extends PHPUnit_Framework_TestCase {

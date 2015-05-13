@@ -1,9 +1,11 @@
 <?php
 
-//! @file AuthenticationTest.php
-//! @brief This file contains the AuthenticationTest class.
-//! @details
-//! @author Filippo F. Fadda
+/**
+ * @file AuthenticationTest.php
+ * @brief This file contains the AuthenticationTest class.
+ * @details
+ * @author Filippo F. Fadda
+ */
 
 
 class AuthenticationTest extends PHPUnit_Framework_TestCase {

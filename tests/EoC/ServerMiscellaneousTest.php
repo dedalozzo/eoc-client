@@ -1,9 +1,11 @@
 <?php
 
-//! @file ServerMiscellaneousTest.php
-//! @brief This file contains the ServerMiscellaneousTest class.
-//! @details
-//! @author Filippo F. Fadda
+/**
+ * @file ServerMiscellaneousTest.php
+ * @brief This file contains the ServerMiscellaneousTest class.
+ * @details
+ * @author Filippo F. Fadda
+ */
 
 
 class ServerMiscellaneousTest extends PHPUnit_Framework_TestCase {

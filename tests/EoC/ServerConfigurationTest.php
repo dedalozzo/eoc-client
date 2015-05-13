@@ -1,9 +1,11 @@
 <?php
 
-//! @file ServerConfigurationTest.php
-//! @brief This file contains the ServerConfigurationTest class.
-//! @details
-//! @author Filippo F. Fadda
+/**
+ * @file ServerConfigurationTest.php
+ * @brief This file contains the ServerConfigurationTest class.
+ * @details
+ * @author Filippo F. Fadda
+ */
 
 
 class ServerConfigurationTest extends PHPUnit_Framework_TestCase {

@@ -1,9 +1,12 @@
 <?php
 
-//! @file AttachmentsManagementTest.php
-//! @brief This file contains the AttachmentsManagementTest class.
-//! @details
-//! @author Filippo F. Fadda
+/**
+ * @file AttachmentsManagementTest.php
+ * @brief This file contains the AttachmentsManagementTest class.
+ * @details
+ * @author Filippo F. Fadda
+ */
+
 
 class AttachmentsManagementTest extends PHPUnit_Framework_TestCase {
 
