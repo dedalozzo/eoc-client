@@ -30,8 +30,8 @@ class BadResponseException extends \RuntimeException {
 
   /**
    * @brief Creates a BadResponseException class instance.
-   * @param[in] Response $request An instance of the Request class.
-   * @param[in] Response $response An instance of the Response class.
+   * @param[in] EoC::Message::Request $request An instance of the Request class.
+   * @param[in] EoC::Message::Response $response An instance of the Response class.
    */
   public function __construct(Request $request, Response $response) {
     $this->request = $request;
@@ -45,7 +45,7 @@ class BadResponseException extends \RuntimeException {
 
   /**
    * @brief Returns the request.
-   * @retval a Request object.
+   * @retval EoC::Message::Request
    */
   public final function getRequest() {
     return $this->request;
@@ -54,7 +54,7 @@ class BadResponseException extends \RuntimeException {
 
   /**
    * @brief Returns the response.
-   * @retval a Response object.
+   * @retval EoC::Message::Response
    */
   public final function getResponse() {
     return $this->response;
