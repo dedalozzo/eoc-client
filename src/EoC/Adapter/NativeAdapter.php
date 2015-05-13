@@ -67,6 +67,14 @@ class NativeAdapter extends AbstractAdapter {
 
 
   /**
+   * @brief Closes the file pointer.
+   */
+  public function __destruct() {
+    //@fclose($this->handle);
+  }
+
+
+  /**
    * @copydoc AbstractAdapter::initialize()
    */
   public function initialize() {
