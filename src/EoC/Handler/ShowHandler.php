@@ -1,9 +1,11 @@
 <?php
 
-//! @file ShowHandler.php
-//! @brief This file contains the ShowHandler class.
-//! @details
-//! @author Filippo F. Fadda
+/**
+ * @file ShowHandler.php
+ * @brief This file contains the ShowHandler class.
+ * @details
+ * @author Filippo F. Fadda
+ */
 
 
 namespace EoC\Handler;

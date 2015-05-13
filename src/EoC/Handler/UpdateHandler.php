@@ -1,9 +1,11 @@
 <?php
 
-//! @file UpdateHandler.php
-//! @brief This file contains the UpdateHandler class.
-//! @details
-//! @author Filippo F. Fadda
+/**
+ * @file UpdateHandler.php
+ * @brief This file contains the UpdateHandler class.
+ * @details
+ * @author Filippo F. Fadda
+ */
 
 
 namespace EoC\Handler;

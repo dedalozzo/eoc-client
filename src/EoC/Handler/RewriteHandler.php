@@ -1,9 +1,11 @@
 <?php
 
-//! @file RewriteHandler.php
-//! @brief This file contains the RewriteHandler class.
-//! @details
-//! @author Filippo F. Fadda
+/**
+ * @file RewriteHandler.php
+ * @brief This file contains the RewriteHandler class.
+ * @details
+ * @author Filippo F. Fadda
+ */
 
 
 namespace EoC\Handler;

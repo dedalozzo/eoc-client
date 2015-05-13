@@ -1,9 +1,11 @@
 <?php
 
-//! @file IClientAdapter.php
-//! @brief This file contains the IClientAdapter class.
-//! @details
-//! @author Filippo F. Fadda
+/**
+ * @file IClientAdapter.php
+ * @brief This file contains the IClientAdapter class.
+ * @details
+ * @author Filippo F. Fadda
+ */
 
 
 //! The HTTP clients namespace.

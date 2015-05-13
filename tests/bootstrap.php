@@ -1,12 +1,14 @@
 <?php
 
-//! @file bootstrap.php
-//! @brief This is the bootstrap file for tests.
-//! @details
-//! @author Filippo F. Fadda
+/**
+ * @file bootstrap.php
+ * @brief This is the bootstrap file for tests.
+ * @details
+ * @author Filippo F. Fadda
+ */
 
 
-use EoC\ElephantOnCouch;
+use EoC\Adapter;
 //use ElephantOnCouch\ResponseException;
 //use ElephantOnCouch\Docs\Doc;
 
