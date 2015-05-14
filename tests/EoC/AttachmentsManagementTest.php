@@ -39,20 +39,24 @@ class AttachmentsManagementTest extends PHPUnit_Framework_TestCase {
 
 
   public function testPutAttachment() {
+    /*
     $couch->putAttachment(ATTACHMENTS_DIR."Is your API naked?.pdf", Couch::STD_DOC_PATH, DOC_ID, DOC_REV);
     $couch->putAttachment(ATTACHMENTS_DIR."J2EE versus .NET.pdf", Couch::STD_DOC_PATH, DOC_ID, DOC_REV);
     $couch->putAttachment(ATTACHMENTS_DIR."Joe Vitale - Greatest Money Making Secret In History.pdf", Couch::STD_DOC_PATH, DOC_ID, DOC_REV);
     $couch->putAttachment(ATTACHMENTS_DIR."L'auto ad aria compressa.pdf", Couch::STD_DOC_PATH, DOC_ID, DOC_REV);
     $couch->putAttachment(ATTACHMENTS_DIR."La memoria del futuro.pdf", Couch::STD_DOC_PATH, DOC_ID, DOC_REV);
-    $couch->putAttachment(ATTACHMENTS_DIR."LetteraSullaFelicità.doc", Couch::STD_DOC_PATH, DOC_ID, DOC_REV);*/
+    $couch->putAttachment(ATTACHMENTS_DIR."LetteraSullaFelicità.doc", Couch::STD_DOC_PATH, DOC_ID, DOC_REV);
+    */
   }
 
 
   public function testDeleteAttachment() {
+    /*
     $couch->deleteAttachment("boardwalk.empire.s03e08.720p.hdtv.x264-evolve.srt", ElephantOnCouch::DESIGN_DOC_PATH, "books", $doc->rev);
 
     $doc->removeAttachment("/Users/fff/Downloads/The.Walking.Dead.S03E04.720p.HDTV.x264-IMMERSE.srt");
     $doc->removeAttachment("/Users/fff/Downloads/The.Walking.Dead.S03E04.720p.HDTV.x264-IMMERSE.srt");
+    */
   }
 
 }
