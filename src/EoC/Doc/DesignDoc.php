@@ -27,7 +27,7 @@ final class DesignDoc extends Doc {
 
 
   public function __construct() {
-    $this->loadHandlers();
+    $this->initSections();
   }
 
 
@@ -47,8 +47,8 @@ final class DesignDoc extends Doc {
   }
 
 
-  // Load the handlers.
-  private function loadHandlers() {
+  // Initializes the handlers' sections.
+  private function initSections() {
     $this->sections[Handler\FilterHandler::getSection()] = NULL;
     $this->sections[Handler\ListHandler::getSection()] = NULL;
     $this->sections[Handler\RewriteHandler::getSection()] = NULL;
@@ -155,7 +155,7 @@ final class DesignDoc extends Doc {
 
   /**
    * @brief Removes the handler.
-   * @details Some handlers belong to a section. For example a view ViewHandler belongs to the 'views' section. To specify
+   * @details Some handlers belong to a section. For example ViewHandler belongs to the 'views' section. To specify
    * the appropriate section name, you should use the static method `getSection` available for every handler
    * implementation.
    * @param[in] string $section The section's name (views, updates, shows, filters, etc).
