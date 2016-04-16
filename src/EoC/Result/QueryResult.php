@@ -62,7 +62,7 @@ class QueryResult implements \IteratorAggregate, \Countable, \ArrayAccess {
   /**
    * @brief Returns `true` in case there aren't rows, `false` otherwise.
    * @details Since the PHP core developers are noobs, `empty()` cannot be used on any class that implements ArrayAccess.
-   * This method must be used in place of `empty()`.
+   * @attention This method must be used in place of `empty()`.
    * @retval bool
    */
   public function isEmpty() {
