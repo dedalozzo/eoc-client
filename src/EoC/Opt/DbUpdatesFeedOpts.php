@@ -51,11 +51,11 @@ class DbUpdatesFeedOpts extends AbstractOpts {
   //!@}
 
 
-  private static $supportedTypes = [
+  private static $supportedTypes = array( // Cannot use [] syntax otherwise Doxygen generates a warning.
     self::LONGPOLL_TYPE => NULL,
     self::CONTINUOUS_TYPE => NULL,
     self::EVENTSOURCE_TYPE => NULL
-  ];
+  );
 
 
   /**

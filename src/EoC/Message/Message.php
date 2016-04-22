@@ -162,7 +162,7 @@ abstract class Message {
   //!@}
 
   // Stores the header fields supported by a Message.
-  protected static $supportedHeaderFields = [
+  protected static $supportedHeaderFields = array( // Cannot use [] syntax otherwise Doxygen generates a warning.
     self::CACHE_CONTROL_HF => NULL,
     self::CONNECTION_HF => NULL,
     self::DATE_HF => NULL,
@@ -182,7 +182,7 @@ abstract class Message {
     self::CONTENT_TYPE_HF => NULL,
     self::EXPIRES_HF => NULL,
     self::LAST_MODIFIED_HF => NULL
-  ];
+  );
 
   // Stores the message header fields.
   protected $header = [];

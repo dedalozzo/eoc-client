@@ -63,17 +63,17 @@ class ChangesFeedOpts extends AbstractOpts {
   //!@}
 
 
-  private static $supportedStyles = [
+  private static $supportedStyles = array( // Cannot use [] syntax otherwise Doxygen generates a warning.
     self::MAIN_ONLY_STYLE => NULL,
     self::ALL_DOCS_STYLE => NULL
-  ];
+  );
 
-  private static $supportedTypes = [
+  private static $supportedTypes = array( // Cannot use [] syntax otherwise Doxygen generates a warning.
     self::NORMAL_TYPE => NULL,
     self::LONGPOLL_TYPE => NULL,
     self::CONTINUOUS_TYPE => NULL,
     self::EVENTSOURCE_TYPE => NULL
-  ];
+  );
 
 
   /**

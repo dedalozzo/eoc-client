@@ -160,7 +160,7 @@ final class Response extends Message {
   //!@}
 
   // Stores the header fields supported by a Response.
-  protected static $supportedHeaderFields = [
+  protected static $supportedHeaderFields = array( // Cannot use [] syntax otherwise Doxygen generates a warning.
     self::ACCEPT_RANGES_HF => NULL,
     self::AGE_HF => NULL,
     self::CONTENT_DISPOSITION_HF => NULL,
@@ -182,7 +182,7 @@ final class Response extends Message {
     self::X_FORWARDED_PROTO_HF => NULL,
     self::X_POWERED_BY_HF => NULL,
     self::X_UA_COMPATIBLE_HF => NULL
-  ];
+  );
 
   /** @name Informational Status Codes */
   //!@{
@@ -345,7 +345,7 @@ final class Response extends Message {
   //!@}
 
   // Array of HTTP Status Codes
-  private static $supportedStatusCodes = [
+  private static $supportedStatusCodes = array( // Cannot use [] syntax otherwise Doxygen generates a warning.
       // Informational Status Codes
       self::CONTINUE_SC => "Continue",
       // Success Status Codes
@@ -373,7 +373,7 @@ final class Response extends Message {
       self::EXPECTATION_FAILED_SC => "Expectation Failed",
       // Server Error Status Codes
       self::INTERNAL_SERVER_ERROR_SC => "Internal Server Error",
-  ];
+  );
 
   private $statusCode;
 

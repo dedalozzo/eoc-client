@@ -196,7 +196,7 @@ final class Request extends Message {
   //!@}
 
   // Stores the header fields supported by a Request.
-  protected static $supportedHeaderFields = [
+  protected static $supportedHeaderFields = array( // Cannot use [] syntax otherwise Doxygen generates a warning.
     self::ACCEPT_HF => NULL,
     self::ACCEPT_CHARSET_HF => NULL,
     self::ACCEPT_ENCODING_HF => NULL,
@@ -225,7 +225,7 @@ final class Request extends Message {
     self::DESTINATION_HF => NULL,
     self::X_COUCHDB_WWW_AUTHENTICATE_HF => NULL,
     self::X_COUCHDB_FULL_COMMIT_HF => NULL,
-  ];
+  );
 
   /** @name Request Methods */
   //!@{
@@ -238,14 +238,14 @@ final class Request extends Message {
   //!@}
 
   // Stores the request methods supported by HTTP 1.1 protocol.
-  private static $supportedMethods = [
+  private static $supportedMethods = array( // Cannot use [] syntax otherwise Doxygen generates a warning.
     self::GET_METHOD => NULL,
     self::HEAD_METHOD => NULL,
     self::POST_METHOD => NULL,
     self::PUT_METHOD => NULL,
     self::DELETE_METHOD => NULL,
     self::COPY_METHOD => NULL
-  ];
+  );
 
   // Used to know if the constructor has been already called.
   private static $initialized = FALSE;
