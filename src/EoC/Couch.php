@@ -950,7 +950,10 @@ final class Couch {
         throw new \InvalidArgumentException("\$queryParams must be an instance of ViewQueryOpts class.");
     }
 
-    return $this->send(Request::POST_METHOD, "/_replicate", NULL, NULL, $body);
+    $request = new Request(Request::POST_METHOD, "/_replicate");
+    $request->setBody($body);
+
+    return $this->send($request);
   }
 
 
@@ -966,7 +969,11 @@ final class Couch {
 
     $body["replication_id"] = $replicationId;
     $body["cancel"] = TRUE;
-    return $this->send(Request::POST_METHOD, "/_replicate", NULL, NULL, $body);
+
+    $request = new Request(Request::POST_METHOD, "/_replicate");
+    $request->setBody($body);
+
+    return $this->send($request);
   }
 
 
