@@ -19,6 +19,13 @@ namespace EoC\Doc;
  * You should instead inherit your persistent classes from the abstract Doc or LocalDoc (in case of local documents).
  * @attention Don't inherit from this superclass!
  * @nosubgrouping
+ *
+ * @cond HIDDEN_SYMBOLS
+ *
+ * @property string $id;   // Document identifier. Mandatory and immutable.
+ * @property string $rev;  // The current MVCC-token/revision of this document. Mandatory and immutable.
+ *
+ * @endcond
  */
 abstract class AbstractDoc implements IDoc {
   use TDoc;

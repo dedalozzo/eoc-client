@@ -11,8 +11,8 @@ class AbstractDoc {
   /** @name Properties */
   //!@{
 
-  string $id; //!< Document identifier. Mandatory and immutable.
-  string $rev; //!< The current MVCC-token/revision of this document. Mandatory and immutable.
+  string $id;   //!< Document identifier. Mandatory and immutable.
+  string $rev;  //!< The current MVCC-token/revision of this document. Mandatory and immutable.
 
   //!@}
 
