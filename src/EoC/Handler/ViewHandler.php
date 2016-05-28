@@ -26,6 +26,16 @@ use Lint\Lint;
  * this handler you can write these functions directly in PHP.\n
  * All the views in one design document are indexed whenever any of them gets queried.
  * @nosubgrouping
+ *
+ * @cond HIDDEN_SYMBOLS
+ *
+ * @property string $name     // The view handler name.
+ * @property string $language // The programming language used to write map and reduce functions.
+ * @property string $mapFn    // Stores the map function.
+ * @property string $reduceFn // Stores the reduce function.
+ *
+ * @endcond
+ *
  * @todo: Add support for seq_indexed option.
  */
 final class ViewHandler extends DesignHandler {
