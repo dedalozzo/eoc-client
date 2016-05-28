@@ -20,11 +20,18 @@ use EoC\Extension;
  * @details Since this class uses the `TProperty` trait, you don't need to call the getter methods to obtain information
  * about server.
  * @nosubgrouping
+ *
+ * @cond HIDDEN_SYMBOLS
+ *
+ * @property string $motd
+ * @property string $version
+ *
+ * @endcond
  */
 class ServerInfo {
   use Extension\TProperty;
 
-  /** @name TProperty */
+  /** @name Properties */
   //!@{
 
   //! CouchDB MOTD (Message Of The Day).

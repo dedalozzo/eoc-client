@@ -20,6 +20,22 @@ use EoC\Helper;
  * @details Since this class uses the `TProperty` trait, you don't need to call the getter methods to obtain information
  * about database.
  * @nosubgrouping
+ *
+ * @cond HIDDEN_SYMBOLS
+ *
+ * @property string $name
+ * @property int $diskSize
+ * @property int $dataSize
+ * @property string $diskFormatVersion
+ * @property int $instanceStartTime
+ * @property int $docCount
+ * @property int $docDelCount
+ * @property int $updateSeq;
+ * @property int $purgeSeq;
+ * @property bool $compactRunning;
+ * @property int $committedUpdateSeq;
+ *
+ * @endcond
  */
 class DbInfo {
   use Extension\TProperty;

@@ -21,6 +21,12 @@ use EoC\Version;
  * @details Since this class uses the `TProperty` trait, you don't need to call the getter methods to obtain
  * information about the client.
  * @nosubgrouping
+ *
+ * @cond HIDDEN_SYMBOLS
+ *
+ * @property string $version
+ *
+ * @endcond
  */
 class ClientInfo {
   use Extension\TProperty;
