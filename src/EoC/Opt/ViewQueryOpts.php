@@ -221,6 +221,7 @@ class ViewQueryOpts extends AbstractOpts {
 
   /**
    * @brief Don't get any data, but all meta-data for this View. The number of documents in this View for example.
+   * @retval ViewQueryOpts
    * @attention Chainable.
    */
   public function excludeResults() {
