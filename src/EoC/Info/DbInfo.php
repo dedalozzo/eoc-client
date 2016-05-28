@@ -30,10 +30,10 @@ use EoC\Helper;
  * @property int $instanceStartTime
  * @property int $docCount
  * @property int $docDelCount
- * @property int $updateSeq;
- * @property int $purgeSeq;
- * @property bool $compactRunning;
- * @property int $committedUpdateSeq;
+ * @property int $updateSeq
+ * @property int $purgeSeq
+ * @property bool $compactRunning
+ * @property int $committedUpdateSeq
  *
  * @endcond
  */
