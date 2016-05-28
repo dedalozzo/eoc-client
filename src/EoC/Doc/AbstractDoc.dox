@@ -39,6 +39,7 @@ class AbstractDoc {
 
   /**
    * @brief Checks the document for the given attribute.
+   * @param[in] string $name The attribute name.
    * @retval bool
    */
   public function isMetadataPresent($name) {}
