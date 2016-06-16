@@ -1305,7 +1305,7 @@ final class Couch {
     // Whether the document has an id we use a different HTTP method. Using POST CouchDB generates an id for the doc
     // using PUT we need to specify one. We can still use the function getUuids() to ask CouchDB for some ids.
     if (!$doc->issetId())
-      $doc->setid(Generator\UUID::generate(Generator\UUID::UUID_RANDOM, Generator\UUID::FMT_STRING));
+      $doc->setId(Generator\UUID::generate(Generator\UUID::UUID_RANDOM, Generator\UUID::FMT_STRING));
 
     $this->setDocInfo($doc);
 
