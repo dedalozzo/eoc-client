@@ -13,7 +13,8 @@ namespace EoC\Adapter;
 
 
 use EoC\Message\Request;
-use EoC\Hook;
+use EoC\Message\Response;
+use EoC\Hook\IChunkHook;
 
 
 /**
@@ -28,9 +29,10 @@ interface IClientAdapter {
    * @details The method takes two parameter: the first one `$request` is mandatory; the second one is optional.\n
    * @param[in] Request $request The Request object.
    * @param[in] IChunkHook $chunkHook (optional) A class instance that implements the IChunkHook interface.
-   * @retval Response
+   * @return Response
+   * @retval Message::Response
    * @attention The method must return an instance of a Response class.
    */
-  function send(Request $request, Hook\IChunkHook $chunkHook = NULL);
+  function send(Request $request, IChunkHook $chunkHook = NULL);
 
 } 
