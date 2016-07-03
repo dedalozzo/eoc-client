@@ -14,7 +14,7 @@ namespace EoC\Adapter;
 use EoC\Message\Message;
 use EoC\Message\Request;
 use EoC\Message\Response;
-use EoC\Hook;
+use EoC\Hook\IChunkHook;
 
 
 /**
@@ -92,8 +92,11 @@ class NativeAdapter extends AbstractAdapter {
   }
 
 
-  // Writes the entire request over the socket.
-  protected function writeRequest($request) {
+  /**
+   * @brief Writes the entire request over the socket.
+   * @param[in] Request $request A request.
+   */
+  protected function writeRequest(Request $request) {
     $command = $request->getMethod()." ".$request->getPath().$request->getQueryString()." ".self::HTTP_VERSION;
 
     // Writes the request over the socket.
@@ -105,7 +108,10 @@ class NativeAdapter extends AbstractAdapter {
   }
 
 
-  // Reads the the status code and the header of the response.
+  /**
+   * @brief Reads the the status code and the header of the response.
+   * @return string
+   */
   protected function readResponseStatusCodeAndHeader() {
     $statusCodeAndHeader = "";
 
@@ -124,9 +130,12 @@ class NativeAdapter extends AbstractAdapter {
     return $statusCodeAndHeader;
   }
 
-
-  // Reads the entity-body of a chunked response (http://www.jmarshall.com/easy/http/#http1.1c2).
-  protected function readChunkedResponseBody($chunkHook) {
+  /**
+   * @brief Reads the entity-body of a chunked response.
+   * @see http://www.jmarshall.com/easy/http/#http1.1c2
+   * @param[in] IChunkHook $chunkHook The chunk's hook.
+   */
+  protected function readChunkedResponseBody(IChunkHook $chunkHook) {
     $body = "";
 
     while (!feof($this->handle)) {
@@ -187,8 +196,12 @@ class NativeAdapter extends AbstractAdapter {
   }
 
 
-  // Reads the entity-body of a standard response.
-  protected function readStandardResponseBody($response) {
+  /**
+   * @brief Reads the entity-body of a standard response.
+   * @param[in] Response $response The response.
+   * @return string
+   */
+  protected function readStandardResponseBody(Response $response) {
     $body = "";
 
     // Retrieves the body length from the header.
@@ -212,8 +225,13 @@ class NativeAdapter extends AbstractAdapter {
   }
 
 
-  // Reads the entity-body.
-  protected function readResponseBody($response, $chunkHook) {
+  /**
+   * @brief Reads the entity-body.
+   * @param[in] Response $response The response.
+   * @param[in] IChunkHook $chunkHook The chunk's hook.
+   * @return string
+   */
+  protected function readResponseBody(Response $response, IChunkHook $chunkHook) {
     if ($response->getHeaderFieldValue(Response::TRANSFER_ENCODING_HF) == "chunked")
       return $this->readChunkedResponseBody($chunkHook);
     else
@@ -224,7 +242,7 @@ class NativeAdapter extends AbstractAdapter {
   /**
    * @copydoc AbstractAdapter::send()
    */
-  public function send(Request $request, Hook\IChunkHook $chunkHook = NULL) {
+  public function send(Request $request, IChunkHook $chunkHook = NULL) {
     $request->setHeaderField(Request::HOST_HF, $this->host.":".$this->port);
 
     if (!empty($this->userName))
