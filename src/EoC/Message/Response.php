@@ -401,7 +401,7 @@ final class Response extends Message {
 
 
   /**
-   * Returns a comprehensible representation of the HTTP Response to be used for debugging purpose.
+   * @brief Returns a comprehensible representation of the HTTP Response to be used for debugging purpose.
    * @retval string
    */
   public function __toString() {
@@ -415,6 +415,10 @@ final class Response extends Message {
   }
 
 
+  /**
+   * @brief Parses the response's status code.
+   * @param[in] string $rawMessage The raw message.
+   */
   protected function parseStatusCode($rawMessage) {
     $matches = [];
     if (preg_match('%HTTP/1\.[0-1] (\d\d\d) %', $rawMessage, $matches))
@@ -427,6 +431,10 @@ final class Response extends Message {
   }
 
 
+  /**
+   * @brief Parses the response's header fields.
+   * @param[in] string $rawHeader The raw header.
+   */
   protected function parseHeaderFields($rawHeader) {
     $fields = explode("\r\n", preg_replace('/\x0D\x0A[\x09\x20]+/', ' ', $rawHeader));
 
@@ -448,6 +456,10 @@ final class Response extends Message {
   }
 
 
+  /**
+   * @brief Parses the response's status code and header.
+   * @param[in] string $rawMessage The raw message.
+   */
   protected function parseStatusCodeAndHeader($rawMessage) {
     if (!is_string($rawMessage))
       throw new \InvalidArgumentException("\$rawMessage must be a string.");
