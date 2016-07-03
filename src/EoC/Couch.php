@@ -69,7 +69,10 @@ final class Couch {
   }
 
 
-  // This method sets the document class and type in case the document hasn't one.
+  /**
+   * @brief Sets the document class and type in case the document hasn't one.
+   * @param[in] Doc\IDoc $doc A document.
+   */
   private function setDocInfo(Doc\IDoc $doc) {
     // Sets the class name.
     $class = get_class($doc);
@@ -84,9 +87,14 @@ final class Couch {
   }
 
 
-  // CouchDB doesn't return rows for the keys a match is not found. To make joins having a row for each key is essential.
-  // The algorithm below overrides the rows, adding a new row for every key hasn't been matched.
-  // The JSON encoding is necessary because we might have complex keys. A complex key is no more than an array.
+  /**
+   * @brief Overrides the rows, adding a new row for every key hasn't been matched.
+   * @details CouchDB doesn't return rows for the keys a match is not found. To make joins having a row for each key is
+   * essential. The algorithm below overrides the rows, adding a new row for every key hasn't been matched. The JSON
+   * encoding is necessary because we might have complex keys. A complex key is no more than an array.
+   * @param[in] array $keys An array containing the keys.
+   * @param[out] array $rows An associative array containing the rows.
+   */
   private function addMissingRows($keys, &$rows) {
 
     if (!empty($keys) && isset($rows)) {
@@ -122,7 +130,7 @@ final class Couch {
    * response.
    * @param[in] Request $request The Request object.
    * @param[in] IChunkHook $chunkHook (optional) A class instance that implements the IChunkHook interface.
-   * @retval Response
+   * @return Response
    */
   public function send(Request $request, Hook\IChunkHook $chunkHook = NULL) {
     // Sets user agent information.
