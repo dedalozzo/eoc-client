@@ -127,7 +127,7 @@ final class DesignDoc extends Doc {
    * @details This method checks the existence of the property `$name`, in fact a design document can have sections
    * with multiple handlers, but in some cases there is one and only one handler per section, so that handler doesn't
    * have a name.
-   * @param[in] DesignIHandler $handler An instance of a subclass of the abstract class DesignIHandler.
+   * @param[in] Handler\IHandler $handler An instance of a subclass of the abstract class DesignIHandler.
    */
   public function addHandler(Handler\IHandler $handler) {
     $section = $handler->getSection();
