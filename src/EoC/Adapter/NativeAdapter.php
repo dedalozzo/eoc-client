@@ -135,7 +135,7 @@ class NativeAdapter extends AbstractAdapter {
    * @see http://www.jmarshall.com/easy/http/#http1.1c2
    * @param[in] IChunkHook $chunkHook The chunk's hook.
    */
-  protected function readChunkedResponseBody(IChunkHook $chunkHook) {
+  protected function readChunkedResponseBody($chunkHook) {
     $body = "";
 
     while (!feof($this->handle)) {
