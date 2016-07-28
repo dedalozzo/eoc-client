@@ -231,7 +231,7 @@ class NativeAdapter extends AbstractAdapter {
    * @param[in] IChunkHook $chunkHook (optional) The chunk's hook.
    * @return string
    */
-  protected function readResponseBody(Response $response, IChunkHook $chunkHook = NULL) {
+  protected function readResponseBody(Response $response, $chunkHook) {
     if ($response->getHeaderFieldValue(Response::TRANSFER_ENCODING_HF) == "chunked")
       return $this->readChunkedResponseBody($chunkHook);
     else
