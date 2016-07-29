@@ -59,6 +59,7 @@ class CurlAdapter extends AbstractAdapter {
 
   /**
    * @copydoc AbstractAdapter::send()
+   * @bug https://github.com/dedalozzo/eoc-client/issues/2
    */
   public function send(Request $request, Hook\IChunkHook $chunkHook = NULL) {
     $opts = [];
