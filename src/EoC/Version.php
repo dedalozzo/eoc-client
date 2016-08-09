@@ -19,7 +19,7 @@ namespace EoC;
 class Version {
 
   const MAJOR = '0'; //!< Major release number.
-  const MINOR = '5'; //!< Minor release number.
+  const MINOR = '6'; //!< Minor release number.
   const MAINTENANCE = '1'; //!< Maintenance release number (bug fixes only).
 
 
