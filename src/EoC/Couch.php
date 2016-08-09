@@ -43,6 +43,9 @@ final class Couch {
   // Socket or cURL HTTP client adapter.
   private $client;
 
+  // A database's name prefix.
+  private $prefix = '';
+
 
   /**
    * @brief Creates a Couch class instance.
@@ -114,6 +117,15 @@ final class Couch {
       $rows = $allRows;
     }
 
+  }
+
+
+  /**
+   * @brief Sets a prefix which is used to compose the database's name.
+   * @param[in] string $prefix A string prefix.
+   */
+  public function setDbPrefix($prefix) {
+    $this->prefix = $prefix;
   }
 
 
@@ -552,7 +564,7 @@ final class Couch {
     if (preg_match('%\A[a-z][a-z\d_$()+-/]++\z%', $name) === FALSE)
       throw new \InvalidArgumentException("Invalid database name.");
 
-    $this->send(new Request(Request::PUT_METHOD, "/".rawurlencode($name)."/"));
+    $this->send(new Request(Request::PUT_METHOD, "/".rawurlencode($this->prefix.$name)."/"));
   }
 
 
@@ -562,7 +574,7 @@ final class Couch {
    * @see http://docs.couchdb.org/en/latest/api/database/common.html#delete--db
    */
   public function deleteDb($name) {
-    $this->send(new Request(Request::DELETE_METHOD, "/".rawurlencode($name)));
+    $this->send(new Request(Request::DELETE_METHOD, "/".rawurlencode($this->prefix.$name)));
   }
 
 
@@ -573,7 +585,7 @@ final class Couch {
    * @see http://docs.couchdb.org/en/latest/api/database/common.html#get--db
    */
   public function getDbInfo($name) {
-    return new Info\Dbinfo($this->send(new Request(Request::GET_METHOD, "/".rawurlencode($name)."/"))->getBodyAsArray());
+    return new Info\Dbinfo($this->send(new Request(Request::GET_METHOD, "/".rawurlencode($this->prefix.$name)."/"))->getBodyAsArray());
   }
 
 
@@ -586,7 +598,7 @@ final class Couch {
    * @see http://docs.couchdb.org/en/latest/api/database/changes.html
    */
   public function getDbChanges($name, Opt\ChangesFeedOpts $opts = NULL) {
-    $request = new Request(Request::GET_METHOD, "/".rawurlencode($name)."/_changes");
+    $request = new Request(Request::GET_METHOD, "/".rawurlencode($this->prefix.$name)."/_changes");
 
     if (isset($opts))
       $request->setMultipleQueryParamsAtOnce($opts->asArray());
@@ -613,7 +625,7 @@ final class Couch {
    * @see http://docs.couchdb.org/en/latest/api/database/compact.html
    */
   public function compactDb($name) {
-    $request = new Request(Request::POST_METHOD, "/".rawurlencode($name)."/_compact");
+    $request = new Request(Request::POST_METHOD, "/".rawurlencode($this->prefix.$name)."/_compact");
 
     // A POST method requires Content-Type header.
     $request->setHeaderField(Request::CONTENT_TYPE_HF, "application/json");
@@ -631,7 +643,7 @@ final class Couch {
    * @see http://docs.couchdb.org/en/latest/api/database/compact.html#db-compact-design-doc
    */
   public function compactView($dbName, $designDocName) {
-    $path = "/".rawurlencode($dbName)."/_compact/".$designDocName;
+    $path = "/".rawurlencode($this->prefix.$dbName)."/_compact/".$designDocName;
 
     $request = new Request(Request::POST_METHOD, $path);
 
@@ -650,7 +662,7 @@ final class Couch {
    * @see http://docs.couchdb.org/en/latest/api/database/compact.html#db-view-cleanup
    */
   public function cleanupViews($dbName) {
-    $request =  new Request(Request::POST_METHOD, "/".rawurlencode($dbName)."/_view_cleanup");
+    $request =  new Request(Request::POST_METHOD, "/".rawurlencode($this->prefix.$dbName)."/_view_cleanup");
 
     // A POST method requires Content-Type header.
     $request->setHeaderField(Request::CONTENT_TYPE_HF, "application/json");
@@ -672,7 +684,7 @@ final class Couch {
    * @see http://docs.couchdb.org/en/latest/api/database/compact.html#db-ensure-full-commit
    */
   public function ensureFullCommit($dbName) {
-    $request = new Request(Request::POST_METHOD, "/".rawurlencode($dbName)."/_ensure_full_commit");
+    $request = new Request(Request::POST_METHOD, "/".rawurlencode($this->prefix.$dbName)."/_ensure_full_commit");
 
     // A POST method requires Content-Type header.
     $request->setHeaderField(Request::CONTENT_TYPE_HF, "application/json");
@@ -716,7 +728,7 @@ final class Couch {
    * @see http://docs.couchdb.org/en/latest/api/database/security.html#get--db-_security
    */
   public function getSecurityObj($dbName) {
-    return $this->send(new Request(Request::GET_METHOD, "/".rawurlencode($dbName)."/_security"));
+    return $this->send(new Request(Request::GET_METHOD, "/".rawurlencode($this->prefix.$dbName)."/_security"));
   }
 
 
@@ -726,7 +738,7 @@ final class Couch {
    * @see http://docs.couchdb.org/en/latest/api/database/security.html#put--db-_security
    */
   public function setSecurityObj($dbName) {
-    return $this->send(new Request(Request::PUT_METHOD, "/".rawurlencode($dbName)."/_security"));
+    return $this->send(new Request(Request::PUT_METHOD, "/".rawurlencode($this->prefix.$dbName)."/_security"));
   }
 
   //!@}
@@ -789,7 +801,7 @@ final class Couch {
 
     // Uses the specified proxy if any set.
     if (isset($proxy))
-      $body["proxy"] = $this->proxy;
+      $body["proxy"] = $proxy;
 
     // create_target option
     if (!is_bool($createTargetDb))
@@ -879,9 +891,9 @@ final class Couch {
    */
   public function queryAllDocs($dbName, array $keys = NULL, Opt\ViewQueryOpts $opts = NULL, Hook\IChunkHook $chunkHook = NULL) {
     if (is_null($keys))
-      $request = new Request(Request::GET_METHOD, "/".rawurlencode($dbName)."/_all_docs");
+      $request = new Request(Request::GET_METHOD, "/".rawurlencode($this->prefix.$dbName)."/_all_docs");
     else {
-      $request = new Request(Request::POST_METHOD, "/".rawurlencode($dbName)."/_all_docs");
+      $request = new Request(Request::POST_METHOD, "/".rawurlencode($this->prefix.$dbName)."/_all_docs");
       $request->setBody(json_encode(['keys' => $keys]));
     }
 
@@ -919,9 +931,9 @@ final class Couch {
       throw new \InvalidArgumentException("You must provide a valid \$viewName.");
 
     if (empty($keys))
-      $request = new Request(Request::GET_METHOD, "/".rawurlencode($dbName)."/_design/".$designDocName."/_view/".$viewName);
+      $request = new Request(Request::GET_METHOD, "/".rawurlencode($this->prefix.$dbName)."/_design/".$designDocName."/_view/".$viewName);
     else {
-      $request = new Request(Request::POST_METHOD, "/".rawurlencode($dbName)."/_design/".$designDocName."/_view/".$viewName);
+      $request = new Request(Request::POST_METHOD, "/".rawurlencode($this->prefix.$dbName)."/_design/".$designDocName."/_view/".$viewName);
       $request->setBody(json_encode(['keys' => $keys]));
     }
 
@@ -965,7 +977,7 @@ final class Couch {
     if (!empty($reduce))
       $handler->reduceFn = $reduceFn;
 
-    $request = new Request(Request::POST_METHOD, "/".rawurlencode($dbName)."/_temp_view");
+    $request = new Request(Request::POST_METHOD, "/".rawurlencode($this->prefix.$dbName)."/_temp_view");
     $request->setHeaderField(Request::CONTENT_TYPE_HF, "application/json");
 
     $array = $handler->asArray();
@@ -1003,7 +1015,7 @@ final class Couch {
    * @see http://docs.couchdb.org/en/latest/api/database/misc.html#db-missing-revs
    */
   public function getMissingRevs($dbName) {
-    $request = new Request(Request::POST_METHOD, "/".rawurlencode($dbName)."/_missing_revs");
+    $request = new Request(Request::POST_METHOD, "/".rawurlencode($this->prefix.$dbName)."/_missing_revs");
 
     return $this->send($request);
   }
@@ -1017,7 +1029,7 @@ final class Couch {
    * @see http://docs.couchdb.org/en/latest/api/database/misc.html#db-revs-diff
    */
   public function getRevsDiff($dbName) {
-    $request = new Request(Request::POST_METHOD, "/".rawurlencode($dbName)."/_missing_revs");
+    $request = new Request(Request::POST_METHOD, "/".rawurlencode($this->prefix.$dbName)."/_missing_revs");
 
     return $this->send($request);
   }
@@ -1030,7 +1042,7 @@ final class Couch {
    * @see http://docs.couchdb.org/en/latest/api/database/misc.html#get--db-_revs_limit
    */
   public function getRevsLimit($dbName) {
-    $request = new Request(Request::GET_METHOD, "/".rawurlencode($dbName)."/_revs_limit");
+    $request = new Request(Request::GET_METHOD, "/".rawurlencode($this->prefix.$dbName)."/_revs_limit");
 
     return (integer)$this->send($request)->getBody();
   }
@@ -1047,7 +1059,7 @@ final class Couch {
     if (!is_int($revsLimit) or ($revsLimit <= 0))
       throw new \InvalidArgumentException("\$revsLimit must be a positive integer.");
 
-    $request = new Request(Request::PUT_METHOD, "/".rawurlencode($dbName)."/_revs_limit");
+    $request = new Request(Request::PUT_METHOD, "/".rawurlencode($this->prefix.$dbName)."/_revs_limit");
     $request->setHeaderField(Request::CONTENT_TYPE_HF, "application/json");
     $request->setBody(json_encode($revsLimit));
 
@@ -1073,7 +1085,7 @@ final class Couch {
   public function getDocEtag($dbName, $docId) {
     $this->validateAndEncodeDocId($docId);
 
-    $path = "/".rawurlencode($dbName)."/".$docId;
+    $path = "/".rawurlencode($this->prefix.$dbName)."/".$docId;
 
     $request = new Request(Request::HEAD_METHOD, $path);
 
@@ -1098,7 +1110,7 @@ final class Couch {
     $this->validateDocPath($path);
     $this->validateAndEncodeDocId($docId);
 
-    $requestPath = "/".rawurlencode($dbName)."/".$path.$docId;
+    $requestPath = "/".rawurlencode($this->prefix.$dbName)."/".$path.$docId;
 
     $request = new Request(Request::GET_METHOD, $requestPath);
 
@@ -1163,7 +1175,7 @@ final class Couch {
     // We never use the POST method.
     $method = Request::PUT_METHOD;
 
-    $path = "/".rawurlencode($dbName)."/".$doc->getPath().$doc->getId();
+    $path = "/".rawurlencode($this->prefix.$dbName)."/".$doc->getPath().$doc->getId();
 
     $request = new Request($method, $path);
     $request->setHeaderField(Request::CONTENT_TYPE_HF, "application/json");
@@ -1190,7 +1202,7 @@ final class Couch {
     $this->validateDocPath($path);
     $this->validateAndEncodeDocId($docId);
 
-    $path = "/".rawurlencode($dbName)."/".$path.$docId;
+    $path = "/".rawurlencode($this->prefix.$dbName)."/".$path.$docId;
 
     $request = new Request(Request::DELETE_METHOD, $path);
     $request->setQueryParam("rev", (string)$rev);
@@ -1219,7 +1231,7 @@ final class Couch {
     $this->validateAndEncodeDocId($sourceDocId);
     $this->validateAndEncodeDocId($targetDocId);
 
-    $path = "/".rawurlencode($dbName)."/".$path.$sourceDocId;
+    $path = "/".rawurlencode($this->prefix.$dbName)."/".$path.$sourceDocId;
 
     // This request uses the special method COPY.
     $request = new Request(Request::COPY_METHOD, $path);
@@ -1251,7 +1263,7 @@ final class Couch {
    * @see http://wiki.apache.org/couchdb/Purge_Documents
    */
   public function purgeDocs($dbName, array $refs) {
-    $path = "/".rawurlencode($dbName)."/_purge";
+    $path = "/".rawurlencode($this->prefix.$dbName)."/_purge";
 
     $request = new Request(Request::POST_METHOD, $path);
 
@@ -1294,7 +1306,7 @@ final class Couch {
     else
       $operations = [];
 
-    $path = "/".rawurlencode($dbName)."/_bulk_docs";
+    $path = "/".rawurlencode($this->prefix.$dbName)."/_bulk_docs";
 
     $request = new Request(Request::POST_METHOD, $path);
     $request->setHeaderField(Request::CONTENT_TYPE_HF, "application/json");
@@ -1341,7 +1353,7 @@ final class Couch {
     $this->validateDocPath($path, TRUE);
     $this->validateAndEncodeDocId($docId);
 
-    $path = "/".rawurlencode($dbName)."/".$path.$docId."/".$fileName;
+    $path = "/".rawurlencode($this->prefix.$dbName)."/".$path.$docId."/".$fileName;
 
     $request = new Request(Request::HEAD_METHOD, $path);
 
@@ -1368,7 +1380,7 @@ final class Couch {
     $this->validateDocPath($path, TRUE);
     $this->validateAndEncodeDocId($docId);
 
-    $path = "/".rawurlencode($dbName)."/".$path.$docId."/".$fileName;
+    $path = "/".rawurlencode($this->prefix.$dbName)."/".$path.$docId."/".$fileName;
 
     $request = new Request(Request::GET_METHOD, $path);
 
@@ -1395,7 +1407,7 @@ final class Couch {
 
     $attachment = Doc\Attachment\Attachment::fromFile($fileName);
 
-    $path = "/".rawurlencode($dbName)."/".$path.$docId."/".rawurlencode($attachment->getName());
+    $path = "/".rawurlencode($this->prefix.$dbName)."/".$path.$docId."/".rawurlencode($attachment->getName());
 
     $request = new Request(Request::PUT_METHOD, $path);
     $request->setHeaderField(Request::CONTENT_LENGTH_HF, $attachment->getContentLength());
@@ -1423,7 +1435,7 @@ final class Couch {
     $this->validateDocPath($path, TRUE);
     $this->validateAndEncodeDocId($docId);
 
-    $path = "/".rawurlencode($dbName)."/".$path.$docId."/".rawurlencode($fileName);
+    $path = "/".rawurlencode($this->prefix.$dbName)."/".$path.$docId."/".rawurlencode($fileName);
 
     $request = new Request(Request::DELETE_METHOD, $path);
     $request->setQueryParam("rev", (string)$rev);
@@ -1448,7 +1460,7 @@ final class Couch {
   public function getDesignDocInfo($dbName, $docName) {
     $this->validateAndEncodeDocId($docName);
 
-    $path = "/".rawurlencode($dbName)."/".self::DESIGN_DOC_PATH.$docName."/_info";
+    $path = "/".rawurlencode($this->prefix.$dbName)."/".self::DESIGN_DOC_PATH.$docName."/_info";
 
     $request = new Request(Request::GET_METHOD, $path);
 
