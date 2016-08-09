@@ -1,8 +1,8 @@
 <?php
 
 /**
- * @file NativeAdapter.php
- * @brief This file contains the NativeAdapter class.
+ * @file SocketAdapter.php
+ * @brief This file contains the SocketAdapter class.
  * @details
  * @author Filippo F. Fadda
  */
@@ -24,7 +24,7 @@ use EoC\Hook\IChunkHook;
  * It supports 100-continue, chunked responses, persistent connections, etc.
  * @nosubgrouping
  */
-class NativeAdapter extends AbstractAdapter {
+class SocketAdapter extends AbstractAdapter {
 
   //! HTTP protocol version.
   const HTTP_VERSION = "HTTP/1.1";
