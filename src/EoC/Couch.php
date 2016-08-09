@@ -40,9 +40,6 @@ final class Couch {
 
   //!@}
 
-  // Current selected rawencoded database name.
-  private $dbName;
-
   // Socket or cURL HTTP client adapter.
   private $client;
 
