@@ -197,31 +197,6 @@ final class Couch {
 
 
   /**
-   * @brief This method raise an exception when a user provide an invalid database name.
-   * @details This method is called by any other methods that interacts with CouchDB. You don't need to call, unless
-   * you are making a not supported call to CouchDB.
-   * @param string $name Database name.
-   */
-  public function validateAndEncodeDbName(&$name) {
-    # \A[a-z][a-z\d_$()+-/]++\z
-    #
-    # Assert position at the beginning of the string «\A»
-    # Match a single character in the range between “a” and “z” «[a-z]»
-    # Match a single character present in the list below «[a-z\d_$()+-/]++»
-    #    Between one and unlimited times, as many times as possible, without giving back (possessive) «++»
-    #    A character in the range between “a” and “z” «a-z»
-    #    A single digit 0..9 «\d»
-    #    One of the characters “_$()” «_$()»
-    #    A character in the range between “+” and “/” «+-/»
-    # Assert position at the very end of the string «\z»
-    if (preg_match('%\A[a-z][a-z\d_$()+-/]++\z%', $name))
-      return $name = rawurlencode($name);
-    else
-      throw new \InvalidArgumentException("Invalid database name.");
-  }
-
-
-  /**
    * @brief Encodes the document id.
    * @details This method is called by any other methods that interacts with CouchDB. You don't need to call, unless
    * you are making a not supported call to CouchDB.
@@ -331,15 +306,13 @@ final class Couch {
 
 
   /**
-   * @brief Obtains a list of the operations made to the databases file, like creation, deletion, etc.
+   * @brief Returns a list of all database events in the CouchDB instance.
    * @param[in] DbUpdatesFeedOpts $opts Additional options.
    * @retval Response
    * @attention Requires admin privileges.
    * @see http://docs.couchdb.org/en/latest/api/server/common.html#db-updates
    */
   public function getDbUpdates(Opt\DbUpdatesFeedOpts $opts = NULL) {
-    $this->checkForDb();
-
     $request = new Request(Request::GET_METHOD, "/_db_updates");
 
     if (isset($opts))
@@ -631,100 +604,63 @@ final class Couch {
   //!@}
 
 
-  /** @name Database-level Miscellaneous Methods */
-  //!@{
-
-  /**
-   * @brief Sets the database name to use.
-   * @details You should call this method before just after the constructor. CouchDB is a RESTful server implementation,
-   * that means that you can't establish a permanent connection with it, but you just call APIs through HTTP requests.
-   * In every call you have to specify the database name (when a database is required). The Elephant on Couch client stores this
-   * information for us, so we don't need to pass the database name as parameter to every method call. The purpose of
-   * this method, is to avoid you repeat database name every time. The function doesn't check if the database really
-   * exists, but it performs a fast check on the name itself. To obtain information about a database, use getDbInfo()
-   * instead.
-   * @attention Only lowercase characters (a-z), digits (0-9), and any of the characters _, $, (, ), +, -, and / are
-   * allowed. Must begin with a letter.
-   * @param[in] string $name Database name.
-   */
-  public function selectDb($name) {
-    $this->dbName = $this->validateAndEncodeDbName($name);
-  }
-
-
-  /**
-   * @brief Check if a database has been selected.
-   * @details This method is called by any other methods that interacts with CouchDB. You don't need to call, unless
-   * you are making a not supported call to CouchDB.
-   */
-  public function checkForDb() {
-    if (empty($this->dbName))
-      throw new \RuntimeException("No database selected.");
-  }
-
-
   /**
    * @brief Creates a new database and selects it.
    * @param[in] string $name The database name. A database must be named with all lowercase letters (a-z),
    * digits (0-9), or any of the _$()+-/ characters and must end with a slash in the URL. The name has to start with a
    * lowercase letter (a-z).
-   * @param[in] bool $autoSelect Selects the created database by default.
    * @see http://docs.couchdb.org/en/latest/api/database/common.html#put--db
    */
-  public function createDb($name, $autoSelect = TRUE) {
-    $this->validateAndEncodeDbName($name);
+  public function createDb($name) {
+    # \A[a-z][a-z\d_$()+-/]++\z
+    #
+    # Assert position at the beginning of the string «\A»
+    # Match a single character in the range between “a” and “z” «[a-z]»
+    # Match a single character present in the list below «[a-z\d_$()+-/]++»
+    #    Between one and unlimited times, as many times as possible, without giving back (possessive) «++»
+    #    A character in the range between “a” and “z” «a-z»
+    #    A single digit 0..9 «\d»
+    #    One of the characters “_$()” «_$()»
+    #    A character in the range between “+” and “/” «+-/»
+    # Assert position at the very end of the string «\z»
+    if (preg_match('%\A[a-z][a-z\d_$()+-/]++\z%', $name) === FALSE)
+      throw new \InvalidArgumentException("Invalid database name.");
 
-    if ($name != $this->dbName) {
-      $this->send(new Request(Request::PUT_METHOD, "/".$name."/"));
-
-      if ($autoSelect)
-        $this->dbName = $name;
-    }
-    else
-      throw new \UnexpectedValueException("You can't create a database with the same name of the selected database.");
+    $this->send(new Request(Request::PUT_METHOD, "/".rawurlencode($name)."/"));
   }
 
 
   /**
    * @brief Deletes an existing database.
-   * @param[in] string $name The database name. A database must be named with all lowercase letters (a-z),
-   * digits (0-9), or any of the _$()+-/ characters and must end with a slash in the URL. The name has to start with a
-   * lowercase letter (a-z).
+   * @param[in] string $name The database name.
    * @see http://docs.couchdb.org/en/latest/api/database/common.html#delete--db
    */
   public function deleteDb($name) {
-    $this->validateAndEncodeDbName($name);
-
-    if ($name != $this->dbName)
-      $this->send(new Request(Request::DELETE_METHOD, "/".$name));
-    else
-      throw new \UnexpectedValueException("You can't delete the selected database.");
+    $this->send(new Request(Request::DELETE_METHOD, "/".rawurlencode($name)));
   }
 
 
   /**
    * @brief Returns information about the selected database.
+   * @param[in] string $name The database name.
    * @retval Info::DbInfo
    * @see http://docs.couchdb.org/en/latest/api/database/common.html#get--db
    */
-  public function getDbInfo() {
-    $this->checkForDb();
-
-    return new Info\Dbinfo($this->send(new Request(Request::GET_METHOD, "/".$this->dbName."/"))->getBodyAsArray());
+  public function getDbInfo($name) {
+    return new Info\Dbinfo($this->send(new Request(Request::GET_METHOD, "/".rawurlencode($name)."/"))->getBodyAsArray());
   }
 
 
   /**
    * @brief Obtains a list of the changes made to the database. This can be used to monitor for update and modifications
    * to the database for post processing or synchronization.
+   * @param[in] string $name The database name.
    * @param[in] ChangesFeedOpts $opts Additional options.
    * @retval Response
    * @see http://docs.couchdb.org/en/latest/api/database/changes.html
    */
-  public function getDbChanges(Opt\ChangesFeedOpts $opts = NULL) {
-    $this->checkForDb();
-
-    $request = new Request(Request::GET_METHOD, "/".$this->dbName."/_changes");
+  public function getDbChanges($name, Opt\ChangesFeedOpts $opts = NULL) {
+    $request = new Request(Request::GET_METHOD, "/".rawurlencode($name)."/_changes");
 
     if (isset($opts))
       $request->setMultipleQueryParamsAtOnce($opts->asArray());
@@ -746,13 +682,12 @@ final class Couch {
    * database by obtaining the database meta information, the `compact_running` value of the returned database
    * structure will be set to true. You can also obtain a list of running processes to determine whether compaction is
    * currently running, using getActiveTasks().
+   * @param[in] string $name The database name.
    * @attention Requires admin privileges.
    * @see http://docs.couchdb.org/en/latest/api/database/compact.html
    */
-  public function compactDb() {
-    $this->checkForDb();
-
-    $request = new Request(Request::POST_METHOD, "/".$this->dbName."/_compact");
+  public function compactDb($name) {
+    $request = new Request(Request::POST_METHOD, "/".rawurlencode($name)."/_compact");
 
     // A POST method requires Content-Type header.
     $request->setHeaderField(Request::CONTENT_TYPE_HF, "application/json");
@@ -765,13 +700,12 @@ final class Couch {
    * @brief Compacts the specified view.
    * @details If you have very large views or are tight on space, you might consider compaction as well. To run compact
    * for a particular view on a particular database, use this method.
+   * @param[in] string $dbName The database name.
    * @param[in] string $designDocName Name of the design document where is stored the view.
    * @see http://docs.couchdb.org/en/latest/api/database/compact.html#db-compact-design-doc
    */
-  public function compactView($designDocName) {
-    $this->checkForDb();
-
-    $path = "/".$this->dbName."/_compact/".$designDocName;
+  public function compactView($dbName, $designDocName) {
+    $path = "/".rawurlencode($dbName)."/_compact/".$designDocName;
 
     $request = new Request(Request::POST_METHOD, $path);
 
@@ -785,13 +719,12 @@ final class Couch {
   /**
    * @brief Removes all outdated view indexes.
    * @details Old views files remain on disk until you explicitly run cleanup.
+   * @param[in] string $dbName The database name.
    * @attention Requires admin privileges.
    * @see http://docs.couchdb.org/en/latest/api/database/compact.html#db-view-cleanup
    */
-  public function cleanupViews() {
-    $this->checkForDb();
-
-    $request =  new Request(Request::POST_METHOD, "/".$this->dbName."/_view_cleanup");
+  public function cleanupViews($dbName) {
+    $request =  new Request(Request::POST_METHOD, "/".rawurlencode($dbName)."/_view_cleanup");
 
     // A POST method requires Content-Type header.
     $request->setHeaderField(Request::CONTENT_TYPE_HF, "application/json");
@@ -808,13 +741,12 @@ final class Couch {
    * deeply limits CouchDB's performance for non-bulk writers.\n
    * Delayed commit should be left set to true in the configuration settings. Anyway, you can still tell CouchDB to make
    * an fsync, calling the this method.
+   * @param[in] string $dbName The database name.
    * @retval string The timestamp of the last time the database file was opened.
    * @see http://docs.couchdb.org/en/latest/api/database/compact.html#db-ensure-full-commit
    */
-  public function ensureFullCommit() {
-    $this->checkForDb();
-
-    $request = new Request(Request::POST_METHOD, "/".$this->dbName."/_ensure_full_commit");
+  public function ensureFullCommit($dbName) {
+    $request = new Request(Request::POST_METHOD, "/".rawurlencode($dbName)."/_ensure_full_commit");
 
     // A POST method requires Content-Type header.
     $request->setHeaderField(Request::CONTENT_TYPE_HF, "application/json");
@@ -853,24 +785,22 @@ final class Couch {
 
   /**
    * @brief Returns the special security object for the database.
+   * @param[in] string $dbName The database name.
    * @retval string A JSON object.
    * @see http://docs.couchdb.org/en/latest/api/database/security.html#get--db-_security
    */
-  public function getSecurityObj() {
-    $this->checkForDb();
-
-    return $this->send(new Request(Request::GET_METHOD, "/".$this->dbName."/_security"));
+  public function getSecurityObj($dbName) {
+    return $this->send(new Request(Request::GET_METHOD, "/".rawurlencode($dbName)."/_security"));
   }
 
 
   /**
    * @brief Sets the special security object for the database.
+   * @param[in] string $dbName The database name.
    * @see http://docs.couchdb.org/en/latest/api/database/security.html#put--db-_security
    */
-  public function setSecurityObj() {
-    $this->checkForDb();
-
-    return $this->send(new Request(Request::PUT_METHOD, "/".$this->dbName."/_security"));
+  public function setSecurityObj($dbName) {
+    return $this->send(new Request(Request::PUT_METHOD, "/".rawurlencode($dbName)."/_security"));
   }
 
   //!@}
@@ -1010,6 +940,7 @@ final class Couch {
 
   /**
    * @brief Returns a built-in view of all documents in this database. If keys are specified returns only certain rows.
+   * @param[in] string $dbName The database name.
    * @param[in] array $keys (optional) Used to retrieve just the view rows matching that set of keys. Rows are returned
    * in the order of the specified keys. Combining this feature with Opt\ViewQueryOpts.includeDocs() results in the so-called
    * multi-document-fetch feature.
@@ -1020,13 +951,11 @@ final class Couch {
    * @see http://docs.couchdb.org/en/latest/api/database/bulk-api.html#get--db-_all_docs
    * @see http://docs.couchdb.org/en/latest/api/database/bulk-api.html#post--db-_all_docs
    */
-  public function queryAllDocs(array $keys = NULL, Opt\ViewQueryOpts $opts = NULL, Hook\IChunkHook $chunkHook = NULL) {
-    $this->checkForDb();
-
+  public function queryAllDocs($dbName, array $keys = NULL, Opt\ViewQueryOpts $opts = NULL, Hook\IChunkHook $chunkHook = NULL) {
     if (is_null($keys))
-      $request = new Request(Request::GET_METHOD, "/".$this->dbName."/_all_docs");
+      $request = new Request(Request::GET_METHOD, "/".rawurlencode($dbName)."/_all_docs");
     else {
-      $request = new Request(Request::POST_METHOD, "/".$this->dbName."/_all_docs");
+      $request = new Request(Request::POST_METHOD, "/".rawurlencode($dbName)."/_all_docs");
       $request->setBody(json_encode(['keys' => $keys]));
     }
 
@@ -1041,6 +970,7 @@ final class Couch {
 
   /**
    * @brief Executes the given view and returns the result.
+   * @param[in] string $dbName The database name.
    * @param[in] string $designDocName The design document's name.
    * @param[in] string $viewName The view's name.
    * @param[in] array $keys (optional) Used to retrieve just the view rows matching that set of keys. Rows are returned
@@ -1056,17 +986,16 @@ final class Couch {
    * @see http://docs.couchdb.org/en/latest/api/ddoc/views.html#get--db-_design-ddoc-_view-view
    * @see http://docs.couchdb.org/en/latest/api/ddoc/views.html#post--db-_design-ddoc-_view-view
    */
-  public function queryView($designDocName, $viewName, array $keys = NULL, Opt\ViewQueryOpts $opts = NULL, Hook\IChunkHook $chunkHook = NULL) {
-    $this->checkForDb();
+  public function queryView($dbName, $designDocName, $viewName, array $keys = NULL, Opt\ViewQueryOpts $opts = NULL, Hook\IChunkHook $chunkHook = NULL) {
     $this->validateAndEncodeDocId($designDocName);
 
     if (empty($viewName))
       throw new \InvalidArgumentException("You must provide a valid \$viewName.");
 
     if (empty($keys))
-      $request = new Request(Request::GET_METHOD, "/".$this->dbName."/_design/".$designDocName."/_view/".$viewName);
+      $request = new Request(Request::GET_METHOD, "/".rawurlencode($dbName)."/_design/".$designDocName."/_view/".$viewName);
     else {
-      $request = new Request(Request::POST_METHOD, "/".$this->dbName."/_design/".$designDocName."/_view/".$viewName);
+      $request = new Request(Request::POST_METHOD, "/".rawurlencode($dbName)."/_design/".$designDocName."/_view/".$viewName);
       $request->setBody(json_encode(['keys' => $keys]));
     }
 
@@ -1090,6 +1019,7 @@ final class Couch {
    * @brief Executes the given view, both map and reduce functions, for all documents and returns the result.
    * @details Map and Reduce functions are provided by the programmer.
    * @attention Requires admin privileges.
+   * @param[in] string $dbName The database name.
    * @param[in] string $mapFn The map function.
    * @param[in] string $reduceFn The reduce function.
    * @param[in] array $keys (optional) Used to retrieve just the view rows matching that set of keys. Rows are returned
@@ -1102,16 +1032,14 @@ final class Couch {
    * @retval Result::QueryResult The result of the query.
    * @see http://docs.couchdb.org/en/latest/api/database/temp-views.html#post--db-_temp_view
    */
-  public function queryTempView($mapFn, $reduceFn = "", array $keys = NULL, Opt\ViewQueryOpts $opts = NULL, $language = 'php', Hook\IChunkHook $chunkHook = NULL) {
-    $this->checkForDb();
-
+  public function queryTempView($dbName, $mapFn, $reduceFn = "", array $keys = NULL, Opt\ViewQueryOpts $opts = NULL, $language = 'php', Hook\IChunkHook $chunkHook = NULL) {
     $handler = new Handler\ViewHandler('temp');
     $handler->language = $language;
     $handler->mapFn = $mapFn;
     if (!empty($reduce))
       $handler->reduceFn = $reduceFn;
 
-    $request = new Request(Request::POST_METHOD, "/".$this->dbName."/_temp_view");
+    $request = new Request(Request::POST_METHOD, "/".rawurlencode($dbName)."/_temp_view");
     $request->setHeaderField(Request::CONTENT_TYPE_HF, "application/json");
 
     $array = $handler->asArray();
@@ -1144,13 +1072,12 @@ final class Couch {
 
   /**
    * @brief Given a list of document revisions, returns the document revisions that do not exist in the database.
+   * @param[in] string $dbName The database name.
    * @retval Response
    * @see http://docs.couchdb.org/en/latest/api/database/misc.html#db-missing-revs
    */
-  public function getMissingRevs() {
-    $this->checkForDb();
-
-    $request = new Request(Request::POST_METHOD, "/".$this->dbName."/_missing_revs");
+  public function getMissingRevs($dbName) {
+    $request = new Request(Request::POST_METHOD, "/".rawurlencode($dbName)."/_missing_revs");
 
     return $this->send($request);
   }
@@ -1159,13 +1086,12 @@ final class Couch {
   /**
    * @brief Given a list of document revisions, returns differences between the given revisions and ones that are in
    * the database.
+   * @param[in] string $dbName The database name.
    * @retval Response
    * @see http://docs.couchdb.org/en/latest/api/database/misc.html#db-revs-diff
    */
-  public function getRevsDiff() {
-    $this->checkForDb();
-
-    $request = new Request(Request::POST_METHOD, "/".$this->dbName."/_missing_revs");
+  public function getRevsDiff($dbName) {
+    $request = new Request(Request::POST_METHOD, "/".rawurlencode($dbName)."/_missing_revs");
 
     return $this->send($request);
   }
@@ -1173,13 +1099,12 @@ final class Couch {
 
   /**
    * @brief Gets the limit of historical revisions to store for a single document in the database.
+   * @param[in] string $dbName The database name.
    * @retval integer The maximum number of document revisions that will be tracked by CouchDB.
    * @see http://docs.couchdb.org/en/latest/api/database/misc.html#get--db-_revs_limit
    */
-  public function getRevsLimit() {
-    $this->checkForDb();
-
-    $request = new Request(Request::GET_METHOD, "/".$this->dbName."/_revs_limit");
+  public function getRevsLimit($dbName) {
+    $request = new Request(Request::GET_METHOD, "/".rawurlencode($dbName)."/_revs_limit");
 
     return (integer)$this->send($request)->getBody();
   }
@@ -1187,17 +1112,16 @@ final class Couch {
 
   /**
    * @brief Sets the limit of historical revisions for a single document in the database.
+   * @param[in] string $dbName The database name.
    * @param[in] integer $revsLimit (optional) Maximum number historical revisions for a single document in the database.
    * Must be a positive integer.
    * @see http://docs.couchdb.org/en/latest/api/database/misc.html#put--db-_revs_limit
    */
-  public function setRevsLimit($revsLimit = self::REVS_LIMIT) {
-    $this->checkForDb();
-
+  public function setRevsLimit($dbName, $revsLimit = self::REVS_LIMIT) {
     if (!is_int($revsLimit) or ($revsLimit <= 0))
       throw new \InvalidArgumentException("\$revsLimit must be a positive integer.");
 
-    $request = new Request(Request::PUT_METHOD, "/".$this->dbName."/_revs_limit");
+    $request = new Request(Request::PUT_METHOD, "/".rawurlencode($dbName)."/_revs_limit");
     $request->setHeaderField(Request::CONTENT_TYPE_HF, "application/json");
     $request->setBody(json_encode($revsLimit));
 
@@ -1215,15 +1139,15 @@ final class Couch {
    * The ETag Header is simply the document's revision in quotes.
    * @details This function is not available for special documents. To get information about a design document, use
    * the special function getDesignDocInfo().
+   * @param[in] string $dbName The database name.
    * @param[in] string $docId The document's identifier.
    * @retval string The document's revision.
    * @see http://docs.couchdb.org/en/latest/api/document/common.html#db-doc
    */
-  public function getDocEtag($docId) {
-    $this->checkForDb();
+  public function getDocEtag($dbName, $docId) {
     $this->validateAndEncodeDocId($docId);
 
-    $path = "/".$this->dbName."/".$docId;
+    $path = "/".rawurlencode($dbName)."/".$docId;
 
     $request = new Request(Request::HEAD_METHOD, $path);
 
@@ -1236,6 +1160,7 @@ final class Couch {
    * @brief Returns the latest revision of the document.
    * @details Since CouchDB uses different paths to store special documents, you must provide the document type for
    * design and local documents.
+   * @param[in] string $dbName The database name.
    * @param[in] string $docId The document's identifier.
    * @param[in] string $path The document's path.
    * @param[in] string $rev (optional) The document's revision.
@@ -1243,12 +1168,11 @@ final class Couch {
    * @retval object|Response An instance of Doc, LocalDoc, DesignDoc or any subclass of Doc.
    * @see http://docs.couchdb.org/en/latest/api/document/common.html#get--db-docid
    */
-  public function getDoc($path, $docId, $rev = NULL, Opt\DocOpts $opts = NULL) {
-    $this->checkForDb();
+  public function getDoc($dbName, $path, $docId, $rev = NULL, Opt\DocOpts $opts = NULL) {
     $this->validateDocPath($path);
     $this->validateAndEncodeDocId($docId);
 
-    $requestPath = "/".$this->dbName."/".$path.$docId;
+    $requestPath = "/".rawurlencode($dbName)."/".$path.$docId;
 
     $request = new Request(Request::GET_METHOD, $requestPath);
 
@@ -1294,6 +1218,7 @@ final class Couch {
    * @details Whether the `$doc` has an id we use a different HTTP method. Using POST CouchDB generates an id for the doc,
    * using PUT instead we need to specify one. We can still use the function getUuids() to ask CouchDB for some ids.
    * This is an internal detail. You have only to know that CouchDB can generate the document id for you.
+   * @param[in] string $dbName The database name.
    * @param[in] Doc $doc The document you want insert or update.
    * @param[in] bool $batchMode (optional) You can write documents to the database at a higher rate by using the batch
    * option. This collects document writes together in memory (on a user-by-user basis) before they are committed to
@@ -1301,14 +1226,12 @@ final class Couch {
    * not written to disk immediately. This parameter is ignored in case a transaction is in progress.
    * @see http://docs.couchdb.org/en/latest/api/document/common.html#put--db-docid
    */
-  public function saveDoc(Doc\IDoc $doc, $batchMode = FALSE) {
+  public function saveDoc($dbName, Doc\IDoc $doc, $batchMode = FALSE) {
     // If there is a transaction in progress, adds the document to the transaction and returns.
     if ($this->transaction) {
       $this->transaction[] = $doc;
       return;
     }
-
-    $this->checkForDb();
 
     // Whether the document has an id we use a different HTTP method. Using POST CouchDB generates an id for the doc
     // using PUT we need to specify one. We can still use the function getUuids() to ask CouchDB for some ids.
@@ -1320,7 +1243,7 @@ final class Couch {
     // We never use the POST method.
     $method = Request::PUT_METHOD;
 
-    $path = "/".$this->dbName."/".$doc->getPath().$doc->getId();
+    $path = "/".rawurlencode($dbName)."/".$doc->getPath().$doc->getId();
 
     $request = new Request($method, $path);
     $request->setHeaderField(Request::CONTENT_TYPE_HF, "application/json");
@@ -1337,17 +1260,17 @@ final class Couch {
   /**
    * @brief Deletes the specified document.
    * @details To delete a document you must provide the document identifier and the revision number.
+   * @param[in] string $dbName The database name.
    * @param[in] string $docId The document's identifier you want delete.
    * @param[in] string $rev The document's revision number you want delete.
    * @param[in] string $path The document path.
    * @see http://docs.couchdb.org/en/latest/api/document/common.html#delete--db-docid
    */
-  public function deleteDoc($path, $docId, $rev) {
-    $this->checkForDb();
+  public function deleteDoc($dbName, $path, $docId, $rev) {
     $this->validateDocPath($path);
     $this->validateAndEncodeDocId($docId);
 
-    $path = "/".$this->dbName."/".$path.$docId;
+    $path = "/".rawurlencode($dbName)."/".$path.$docId;
 
     $request = new Request(Request::DELETE_METHOD, $path);
     $request->setQueryParam("rev", (string)$rev);
@@ -1363,20 +1286,20 @@ final class Couch {
    * @brief Makes a duplicate of the specified document. If you want to overwrite an existing document, you need to
    * specify the target document's revision with a `$rev` parameter.
    * @details If you want copy a special document you must specify his type.
+   * @param[in] string $dbName The database name.
    * @param[in] string $sourceDocId The source document id.
    * @param[in] string $targetDocId The destination document id.
    * @param[in] string $rev Needed when you want override an existent document.
    * @param[in] string $path The document path.
    * @see http://docs.couchdb.org/en/latest/api/document/common.html#copy--db-docid
    */
-  public function copyDoc($path, $sourceDocId, $targetDocId, $rev = NULL) {
-    $this->checkForDb();
+  public function copyDoc($dbName, $path, $sourceDocId, $targetDocId, $rev = NULL) {
     $this->validateDocPath($path);
 
     $this->validateAndEncodeDocId($sourceDocId);
     $this->validateAndEncodeDocId($targetDocId);
 
-    $path = "/".$this->dbName."/".$path.$sourceDocId;
+    $path = "/".rawurlencode($dbName)."/".$path.$sourceDocId;
 
     // This request uses the special method COPY.
     $request = new Request(Request::COPY_METHOD, $path);
@@ -1400,16 +1323,15 @@ final class Couch {
    * The purging of old documents is not replicated to other databases. If you are replicating between databases and
    * have deleted a large number of documents you should run purge on each database.\n
    * Purging documents does not remove the space used by them on disk. To reclaim disk space, you should run compactDb().\n
+   * @param[in] string $dbName The database name.
    * @param[in] array $refs An array of references used to identify documents and revisions to delete. The array must
    * contains instances of the DocRef class.
    * @retval Response
    * @see http://docs.couchdb.org/en/latest/api/database/misc.html#post--db-_purge
    * @see http://wiki.apache.org/couchdb/Purge_Documents
    */
-  public function purgeDocs(array $refs) {
-    $this->checkForDb();
-
-    $path = "/".$this->dbName."/_purge";
+  public function purgeDocs($dbName, array $refs) {
+    $path = "/".rawurlencode($dbName)."/_purge";
 
     $request = new Request(Request::POST_METHOD, $path);
 
@@ -1428,6 +1350,7 @@ final class Couch {
    * @details Documents that are updated or deleted must contain the `rev` number. To delete a document, you should
    * call delete() method on your document. When creating new documents the document ID is optional. For updating existing
    * documents, you must provide the document ID and revision.
+   * @param[in] string $dbName The database name.
    * @param[in] array $docs An array of documents you want insert, delete or update.
    * @param[in] bool $fullCommit (optional) Makes sure all uncommited database changes are written and synchronized
    * to the disk immediately.
@@ -1445,15 +1368,13 @@ final class Couch {
    * @see http://docs.couchdb.org/en/latest/json-structure.html#bulk-documents
    * @see http://wiki.apache.org/couchdb/HTTP_Bulk_Document_API
    */
-  public function performBulkOperations(array $docs, $fullCommit = FALSE, $allOrNothing = FALSE, $newEdits = TRUE) {
-    $this->checkForDb();
-
+  public function performBulkOperations($dbName, array $docs, $fullCommit = FALSE, $allOrNothing = FALSE, $newEdits = TRUE) {
     if (count($docs) == 0)
       throw new \InvalidArgumentException("The \$docs array cannot be empty.");
     else
       $operations = [];
 
-    $path = "/".$this->dbName."/_bulk_docs";
+    $path = "/".rawurlencode($dbName)."/_bulk_docs";
 
     $request = new Request(Request::POST_METHOD, $path);
     $request->setHeaderField(Request::CONTENT_TYPE_HF, "application/json");
@@ -1488,6 +1409,7 @@ final class Couch {
 
   /**
    * @brief Returns the minimal amount of information about the specified attachment.
+   * @param[in] string $dbName The database name.
    * @param[in] string $fileName The attachment's name.
    * @param[in] string $docId The document's identifier.
    * @param[in] string $path The document's path.
@@ -1495,12 +1417,11 @@ final class Couch {
    * @retval string The document's revision.
    * @see http://docs.couchdb.org/en/latest/api/document/attachments.html#db-doc-attachment
    */
-  public function getAttachmentInfo($fileName, $path, $docId, $rev = NULL) {
-    $this->checkForDb();
+  public function getAttachmentInfo($dbName, $fileName, $path, $docId, $rev = NULL) {
     $this->validateDocPath($path, TRUE);
     $this->validateAndEncodeDocId($docId);
 
-    $path = "/".$this->dbName."/".$path.$docId."/".$fileName;
+    $path = "/".rawurlencode($dbName)."/".$path.$docId."/".$fileName;
 
     $request = new Request(Request::HEAD_METHOD, $path);
 
@@ -1514,6 +1435,7 @@ final class Couch {
 
   /**
    * @brief Retrieves the attachment from the specified document.
+   * @param[in] string $dbName The database name.
    * @param[in] string $fileName The attachment's name.
    * @param[in] string $docId The document's identifier.
    * @param[in] string $path The document's path.
@@ -1522,12 +1444,11 @@ final class Couch {
    * @see http://docs.couchdb.org/en/latest/api/document/attachments.html#http-range-requests
    * @todo Add support for Range request, using header "Range: bytes=0-12".
    */
-  public function getAttachment($fileName, $path, $docId, $rev = NULL) {
-    $this->checkForDb();
+  public function getAttachment($dbName, $fileName, $path, $docId, $rev = NULL) {
     $this->validateDocPath($path, TRUE);
     $this->validateAndEncodeDocId($docId);
 
-    $path = "/".$this->dbName."/".$path.$docId."/".$fileName;
+    $path = "/".rawurlencode($dbName)."/".$path.$docId."/".$fileName;
 
     $request = new Request(Request::GET_METHOD, $path);
 
@@ -1541,20 +1462,20 @@ final class Couch {
 
   /**
    * @brief Inserts or updates an attachment to the specified document.
+   * @param[in] string $dbName The database name.
    * @param[in] string $fileName The attachment's name.
    * @param[in] string $docId The document's identifier.
    * @param[in] string $path The document's path.
    * @param[in] string $rev (optional) The document's revision.
    * @see http://docs.couchdb.org/en/latest/api/document/attachments.html#put--db-docid-attname
    */
-  public function putAttachment($fileName, $path, $docId, $rev = NULL) {
-    $this->checkForDb();
+  public function putAttachment($dbName, $fileName, $path, $docId, $rev = NULL) {
     $this->validateDocPath($path, TRUE);
     $this->validateAndEncodeDocId($docId);
 
     $attachment = Doc\Attachment\Attachment::fromFile($fileName);
 
-    $path = "/".$this->dbName."/".$path.$docId."/".rawurlencode($attachment->getName());
+    $path = "/".rawurlencode($dbName)."/".$path.$docId."/".rawurlencode($attachment->getName());
 
     $request = new Request(Request::PUT_METHOD, $path);
     $request->setHeaderField(Request::CONTENT_LENGTH_HF, $attachment->getContentLength());
@@ -1571,18 +1492,18 @@ final class Couch {
 
   /**
    * @brief Deletes an attachment from the document.
+   * @param[in] string $dbName The database name.
    * @param[in] string $fileName The attachment's name.
    * @param[in] string $docId The document's identifier.
    * @param[in] string $path The document's path.
    * @param[in] string $rev The document's revision.
    * @see http://docs.couchdb.org/en/latest/api/document/attachments.html#delete--db-docid-attname
    */
-  public function deleteAttachment($fileName, $path, $docId, $rev) {
-    $this->checkForDb();
+  public function deleteAttachment($dbName, $fileName, $path, $docId, $rev) {
     $this->validateDocPath($path, TRUE);
     $this->validateAndEncodeDocId($docId);
 
-    $path = "/".$this->dbName."/".$path.$docId."/".rawurlencode($fileName);
+    $path = "/".rawurlencode($dbName)."/".$path.$docId."/".rawurlencode($fileName);
 
     $request = new Request(Request::DELETE_METHOD, $path);
     $request->setQueryParam("rev", (string)$rev);
@@ -1599,15 +1520,15 @@ final class Couch {
 
   /**
    * @brief Returns basic information about the design document and his views.
+   * @param[in] string $dbName The database name.
    * @param[in] string $docName The design document's name.
    * @retval array An associative array
    * @see http://docs.couchdb.org/en/latest/api/ddoc/common.html#get--db-_design-ddoc-_info
    */
-  public function getDesignDocInfo($docName) {
-    $this->checkForDb();
+  public function getDesignDocInfo($dbName, $docName) {
     $this->validateAndEncodeDocId($docName);
 
-    $path = "/".$this->dbName."/".self::DESIGN_DOC_PATH.$docName."/_info";
+    $path = "/".rawurlencode($dbName)."/".self::DESIGN_DOC_PATH.$docName."/_info";
 
     $request = new Request(Request::GET_METHOD, $path);
 
@@ -1624,7 +1545,7 @@ final class Couch {
    * @see http://docs.couchdb.org/en/latest/api/ddoc/render.html#post--db-_design-ddoc-_show-func-docid
    * @todo To be implemented and documented.
    */
-  public function showDoc($designDocName, $showName, $docId = NULL) {
+  public function showDoc($dbName, $designDocName, $showName, $docId = NULL) {
     throw new \BadMethodCallException("The method `showDoc()` is not available.");
     // Invokes the show handler without a document
     // /db/_design/design-doc/_show/show-name
@@ -1646,7 +1567,7 @@ final class Couch {
    * @see http://docs.couchdb.org/en/latest/api/ddoc/render.html#post--db-_design-ddoc-_list-func-other-ddoc-view
    * @todo To be implemented and documented.
    */
-  public function listDocs($designDocName, $listName, $docId = NULL) {
+  public function listDocs($dbName, $designDocName, $listName, $docId = NULL) {
     throw new \BadMethodCallException("The method `listDocs()` is not available.");
     // Invokes the list handler to translate the given view results
     // Invokes the list handler to translate the given view results for certain documents
@@ -1665,7 +1586,7 @@ final class Couch {
    * @see http://docs.couchdb.org/en/latest/api/ddoc/render.html#put--db-_design-ddoc-_update-func-docid
    * @todo To be implemented and documented.
    */
-  public function callUpdateDocFunc($designDocName, $funcName) {
+  public function callUpdateDocFunc($dbName, $designDocName, $funcName) {
     throw new \BadMethodCallException("The method `callUpdateDocFunc()` is not available.");
     // Invokes the update handler without a document
     // /db/_design/design-doc/_update/update-name
