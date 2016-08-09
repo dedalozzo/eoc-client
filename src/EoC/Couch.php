@@ -43,9 +43,6 @@ final class Couch {
   // Socket or cURL HTTP client adapter.
   private $client;
 
-  // The current transaction.
-  private $transaction = NULL;
-
 
   /**
    * @brief Creates a Couch class instance.
@@ -368,74 +365,6 @@ final class Couch {
     }
     else
       throw new \InvalidArgumentException("\$count must be a positive integer.");
-  }
-
-  //!@}
-
-
-  /** @name Transaction Management Methods */
-  //!@{
-
-  //! @cond HIDDEN_SYMBOLS
-  // Ends the transaction.
-  private function endTransaction() {
-    if (is_array($this->transaction)) {
-
-      foreach ($this->transaction as $doc)
-        unset($doc);
-
-      unset($this->transaction);
-    }
-  }
-  //! @endcond
-
-
-  /**
-   * @brief Starts a new transaction.
-   */
-  public function begin() {
-    if (is_null($this->transaction))
-      $this->transaction = [];
-    else
-      throw new \RuntimeException("A transaction is already in progress.");
-  }
-
-
-  /**
-   * @brief Alias of begin().
-   */
-  public function startTransaction() {
-    $this->begin();
-  }
-
-
-  /**
-   * @brief Commits the current transaction, making its changes permanent, finally ends the transaction.
-   * @details In case of error rolls back the transaction.
-   * @param[in] bool $immediately (optional) Makes sure all uncommited database changes are written and synchronized
-   * to the disk immediately.
-   * @param[in] bool $newEdits (optional) When `false` CouchDB pushes existing revisions instead of creating
-   * new ones. The response will not include entries for any of the successful revisions (since their rev IDs are
-   * already known to the sender), only for the ones that had errors. Also, the conflict error will never appear,
-   * since in this mode conflicts are allowed.
-   */
-  public function commit($immediately = FALSE, $newEdits = TRUE) {
-    try {
-      $this->performBulkOperations($this->transaction, $immediately, TRUE, $newEdits);
-      $this->endTransaction();
-    }
-    catch (\Exception $e) {
-      $this->rollback();
-      throw $e;
-    }
-  }
-
-
-  /**
-   * @brief Rolls back the current transaction, canceling its changes, finally ends the transaction.
-   */
-  public function rollback() {
-    $this->endTransaction();
   }
 
   //!@}
@@ -1220,16 +1149,10 @@ final class Couch {
    * @param[in] bool $batchMode (optional) You can write documents to the database at a higher rate by using the batch
    * option. This collects document writes together in memory (on a user-by-user basis) before they are committed to
    * disk. This increases the risk of the documents not being stored in the event of a failure, since the documents are
-   * not written to disk immediately. This parameter is ignored in case a transaction is in progress.
+   * not written to disk immediately.
    * @see http://docs.couchdb.org/en/latest/api/document/common.html#put--db-docid
    */
   public function saveDoc($dbName, Doc\IDoc $doc, $batchMode = FALSE) {
-    // If there is a transaction in progress, adds the document to the transaction and returns.
-    if ($this->transaction) {
-      $this->transaction[] = $doc;
-      return;
-    }
-
     // Whether the document has an id we use a different HTTP method. Using POST CouchDB generates an id for the doc
     // using PUT we need to specify one. We can still use the function getUuids() to ask CouchDB for some ids.
     if (!$doc->issetId())
