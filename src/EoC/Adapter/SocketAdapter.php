@@ -258,8 +258,13 @@ class SocketAdapter extends AbstractAdapter {
     // Creates the Response object.
     $response = new Response($this->readResponseStatusCodeAndHeader());
 
-    // Assigns the body to the response, if any is present.
-    $response->setBody($this->readResponseBody($response, $chunkHook));
+    // The Content-Length entity-header field indicates the size of the entity-body, in decimal number of OCTETs, sent
+    // to the recipient or, in the case of the HEAD method, the size of the entity-body that would have been sent had
+    // the request been a GET.
+    if ($request->getMethod() != Request::HEAD_METHOD) {
+      // Assigns the body to the response, if any is present.
+      $response->setBody($this->readResponseBody($response, $chunkHook));
+    }
 
     return $response;
   }
