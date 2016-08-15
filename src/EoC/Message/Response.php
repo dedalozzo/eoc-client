@@ -44,7 +44,9 @@ final class Response extends Message {
 
   /**
    * @brief An identifier for a specific version of a resource, often a message digest.
+   * @attention The constant should be ETag, not Etag, see the below bug.
    * @see http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.19
+   * @bug https://issues.apache.org/jira/browse/COUCHDB-3105
    */
   const ETAG_HF = "Etag";
 
