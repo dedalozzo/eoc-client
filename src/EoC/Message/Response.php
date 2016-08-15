@@ -46,7 +46,7 @@ final class Response extends Message {
    * @brief An identifier for a specific version of a resource, often a message digest.
    * @see http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.19
    */
-  const ETAG_HF = "ETag";
+  const ETAG_HF = "Etag";
 
   /**
    * @brief Used to express a typed relationship with another resource, where the relation type is defined by RFC 5988.
