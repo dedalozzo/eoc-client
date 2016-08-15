@@ -130,6 +130,15 @@ final class Couch {
 
 
   /**
+   * @brief Gets the prefix used to compose the database's name if any.
+   * @return string
+   */
+  public function getDbPrefix() {
+    return $this->prefix;
+  }
+
+
+  /**
    * @brief This method is used to send a Request to CouchDB.
    * @details If you want call a not supported CouchDB API, you can use this function to send your request.\n
    * You can also provide an instance of a class that implements the IChunkHook interface, to deal with a chunked
@@ -1081,6 +1090,7 @@ final class Couch {
    * @param[in] string $docId The document's identifier.
    * @retval string The document's revision.
    * @see http://docs.couchdb.org/en/latest/api/document/common.html#db-doc
+   * @bug CouchDB ETag is
    */
   public function getDocEtag($dbName, $docId) {
     $this->validateAndEncodeDocId($docId);
