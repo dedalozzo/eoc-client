@@ -131,16 +131,16 @@ class ViewQueryOpts extends AbstractOpts {
 
   /**
    * @brief Restricts the number of results.
-   * @details Allowed values: positive integers.
+   * @details Allowed values: natural numbers (non-negative integers).
    * @param[in] int $value The maximum number of rows to include in the output.
    * @retval ViewQueryOpts
    * @attention Chainable.
    */
   public function setLimit($value) {
-    if (is_int($value) && $value > 0)
+    if (is_int($value) && $value >= 0)
       $this->options["limit"] = $value;
     else
-      throw new \Exception("\$value must be a positive integer.");
+      throw new \Exception("\$value must be a non-negative integer.");
 
     return $this;
   }
