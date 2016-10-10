@@ -946,6 +946,9 @@ final class Couch {
       $request->setBody(json_encode(['keys' => $keys]));
     }
 
+    // Required since CouchDB 2.0.
+    $request->setHeaderField(Request::CONTENT_TYPE_HF, "application/json");
+
     if (isset($opts)) {
       $request->setMultipleQueryParamsAtOnce($opts->asArray());
       $includeMissingKeys = $opts->issetIncludeMissingKeys();
