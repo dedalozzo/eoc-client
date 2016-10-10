@@ -173,12 +173,12 @@ final class Couch {
       case ($statusCode < 200):
         //$this->handleInformational($request, $response);
         break;
-      case ($statusCode < 300):
+      case ($statusCode < 400):
         //$this->handleRedirection($request, $response);
         break;
-      case ($statusCode < 400):
-        throw new Exception\ClientErrorException($request, $response);
       case ($statusCode < 500):
+        throw new Exception\ClientErrorException($request, $response);
+      case ($statusCode >= 500):
         throw new Exception\ServerErrorException($request, $response);
       default:
         throw new Exception\UnknownResponseException($request, $response);
