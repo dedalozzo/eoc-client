@@ -76,10 +76,10 @@ class BadResponseException extends \RuntimeException {
     // 5xx - Server Error Status Codes
     // 6xx - Unknown Error Status Codes
     switch ($statusCode) {
-      case ($statusCode < 400):
+      case ($statusCode < 500):
         $this->info[] = "[Error Type] Client Error";
         break;
-      case ($statusCode < 500):
+      case ($statusCode >= 500):
         $this->info[] = "[Error Type] Server Error";
         break;
       default:
