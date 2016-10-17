@@ -11,7 +11,7 @@
 namespace EoC\Doc;
 
 
-use EoC\Extension;
+use EoC\Extension\TProperty;
 use EoC\Helper;
 
 
@@ -20,7 +20,7 @@ use EoC\Helper;
  * @see AbstractDoc.dox
  */
 trait TDoc {
-  use Extension\TProperty;
+  use TProperty;
 
   protected $meta = [];
 
@@ -107,7 +107,14 @@ trait TDoc {
 
 
   public function asJson() {
-    return json_encode($this->meta);
+    $json = json_encode($this->meta,
+        JSON_UNESCAPED_UNICODE |
+        JSON_PARTIAL_OUTPUT_ON_ERROR |
+        JSON_PRESERVE_ZERO_FRACTION
+    );
+
+    if ($json === FALSE)
+      throw new \RuntimeException(json_last_error_msg());
   }
 
 
