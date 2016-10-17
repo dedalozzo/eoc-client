@@ -115,6 +115,8 @@ trait TDoc {
 
     if ($json === FALSE)
       throw new \RuntimeException(json_last_error_msg());
+
+    return $json;
   }
 
 
