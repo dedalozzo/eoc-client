@@ -13,6 +13,7 @@ namespace EoC\Doc;
 
 use EoC\Extension\TProperty;
 use EoC\Helper;
+use EoC\Exception\JSONErrorException;
 
 
 /**
@@ -114,7 +115,7 @@ trait TDoc {
     );
 
     if ($json === FALSE)
-      throw new \RuntimeException(json_last_error_msg());
+      throw new JSONErrorException(json_last_error_msg());
 
     return $json;
   }
