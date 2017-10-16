@@ -8,7 +8,7 @@
  */
 
 
-//! The CouchDB's design document handlers namespace.
+//! The CouchDB's design document handlers namespace
 namespace EoC\Handler;
 
 
