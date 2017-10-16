@@ -12,7 +12,8 @@ namespace EoC\Message;
 
 
 use EoC\Adapter;
-use EoC\Helper;
+
+use ToolBag\Helper;
 
 
 /**
