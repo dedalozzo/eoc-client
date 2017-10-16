@@ -12,7 +12,7 @@
 namespace EoC\Handler;
 
 
-use EoC\Extension;
+use ToolBag\Extension;
 
 
 /**

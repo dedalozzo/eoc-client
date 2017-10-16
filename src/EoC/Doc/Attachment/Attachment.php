@@ -12,7 +12,7 @@
 namespace EoC\Doc\Attachment;
 
 
-use EoC\Extension;
+use ToolBag\Extension;
 
 
 /**

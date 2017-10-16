@@ -11,8 +11,9 @@
 namespace EoC\Info;
 
 
-use EoC\Extension;
 use EoC\Helper;
+
+use ToolBag\Extension;
 
 
 /**

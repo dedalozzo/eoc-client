@@ -11,9 +11,10 @@
 namespace EoC\Info;
 
 
-use EoC\Extension;
 use EoC\Couch;
 use EoC\Version;
+
+use ToolBag\Extension;
 
 
 /**

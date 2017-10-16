@@ -11,7 +11,7 @@
 namespace EoC\Doc;
 
 
-use EoC\Extension;
+use ToolBag\Extension;
 
 
 /**
@@ -20,7 +20,7 @@ use EoC\Extension;
  * a list of revisions you can add calling addRev().
  */
 final class DocRefsArray {
-  use Extension\TProperty;
+  use ToolBag\TProperty;
 
   private $id;
   private $revs;

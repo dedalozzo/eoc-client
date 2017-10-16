@@ -12,7 +12,7 @@
 namespace EoC\Info;
 
 
-use EoC\Extension;
+use ToolBag\Extension;
 
 
 /**

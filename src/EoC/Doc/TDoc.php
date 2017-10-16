@@ -11,9 +11,10 @@
 namespace EoC\Doc;
 
 
-use EoC\Extension\TProperty;
-use EoC\Helper;
 use EoC\Exception\JSONErrorException;
+
+use ToolBag\Extension;
+use ToolBag\Helper;
 
 
 /**
@@ -21,7 +22,7 @@ use EoC\Exception\JSONErrorException;
  * @see AbstractDoc.dox
  */
 trait TDoc {
-  use TProperty;
+  use Extension\TProperty;
 
   protected $meta = [];
 
