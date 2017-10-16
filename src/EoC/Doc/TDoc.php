@@ -11,10 +11,9 @@
 namespace EoC\Doc;
 
 
-use EoC\Exception\JSONErrorException;
-
 use ToolBag\Extension;
 use ToolBag\Helper;
+use ToolBag\Exception\JSONErrorException;
 
 
 /**
