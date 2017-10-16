@@ -8,7 +8,7 @@
  */
 
 
-//! The CouchDB's errors namespace.
+//! The CouchDB's errors namespace
 namespace EoC\Exception;
 
 
