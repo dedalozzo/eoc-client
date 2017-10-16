@@ -8,7 +8,7 @@
  */
 
 
-//! The CouchDB's documents namespace.
+//! The CouchDB's documents namespace
 namespace EoC\Doc;
 
 
