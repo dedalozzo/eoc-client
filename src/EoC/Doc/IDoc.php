@@ -22,6 +22,15 @@ namespace EoC\Doc;
 interface IDoc {
 
   /**
+   * @brief Sets the full name space class name into the the provided metadata into the metadata array.
+   * @details The method Couch.getDoc will use this to create an object of the same class you previously stored using
+   * Couch::saveDoc() method.
+   * @param[in] string $value The full namespace class name, like returned from get_class() function.
+   */
+  function setClass($value);
+
+
+  /**
    * @brief Sets the object type.
    * @param[in] string $value Usually the class name purged of his namespace.
    */
@@ -36,6 +45,29 @@ interface IDoc {
    * @retval bool
    */
   function hasType();
+
+
+  /**
+   * @brief Gets the document path.
+   * @details Returns an empty string for standard document, `_local/` for local document and `_design/` for
+   * design document.
+   * @retval string
+   */
+  function getPath();
+
+
+  /**
+   * @brief Returns the document representation as a JSON object.
+   * @retval JSON object
+   */
+  function asJson();
+
+
+  /**
+   * @brief Returns the document representation as an associative array.
+   * @retval array An associative array
+   */
+  public function asArray();
 
 
   /**
@@ -62,37 +94,5 @@ interface IDoc {
    * @brief Unset the document identifier.
    */
   function unsetId();
-
-
-  /**
-   * @brief Sets the full name space class name into the the provided metadata into the metadata array.
-   * @details The method Couch.getDoc will use this to create an object of the same class you previously stored using
-   * Couch::saveDoc() method.
-   * @param[in] string $value The full namespace class name, like returned from get_class() function.
-   */
-  function setClass($value);
-
-
-  /**
-   * @brief Gets the document path.
-   * @details Returns an empty string for standard document, `_local/` for local document and `_design/` for
-   * design document.
-   * @retval string
-   */
-  function getPath();
-
-
-  /**
-   * @brief Returns the document representation as a JSON object.
-   * @retval JSON object
-   */
-  function asJson();
-
-
-  /**
-   * @brief Returns the document representation as an associative array.
-   * @retval array An associative array
-   */
-  public function asArray();
 
 }
