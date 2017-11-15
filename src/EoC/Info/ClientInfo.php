@@ -14,7 +14,7 @@ namespace EoC\Info;
 use EoC\Couch;
 use EoC\Version;
 
-use ToolBag\Extension;
+use Meta\Extension;
 
 
 /**

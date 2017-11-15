@@ -12,7 +12,7 @@
 namespace EoC\Doc;
 
 
-use ToolBag\Meta\MetaClass;
+use Meta\MetaClass;
 
 
 /**
