@@ -17,7 +17,7 @@ namespace EoC\Doc;
  * configurations.\n
  * Inherit from LocalDoc if you want create a persistent class that is not replicable.
  * @nosubgrouping
-   */
+ */
 class LocalDoc extends AbstractDoc {
 
 
