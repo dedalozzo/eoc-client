@@ -296,7 +296,7 @@ final class Couch extends Surfer {
 
   /**
    * @brief Returns a list of all database events in the CouchDB instance.
-   * @param DbUpdatesFeedOpts $opts Additional options.
+   * @param Opt\DbUpdatesFeedOpts $opts Additional options.
    * @return array An associative array.
    * @attention Requires admin privileges.
    * @see http://docs.couchdb.org/en/latest/api/server/common.html#db-updates
@@ -564,7 +564,7 @@ final class Couch extends Surfer {
   /**
    * @brief Returns information about the selected database.
    * @param string $name The database name.
-   * @return array An associative array.
+   * @return Info\Dbinfo
    * @see http://docs.couchdb.org/en/latest/api/database/common.html#get--db
    */
   public function getDbInfo($name) {
@@ -576,7 +576,7 @@ final class Couch extends Surfer {
    * @brief Obtains a list of the changes made to the database. This can be used to monitor for update and modifications
    * to the database for post processing or synchronization.
    * @param string $name The database name.
-   * @param ChangesFeedOpts $opts Additional options.
+   * @param Opt\ChangesFeedOpts $opts Additional options.
    * @return Response
    * @see http://docs.couchdb.org/en/latest/api/database/changes.html
    */
@@ -707,11 +707,11 @@ final class Couch extends Surfer {
   /**
    * @brief Returns the special security object for the database.
    * @param string $dbName The database name.
-   * @return string A JSON object.
+   * @return array An associative array.
    * @see http://docs.couchdb.org/en/latest/api/database/security.html#get--db-_security
    */
   public function getSecurityObj($dbName) {
-    return $this->send(new Request(Request::GET_METHOD, "/".rawurlencode($this->prefix.$dbName)."/_security"));
+    return $this->send(new Request(Request::GET_METHOD, "/".rawurlencode($this->prefix.$dbName)."/_security"))->getBodyAsArray();
   }
 
 
@@ -761,7 +761,7 @@ final class Couch extends Surfer {
    * permanent continuous replications that survive a server restart without you having to do anything.
    * @param string|array $filter (optional) Name of a filter function that can choose which revisions get replicated.
    * You can also provide an array of document identifiers; if given, only these documents will be replicated.
-   * @param ViewQueryOpts $opts (optional) Query options to get additional information, grouping results, include
+   * @param Opt\ViewQueryOpts $opts (optional) Query options to get additional information, grouping results, include
    * docs, etc.
    * @return Response
    * @see http://docs.couchdb.org/en/latest/api/server/common.html#post--_replicate
@@ -865,7 +865,7 @@ final class Couch extends Surfer {
    * @param array $keys (optional) Used to retrieve just the view rows matching that set of keys. Rows are returned
    * in the order of the specified keys. Combining this feature with Opt\ViewQueryOpts.includeDocs() results in the so-called
    * multi-document-fetch feature.
-   * @param ViewQueryOpts $opts (optional) Query options to get additional information, grouping results, include
+   * @param Opt\ViewQueryOpts $opts (optional) Query options to get additional information, grouping results, include
    * docs, etc.
    * @param IChunkHook $chunkHook (optional) A class instance that implements the IChunkHook interface.
    * @return Result\QueryResult The result of the query.
@@ -897,7 +897,7 @@ final class Couch extends Surfer {
    * @param array $keys (optional) Used to retrieve just the view rows matching that set of keys. Rows are returned
    * in the order of the specified keys. Combining this feature with Opt\ViewQueryOpts.includeDocs() results in the so-called
    * multi-document-fetch feature.
-   * @param ViewQueryOpts $opts (optional) Query options to get additional information, grouping results, include
+   * @param Opt\ViewQueryOpts $opts (optional) Query options to get additional information, grouping results, include
    * docs, etc.
    * @param IChunkHook $chunkHook (optional) A class instance that implements the IChunkHook interface.
    * @return Result\QueryResult The result of the query.
@@ -949,7 +949,7 @@ final class Couch extends Surfer {
    * @param array $keys (optional) Used to retrieve just the view rows matching that set of keys. Rows are returned
    * in the order of the specified keys. Combining this feature with Opt\ViewQueryOpts.includeDocs() results in the so-called
    * multi-document-fetch feature.
-   * @param ViewQueryOpts $opts (optional) Query options to get additional information, grouping results, include
+   * @param Opt\ViewQueryOpts $opts (optional) Query options to get additional information, grouping results, include
    * docs, etc.
    * @param string $language The language used to implement the map and reduce functions.
    * @param IChunkHook $chunkHook (optional) A class instance that implements the IChunkHook interface.
@@ -1089,7 +1089,7 @@ final class Couch extends Surfer {
    * @param string $docId The document's identifier.
    * @param string $path The document's path.
    * @param string $rev (optional) The document's revision.
-   * @param DocOpts $opts Query options to get additional document information, like conflicts, attachments, etc.
+   * @param Opt\DocOpts $opts Query options to get additional document information, like conflicts, attachments, etc.
    * @return object|Response An instance of Doc, LocalDoc, DesignDoc or any subclass of Doc.
    * @see http://docs.couchdb.org/en/latest/api/document/common.html#get--db-docid
    */
@@ -1144,7 +1144,7 @@ final class Couch extends Surfer {
    * using PUT instead we need to specify one. We can still use the function getUuids() to ask CouchDB for some ids.
    * This is an internal detail. You have only to know that CouchDB can generate the document id for you.
    * @param string $dbName The database name.
-   * @param Doc $doc The document you want insert or update.
+   * @param Doc\IDoc $doc The document you want insert or update.
    * @param bool $batchMode (optional) You can write documents to the database at a higher rate by using the batch
    * option. This collects document writes together in memory (on a user-by-user basis) before they are committed to
    * disk. This increases the risk of the documents not being stored in the event of a failure, since the documents are
@@ -1327,13 +1327,13 @@ final class Couch extends Surfer {
 
 
   /**
-   * @brief Returns the minimal amount of information about the specified attachment.
+   * @brief Returns the attachment revision.
    * @param string $dbName The database name.
    * @param string $fileName The attachment's name.
    * @param string $docId The document's identifier.
    * @param string $path The document's path.
    * @param string $rev (optional) The document's revision.
-   * @return string The document's revision.
+   * @return array An associative array.
    * @see http://docs.couchdb.org/en/latest/api/document/attachments.html#db-doc-attachment
    */
   public function getAttachmentInfo($dbName, $fileName, $path, $docId, $rev = NULL) {
@@ -1348,7 +1348,7 @@ final class Couch extends Surfer {
     if (!empty($rev))
       $request->setQueryParam("rev", (string)$rev);
 
-    return $this->send($request);
+    return $this->send($request)->getHeaderAsArray();
   }
 
 
