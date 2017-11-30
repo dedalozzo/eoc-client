@@ -10,7 +10,7 @@ class DesignDoc {
   //!@{
 
   /**
-   * @brief string The purpose of this property is to specify the programming language used to write the handlers' closures.
+   * @brief The purpose of this property is to specify the programming language used to write the handlers' closures.
    * @details CouchDB will automatically use the right interpreter for the various handlers stored into this design
    * document.
    */

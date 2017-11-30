@@ -11,19 +11,20 @@
 namespace EoC;
 
 
-use EoC\Adapter\IClientAdapter;
-use EoC\Message\Request;
-use EoC\Message\Response;
+use Surfer\Surfer;
+use Surfer\Adapter\IClientAdapter;
+use Surfer\Message\Request;
+use Surfer\Message\Response;
+use Surfer\Hook\IChunkHook;
 
 
 /**
  * @brief The CouchDB's client. You need an instance of this class to interact with CouchDB.
  * @nosubgrouping
  * @todo Add Memcached support. Remember to use Memcached extension, not memcache.
- * @todo Add Post File support.
  * @todo Check ISO-8859-1 because CouchDB uses it, in particular utf8_encode().
  */
-final class Couch {
+final class Couch extends Surfer {
 
   //! The user agent name.
   const USER_AGENT_NAME = "EoC Client";
@@ -52,14 +53,14 @@ final class Couch {
    * @param[in] IClientAdapter $adapter An instance of a class that implements the IClientAdapter interface.
    */
   public function __construct(IClientAdapter $adapter) {
-    $this->client = $adapter;
+    parent::__construct($adapter);
   }
 
 
   /**
    * @brief Returns a CouchDB wild card.
    * @details A standard object is translated to JSON as `{}` same of a JavaScript empty object.
-   * @retval [stdClass](http://php.net/manual/en/language.types.object.php)
+   * @return [stdClass](http://php.net/manual/en/language.types.object.php)
    */
   public static function WildCard() {
     return new \stdClass();
@@ -89,7 +90,7 @@ final class Couch {
    * @details CouchDB doesn't return rows for the keys a match is not found. To make joins having a row for each key is
    * essential. The algorithm below overrides the rows, adding a new row for every key hasn't been matched. The JSON
    * encoding is necessary because we might have complex keys. A complex key is no more than an array.
-   * @param[in] array $keys An array containing the keys.
+   * @param array $keys An array containing the keys.
    * @param[out] array $rows An associative array containing the rows.
    */
   private function addMissingRows($keys, &$rows) {
@@ -122,7 +123,7 @@ final class Couch {
 
   /**
    * @brief Sets a prefix which is used to compose the database's name.
-   * @param[in] string $prefix A string prefix.
+   * @param string $prefix A string prefix.
    */
   public function setDbPrefix($prefix) {
     $this->prefix = $prefix;
@@ -143,11 +144,11 @@ final class Couch {
    * @details If you want call a not supported CouchDB API, you can use this function to send your request.\n
    * You can also provide an instance of a class that implements the IChunkHook interface, to deal with a chunked
    * response.
-   * @param[in] Request $request The Request object.
-   * @param[in] IChunkHook $chunkHook (optional) A class instance that implements the IChunkHook interface.
+   * @param Request $request The Request object.
+   * @param IChunkHook $chunkHook (optional) A class instance that implements the IChunkHook interface.
    * @return Response
    */
-  public function send(Request $request, Hook\IChunkHook $chunkHook = NULL) {
+  public function send(Request $request, IChunkHook $chunkHook = NULL) {
     // Sets user agent information.
     $request->setHeaderField(Request::USER_AGENT_HF, self::USER_AGENT_NAME." ".Version::getNumber());
 
@@ -158,33 +159,7 @@ final class Couch {
     // NOTE: we don't use anymore the connection header field, because we use the same socket until the end of script.
     //$request->setHeaderField(Message::CONNECTION_HF, "close");
 
-    $response = $this->client->send($request, $chunkHook);
-
-    // 1xx - Informational Status Codes
-    // 2xx - Success Status Codes
-    // 3xx - Redirection Status Codes
-    // 4xx - Client Error Status Codes
-    // 5xx - Server Error Status Codes
-    $statusCode = (int)$response->getStatusCode();
-
-    switch ($statusCode) {
-      case ($statusCode >= 200 && $statusCode < 300):
-        break;
-      case ($statusCode < 200):
-        //$this->handleInformational($request, $response);
-        break;
-      case ($statusCode < 400):
-        //$this->handleRedirection($request, $response);
-        break;
-      case ($statusCode < 500):
-        throw new Exception\ClientErrorException($request, $response);
-      case ($statusCode >= 500):
-        throw new Exception\ServerErrorException($request, $response);
-      default:
-        throw new Exception\UnknownResponseException($request, $response);
-    }
-
-    return $response;
+    return parent::send($request, $chunkHook);
   }
 
 
@@ -195,8 +170,8 @@ final class Couch {
    * @brief This method raise an exception when a user provide an invalid document path.
    * @details This method is called by any other methods that interacts with CouchDB. You don't need to call, unless
    * you are making a not supported call to CouchDB.
-   * @param[in] string $path Document path.
-   * @param[in] bool $excludeLocal Document path.
+   * @param string $path Document path.
+   * @param bool $excludeLocal Document path.
    */
   public function validateDocPath($path, $excludeLocal = FALSE) {
     if (empty($path)) // STD_DOC_PATH
@@ -265,7 +240,7 @@ final class Couch {
    * @brief Returns an object that contains MOTD, server and client and PHP versions.
    * @details The MOTD can be specified in CouchDB configuration files. This function returns more information
    * compared to the CouchDB standard REST call.
-   * @retval Info::ServerInfo
+   * @return Info::ServerInfo
    */
   public function getServerInfo() {
     $response = $this->send(new Request(Request::GET_METHOD, "/"));
@@ -276,7 +251,7 @@ final class Couch {
 
   /**
    * @brief Returns information about the Elephant on Couch client.
-   * @retval Info::ClientInfo
+   * @return Info::ClientInfo
    */
   public function getClientInfo() {
     return new Info\ClientInfo();
@@ -287,7 +262,7 @@ final class Couch {
    * @brief Returns the favicon.ico file.
    * @details The favicon is a part of the admin interface, but the handler for it is special as CouchDB tries to make
    * sure that the favicon is cached for one year. Returns a string that represents the icon.
-   * @retval string
+   * @return string
    * @see http://docs.couchdb.org/en/latest/api/server/common.html#favicon-ico
    */
   public function getFavicon() {
@@ -302,7 +277,7 @@ final class Couch {
 
   /**
    * @brief Returns server statistics.
-   * @retval array An associative array
+   * @return array An associative array
    * @see http://docs.couchdb.org/en/latest/api/server/common.html#stats
    */
   public function getStats() {
@@ -312,7 +287,7 @@ final class Couch {
 
   /**
    * @brief Returns a list of all databases on this server.
-   * @retval array of string
+   * @return array of string
    * @see http://docs.couchdb.org/en/latest/api/server/common.html#all-dbs
    */
   public function getAllDbs() {
@@ -322,8 +297,8 @@ final class Couch {
 
   /**
    * @brief Returns a list of all database events in the CouchDB instance.
-   * @param[in] DbUpdatesFeedOpts $opts Additional options.
-   * @retval Response
+   * @param DbUpdatesFeedOpts $opts Additional options.
+   * @return Response
    * @attention Requires admin privileges.
    * @see http://docs.couchdb.org/en/latest/api/server/common.html#db-updates
    */
@@ -340,7 +315,7 @@ final class Couch {
   /**
    * @brief Returns a list of running tasks.
    * @attention Requires admin privileges.
-   * @retval array An associative array
+   * @return array An associative array
    * @see http://docs.couchdb.org/en/latest/api/server/common.html#active-tasks
    */
   public function getActiveTasks() {
@@ -351,8 +326,8 @@ final class Couch {
   /**
    * @brief Returns the tail of the server's log file.
    * @attention Requires admin privileges.
-   * @param[in] integer $bytes How many bytes to return from the end of the log file.
-   * @retval string
+   * @param integer $bytes How many bytes to return from the end of the log file.
+   * @return string
    * @see http://docs.couchdb.org/en/latest/api/server/common.html#log
    */
   public function getLogTail($bytes = 1000) {
@@ -368,8 +343,8 @@ final class Couch {
 
   /**
    * @brief Returns a list of generated UUIDs.
-   * @param[in] integer $count Requested UUIDs number.
-   * @retval string|array If `$count == 1` (default) returns a string else returns an array of strings.
+   * @param integer $count Requested UUIDs number.
+   * @return string|array If `$count == 1` (default) returns a string else returns an array of strings.
    * @see http://docs.couchdb.org/en/latest/api/server/common.html#uuids
    */
   public function getUuids($count = 1) {
@@ -396,9 +371,9 @@ final class Couch {
 
   /**
    * @brief Returns the entire server configuration or a single section or a single configuration value of a section.
-   * @param[in] string $section Requested section.
-   * @param[in] string $key Requested key.
-   * @retval string|array An array with the configuration keys or a simple string in case of a single key.
+   * @param string $section Requested section.
+   * @param string $key Requested key.
+   * @return string|array An array with the configuration keys or a simple string in case of a single key.
    * @see http://docs.couchdb.org/en/latest/api/server/configuration.html#get--_config
    * @see http://docs.couchdb.org/en/latest/api/server/configuration.html#get--_config-section
    * @see http://docs.couchdb.org/en/latest/api/server/configuration.html#config-section-key
@@ -419,9 +394,9 @@ final class Couch {
 
   /**
    * @brief Sets a single configuration value in a given section to server configuration.
-   * @param[in] string $section The configuration section.
-   * @param[in] string $key The key.
-   * @param[in] string $value The value for the key.
+   * @param string $section The configuration section.
+   * @param string $key The key.
+   * @param string $value The value for the key.
    * @see http://docs.couchdb.org/en/latest/api/server/configuration.html#put--_config-section-key
    */
   public function setConfigKey($section, $key, $value) {
@@ -443,8 +418,8 @@ final class Couch {
 
   /**
    * @brief Deletes a single configuration value from a given section in server configuration.
-   * @param[in] string $section The configuration section.
-   * @param[in] string $key The key.
+   * @param string $section The configuration section.
+   * @param string $key The key.
    * @see http://docs.couchdb.org/en/latest/api/configuration.html#delete-config-section-key
    */
   public function deleteConfigKey($section, $key) {
@@ -465,7 +440,7 @@ final class Couch {
 
   /**
    * @brief Returns cookie based login user information.
-   * @retval Response
+   * @return Response
    * @see http://docs.couchdb.org/en/latest/api/server/authn.html#get--_session
    */
   public function getSession() {
@@ -475,7 +450,7 @@ final class Couch {
 
   /**
    * @brief Makes cookie based user login.
-   * @retval Response
+   * @return Response
    * @see http://docs.couchdb.org/en/latest/api/server/authn.html#post--_session
    */
   public function setSession($userName, $password) {
@@ -499,7 +474,7 @@ final class Couch {
 
   /**
    * @brief Makes user logout.
-   * @retval Response
+   * @return Response
    * @see http://docs.couchdb.org/en/latest/api/server/authn.html#delete--_session
    */
   public function deleteSession() {
@@ -553,7 +528,7 @@ final class Couch {
 
   /**
    * @brief Creates a new database and selects it.
-   * @param[in] string $name The database name. A database must be named with all lowercase letters (a-z),
+   * @param string $name The database name. A database must be named with all lowercase letters (a-z),
    * digits (0-9), or any of the _$()+-/ characters and must end with a slash in the URL. The name has to start with a
    * lowercase letter (a-z).
    * @see http://docs.couchdb.org/en/latest/api/database/common.html#put--db
@@ -579,7 +554,7 @@ final class Couch {
 
   /**
    * @brief Deletes an existing database.
-   * @param[in] string $name The database name.
+   * @param string $name The database name.
    * @see http://docs.couchdb.org/en/latest/api/database/common.html#delete--db
    */
   public function deleteDb($name) {
@@ -589,8 +564,8 @@ final class Couch {
 
   /**
    * @brief Returns information about the selected database.
-   * @param[in] string $name The database name.
-   * @retval Info::DbInfo
+   * @param string $name The database name.
+   * @return Info::DbInfo
    * @see http://docs.couchdb.org/en/latest/api/database/common.html#get--db
    */
   public function getDbInfo($name) {
@@ -601,9 +576,9 @@ final class Couch {
   /**
    * @brief Obtains a list of the changes made to the database. This can be used to monitor for update and modifications
    * to the database for post processing or synchronization.
-   * @param[in] string $name The database name.
-   * @param[in] ChangesFeedOpts $opts Additional options.
-   * @retval Response
+   * @param string $name The database name.
+   * @param ChangesFeedOpts $opts Additional options.
+   * @return Response
    * @see http://docs.couchdb.org/en/latest/api/database/changes.html
    */
   public function getDbChanges($name, Opt\ChangesFeedOpts $opts = NULL) {
@@ -629,7 +604,7 @@ final class Couch {
    * database by obtaining the database meta information, the `compact_running` value of the returned database
    * structure will be set to true. You can also obtain a list of running processes to determine whether compaction is
    * currently running, using getActiveTasks().
-   * @param[in] string $name The database name.
+   * @param string $name The database name.
    * @attention Requires admin privileges.
    * @see http://docs.couchdb.org/en/latest/api/database/compact.html
    */
@@ -647,8 +622,8 @@ final class Couch {
    * @brief Compacts the specified view.
    * @details If you have very large views or are tight on space, you might consider compaction as well. To run compact
    * for a particular view on a particular database, use this method.
-   * @param[in] string $dbName The database name.
-   * @param[in] string $designDocName Name of the design document where is stored the view.
+   * @param string $dbName The database name.
+   * @param string $designDocName Name of the design document where is stored the view.
    * @see http://docs.couchdb.org/en/latest/api/database/compact.html#db-compact-design-doc
    */
   public function compactView($dbName, $designDocName) {
@@ -666,7 +641,7 @@ final class Couch {
   /**
    * @brief Removes all outdated view indexes.
    * @details Old views files remain on disk until you explicitly run cleanup.
-   * @param[in] string $dbName The database name.
+   * @param string $dbName The database name.
    * @attention Requires admin privileges.
    * @see http://docs.couchdb.org/en/latest/api/database/compact.html#db-view-cleanup
    */
@@ -688,8 +663,8 @@ final class Couch {
    * deeply limits CouchDB's performance for non-bulk writers.\n
    * Delayed commit should be left set to true in the configuration settings. Anyway, you can still tell CouchDB to make
    * an fsync, calling the this method.
-   * @param[in] string $dbName The database name.
-   * @retval string The timestamp of the last time the database file was opened.
+   * @param string $dbName The database name.
+   * @return string The timestamp of the last time the database file was opened.
    * @see http://docs.couchdb.org/en/latest/api/database/compact.html#db-ensure-full-commit
    */
   public function ensureFullCommit($dbName) {
@@ -732,8 +707,8 @@ final class Couch {
 
   /**
    * @brief Returns the special security object for the database.
-   * @param[in] string $dbName The database name.
-   * @retval string A JSON object.
+   * @param string $dbName The database name.
+   * @return string A JSON object.
    * @see http://docs.couchdb.org/en/latest/api/database/security.html#get--db-_security
    */
   public function getSecurityObj($dbName) {
@@ -743,7 +718,7 @@ final class Couch {
 
   /**
    * @brief Sets the special security object for the database.
-   * @param[in] string $dbName The database name.
+   * @param string $dbName The database name.
    * @see http://docs.couchdb.org/en/latest/api/database/security.html#put--db-_security
    */
   public function setSecurityObj($dbName) {
@@ -775,21 +750,21 @@ final class Couch {
    @code
      startReplication("sourcedbname", "http://example.org/targetdbname", TRUE, TRUE);
    @endcode
-   * @param[in] string $sourceDbUrl Source database URL.
-   * @param[in] string $targetDbUrl Destination database URL.
-   * @param[in] string $proxy (optional) Specify the optional proxy used to perform the replication.
-   * @param[in] bool $createTargetDb (optional) The target database has to exist and is not implicitly created. You
+   * @param string $sourceDbUrl Source database URL.
+   * @param string $targetDbUrl Destination database URL.
+   * @param string $proxy (optional) Specify the optional proxy used to perform the replication.
+   * @param bool $createTargetDb (optional) The target database has to exist and is not implicitly created. You
    * can force the creation setting `$createTargetDb = true`.
-   * @param[in] bool $continuous (optional) When `true` CouchDB will not stop after replicating all missing documents
+   * @param bool $continuous (optional) When `true` CouchDB will not stop after replicating all missing documents
    * from the source to the target.\n
    * At the time of writing, CouchDB doesn't remember continuous replications over a server restart. For the time being,
    * you are required to trigger them again when you restart CouchDB. In the future, CouchDB will allow you to define
    * permanent continuous replications that survive a server restart without you having to do anything.
-   * @param[in] string|array $filter (optional) Name of a filter function that can choose which revisions get replicated.
+   * @param string|array $filter (optional) Name of a filter function that can choose which revisions get replicated.
    * You can also provide an array of document identifiers; if given, only these documents will be replicated.
-   * @param[in] ViewQueryOpts $opts (optional) Query options to get additional information, grouping results, include
+   * @param ViewQueryOpts $opts (optional) Query options to get additional information, grouping results, include
    * docs, etc.
-   * @retval Response
+   * @return Response
    * @see http://docs.couchdb.org/en/latest/api/server/common.html#post--_replicate
    */
   public function startReplication($sourceDbUrl, $targetDbUrl, $proxy = NULL, $createTargetDb = TRUE,
@@ -844,8 +819,8 @@ final class Couch {
 
   /**
    * @brief Cancels replication.
-   * @param[in] string $replicationId The replication ID.
-   * @retval Response
+   * @param string $replicationId The replication ID.
+   * @return Response
    * @see http://docs.couchdb.org/en/latest/api/server/common.html#canceling-continuous-replication
    */
   public function stopReplication($replicationId) {
@@ -887,14 +862,14 @@ final class Couch {
 
   /**
    * @brief Returns a built-in view of all documents in this database. If keys are specified returns only certain rows.
-   * @param[in] string $dbName The database name.
-   * @param[in] array $keys (optional) Used to retrieve just the view rows matching that set of keys. Rows are returned
+   * @param string $dbName The database name.
+   * @param array $keys (optional) Used to retrieve just the view rows matching that set of keys. Rows are returned
    * in the order of the specified keys. Combining this feature with Opt\ViewQueryOpts.includeDocs() results in the so-called
    * multi-document-fetch feature.
-   * @param[in] ViewQueryOpts $opts (optional) Query options to get additional information, grouping results, include
+   * @param ViewQueryOpts $opts (optional) Query options to get additional information, grouping results, include
    * docs, etc.
-   * @param[in] ChunkHook $chunkHook (optional) A class instance that implements the IChunkHook interface.
-   * @retval Result::QueryResult The result of the query.
+   * @param ChunkHook $chunkHook (optional) A class instance that implements the IChunkHook interface.
+   * @return Result::QueryResult The result of the query.
    * @see http://docs.couchdb.org/en/latest/api/database/bulk-api.html#get--db-_all_docs
    * @see http://docs.couchdb.org/en/latest/api/database/bulk-api.html#post--db-_all_docs
    */
@@ -917,16 +892,16 @@ final class Couch {
 
   /**
    * @brief Executes the given view and returns the result.
-   * @param[in] string $dbName The database name.
-   * @param[in] string $designDocName The design document's name.
-   * @param[in] string $viewName The view's name.
-   * @param[in] array $keys (optional) Used to retrieve just the view rows matching that set of keys. Rows are returned
+   * @param string $dbName The database name.
+   * @param string $designDocName The design document's name.
+   * @param string $viewName The view's name.
+   * @param array $keys (optional) Used to retrieve just the view rows matching that set of keys. Rows are returned
    * in the order of the specified keys. Combining this feature with Opt\ViewQueryOpts.includeDocs() results in the so-called
    * multi-document-fetch feature.
-   * @param[in] ViewQueryOpts $opts (optional) Query options to get additional information, grouping results, include
+   * @param ViewQueryOpts $opts (optional) Query options to get additional information, grouping results, include
    * docs, etc.
-   * @param[in] IChunkHook $chunkHook (optional) A class instance that implements the IChunkHook interface.
-   * @retval Result::QueryResult The result of the query.
+   * @param IChunkHook $chunkHook (optional) A class instance that implements the IChunkHook interface.
+   * @return Result::QueryResult The result of the query.
    * @attention Multiple keys request to a reduce function only supports `group=true` (identical to `group-level=exact`,
    * but it doesn't support `group_level` > 0.
    * CouchDB raises "Multi-key fetchs for reduce view must include `group=true`" error, in case you use `group_level`.
@@ -969,17 +944,17 @@ final class Couch {
    * @brief Executes the given view, both map and reduce functions, for all documents and returns the result.
    * @details Map and Reduce functions are provided by the programmer.
    * @attention Requires admin privileges.
-   * @param[in] string $dbName The database name.
-   * @param[in] string $mapFn The map function.
-   * @param[in] string $reduceFn The reduce function.
-   * @param[in] array $keys (optional) Used to retrieve just the view rows matching that set of keys. Rows are returned
+   * @param string $dbName The database name.
+   * @param string $mapFn The map function.
+   * @param string $reduceFn The reduce function.
+   * @param array $keys (optional) Used to retrieve just the view rows matching that set of keys. Rows are returned
    * in the order of the specified keys. Combining this feature with Opt\ViewQueryOpts.includeDocs() results in the so-called
    * multi-document-fetch feature.
-   * @param[in] ViewQueryOpts $opts (optional) Query options to get additional information, grouping results, include
+   * @param ViewQueryOpts $opts (optional) Query options to get additional information, grouping results, include
    * docs, etc.
-   * @param[in] string $language The language used to implement the map and reduce functions.
-   * @param[in] IChunkHook $chunkHook (optional) A class instance that implements the IChunkHook interface.
-   * @retval Result::QueryResult The result of the query.
+   * @param string $language The language used to implement the map and reduce functions.
+   * @param IChunkHook $chunkHook (optional) A class instance that implements the IChunkHook interface.
+   * @return Result::QueryResult The result of the query.
    * @see http://docs.couchdb.org/en/latest/api/database/temp-views.html#post--db-_temp_view
    */
   public function queryTempView($dbName, $mapFn, $reduceFn = "", array $keys = NULL, Opt\ViewQueryOpts $opts = NULL, $language = 'php', Hook\IChunkHook $chunkHook = NULL) {
@@ -1022,8 +997,8 @@ final class Couch {
 
   /**
    * @brief Given a list of document revisions, returns the document revisions that do not exist in the database.
-   * @param[in] string $dbName The database name.
-   * @retval Response
+   * @param string $dbName The database name.
+   * @return Response
    * @see http://docs.couchdb.org/en/latest/api/database/misc.html#db-missing-revs
    */
   public function getMissingRevs($dbName) {
@@ -1036,8 +1011,8 @@ final class Couch {
   /**
    * @brief Given a list of document revisions, returns differences between the given revisions and ones that are in
    * the database.
-   * @param[in] string $dbName The database name.
-   * @retval Response
+   * @param string $dbName The database name.
+   * @return Response
    * @see http://docs.couchdb.org/en/latest/api/database/misc.html#db-revs-diff
    */
   public function getRevsDiff($dbName) {
@@ -1049,8 +1024,8 @@ final class Couch {
 
   /**
    * @brief Gets the limit of historical revisions to store for a single document in the database.
-   * @param[in] string $dbName The database name.
-   * @retval integer The maximum number of document revisions that will be tracked by CouchDB.
+   * @param string $dbName The database name.
+   * @return integer The maximum number of document revisions that will be tracked by CouchDB.
    * @see http://docs.couchdb.org/en/latest/api/database/misc.html#get--db-_revs_limit
    */
   public function getRevsLimit($dbName) {
@@ -1062,8 +1037,8 @@ final class Couch {
 
   /**
    * @brief Sets the limit of historical revisions for a single document in the database.
-   * @param[in] string $dbName The database name.
-   * @param[in] integer $revsLimit (optional) Maximum number historical revisions for a single document in the database.
+   * @param string $dbName The database name.
+   * @param integer $revsLimit (optional) Maximum number historical revisions for a single document in the database.
    * Must be a positive integer.
    * @see http://docs.couchdb.org/en/latest/api/database/misc.html#put--db-_revs_limit
    */
@@ -1089,9 +1064,9 @@ final class Couch {
    * The ETag Header is simply the document's revision in quotes.
    * @details This function is not available for special documents. To get information about a design document, use
    * the special function getDesignDocInfo().
-   * @param[in] string $dbName The database name.
-   * @param[in] string $docId The document's identifier.
-   * @retval string The document's revision.
+   * @param string $dbName The database name.
+   * @param string $docId The document's identifier.
+   * @return string The document's revision.
    * @see http://docs.couchdb.org/en/latest/api/document/common.html#db-doc
    * @bug CouchDB ETag is
    */
@@ -1111,12 +1086,12 @@ final class Couch {
    * @brief Returns the latest revision of the document.
    * @details Since CouchDB uses different paths to store special documents, you must provide the document type for
    * design and local documents.
-   * @param[in] string $dbName The database name.
-   * @param[in] string $docId The document's identifier.
-   * @param[in] string $path The document's path.
-   * @param[in] string $rev (optional) The document's revision.
-   * @param[in] DocOpts $opts Query options to get additional document information, like conflicts, attachments, etc.
-   * @retval object|Response An instance of Doc, LocalDoc, DesignDoc or any subclass of Doc.
+   * @param string $dbName The database name.
+   * @param string $docId The document's identifier.
+   * @param string $path The document's path.
+   * @param string $rev (optional) The document's revision.
+   * @param DocOpts $opts Query options to get additional document information, like conflicts, attachments, etc.
+   * @return object|Response An instance of Doc, LocalDoc, DesignDoc or any subclass of Doc.
    * @see http://docs.couchdb.org/en/latest/api/document/common.html#get--db-docid
    */
   public function getDoc($dbName, $path, $docId, $rev = NULL, Opt\DocOpts $opts = NULL) {
@@ -1169,9 +1144,9 @@ final class Couch {
    * @details Whether the `$doc` has an id we use a different HTTP method. Using POST CouchDB generates an id for the doc,
    * using PUT instead we need to specify one. We can still use the function getUuids() to ask CouchDB for some ids.
    * This is an internal detail. You have only to know that CouchDB can generate the document id for you.
-   * @param[in] string $dbName The database name.
-   * @param[in] Doc $doc The document you want insert or update.
-   * @param[in] bool $batchMode (optional) You can write documents to the database at a higher rate by using the batch
+   * @param string $dbName The database name.
+   * @param Doc $doc The document you want insert or update.
+   * @param bool $batchMode (optional) You can write documents to the database at a higher rate by using the batch
    * option. This collects document writes together in memory (on a user-by-user basis) before they are committed to
    * disk. This increases the risk of the documents not being stored in the event of a failure, since the documents are
    * not written to disk immediately.
@@ -1205,10 +1180,10 @@ final class Couch {
   /**
    * @brief Deletes the specified document.
    * @details To delete a document you must provide the document identifier and the revision number.
-   * @param[in] string $dbName The database name.
-   * @param[in] string $docId The document's identifier you want delete.
-   * @param[in] string $rev The document's revision number you want delete.
-   * @param[in] string $path The document path.
+   * @param string $dbName The database name.
+   * @param string $docId The document's identifier you want delete.
+   * @param string $rev The document's revision number you want delete.
+   * @param string $path The document path.
    * @see http://docs.couchdb.org/en/latest/api/document/common.html#delete--db-docid
    */
   public function deleteDoc($dbName, $path, $docId, $rev) {
@@ -1231,11 +1206,11 @@ final class Couch {
    * @brief Makes a duplicate of the specified document. If you want to overwrite an existing document, you need to
    * specify the target document's revision with a `$rev` parameter.
    * @details If you want copy a special document you must specify his type.
-   * @param[in] string $dbName The database name.
-   * @param[in] string $sourceDocId The source document id.
-   * @param[in] string $targetDocId The destination document id.
-   * @param[in] string $rev Needed when you want override an existent document.
-   * @param[in] string $path The document path.
+   * @param string $dbName The database name.
+   * @param string $sourceDocId The source document id.
+   * @param string $targetDocId The destination document id.
+   * @param string $rev Needed when you want override an existent document.
+   * @param string $path The document path.
    * @see http://docs.couchdb.org/en/latest/api/document/common.html#copy--db-docid
    */
   public function copyDoc($dbName, $path, $sourceDocId, $targetDocId, $rev = NULL) {
@@ -1268,10 +1243,10 @@ final class Couch {
    * The purging of old documents is not replicated to other databases. If you are replicating between databases and
    * have deleted a large number of documents you should run purge on each database.\n
    * Purging documents does not remove the space used by them on disk. To reclaim disk space, you should run compactDb().\n
-   * @param[in] string $dbName The database name.
-   * @param[in] array $refs An array of references used to identify documents and revisions to delete. The array must
+   * @param string $dbName The database name.
+   * @param array $refs An array of references used to identify documents and revisions to delete. The array must
    * contains instances of the DocRef class.
-   * @retval Response
+   * @return Response
    * @see http://docs.couchdb.org/en/latest/api/database/misc.html#post--db-_purge
    * @see http://wiki.apache.org/couchdb/Purge_Documents
    */
@@ -1295,20 +1270,20 @@ final class Couch {
    * @details Documents that are updated or deleted must contain the `rev` number. To delete a document, you should
    * call delete() method on your document. When creating new documents the document ID is optional. For updating existing
    * documents, you must provide the document ID and revision.
-   * @param[in] string $dbName The database name.
-   * @param[in] array $docs An array of documents you want insert, delete or update.
-   * @param[in] bool $fullCommit (optional) Makes sure all uncommited database changes are written and synchronized
+   * @param string $dbName The database name.
+   * @param array $docs An array of documents you want insert, delete or update.
+   * @param bool $fullCommit (optional) Makes sure all uncommited database changes are written and synchronized
    * to the disk immediately.
-   * @param[in] bool $allOrNothing (optional) In all-or-nothing mode, either all documents are written to the database,
+   * @param bool $allOrNothing (optional) In all-or-nothing mode, either all documents are written to the database,
    * or no documents are written to the database, in the event of a system failure during commit.\n
    * You can ask CouchDB to check that all the documents pass your validation functions. If even one fails, none of the
    * documents are written. If all documents pass validation, then all documents will be updated, even if that introduces
    * a conflict for some or all of the documents.
-   * @param[in] bool $newEdits (optional) When `false` CouchDB pushes existing revisions instead of creating
+   * @param bool $newEdits (optional) When `false` CouchDB pushes existing revisions instead of creating
    * new ones. The response will not include entries for any of the successful revisions (since their rev IDs are
    * already known to the sender), only for the ones that had errors. Also, the conflict error will never appear,
    * since in this mode conflicts are allowed.
-   * @retval Response
+   * @return Response
    * @see http://docs.couchdb.org/en/latest/api/database/bulk-api.html#db-bulk-docs
    * @see http://docs.couchdb.org/en/latest/json-structure.html#bulk-documents
    * @see http://wiki.apache.org/couchdb/HTTP_Bulk_Document_API
@@ -1354,12 +1329,12 @@ final class Couch {
 
   /**
    * @brief Returns the minimal amount of information about the specified attachment.
-   * @param[in] string $dbName The database name.
-   * @param[in] string $fileName The attachment's name.
-   * @param[in] string $docId The document's identifier.
-   * @param[in] string $path The document's path.
-   * @param[in] string $rev (optional) The document's revision.
-   * @retval string The document's revision.
+   * @param string $dbName The database name.
+   * @param string $fileName The attachment's name.
+   * @param string $docId The document's identifier.
+   * @param string $path The document's path.
+   * @param string $rev (optional) The document's revision.
+   * @return string The document's revision.
    * @see http://docs.couchdb.org/en/latest/api/document/attachments.html#db-doc-attachment
    */
   public function getAttachmentInfo($dbName, $fileName, $path, $docId, $rev = NULL) {
@@ -1380,11 +1355,11 @@ final class Couch {
 
   /**
    * @brief Retrieves the attachment from the specified document.
-   * @param[in] string $dbName The database name.
-   * @param[in] string $fileName The attachment's name.
-   * @param[in] string $docId The document's identifier.
-   * @param[in] string $path The document's path.
-   * @param[in] string $rev (optional) The document's revision.
+   * @param string $dbName The database name.
+   * @param string $fileName The attachment's name.
+   * @param string $docId The document's identifier.
+   * @param string $path The document's path.
+   * @param string $rev (optional) The document's revision.
    * @see http://docs.couchdb.org/en/latest/api/document/attachments.html#get--db-docid-attname
    * @see http://docs.couchdb.org/en/latest/api/document/attachments.html#http-range-requests
    * @todo Add support for Range request, using header "Range: bytes=0-12".
@@ -1407,11 +1382,11 @@ final class Couch {
 
   /**
    * @brief Inserts or updates an attachment to the specified document.
-   * @param[in] string $dbName The database name.
-   * @param[in] string $fileName The attachment's name.
-   * @param[in] string $docId The document's identifier.
-   * @param[in] string $path The document's path.
-   * @param[in] string $rev (optional) The document's revision.
+   * @param string $dbName The database name.
+   * @param string $fileName The attachment's name.
+   * @param string $docId The document's identifier.
+   * @param string $path The document's path.
+   * @param string $rev (optional) The document's revision.
    * @see http://docs.couchdb.org/en/latest/api/document/attachments.html#put--db-docid-attname
    */
   public function putAttachment($dbName, $fileName, $path, $docId, $rev = NULL) {
@@ -1437,11 +1412,11 @@ final class Couch {
 
   /**
    * @brief Deletes an attachment from the document.
-   * @param[in] string $dbName The database name.
-   * @param[in] string $fileName The attachment's name.
-   * @param[in] string $docId The document's identifier.
-   * @param[in] string $path The document's path.
-   * @param[in] string $rev The document's revision.
+   * @param string $dbName The database name.
+   * @param string $fileName The attachment's name.
+   * @param string $docId The document's identifier.
+   * @param string $path The document's path.
+   * @param string $rev The document's revision.
    * @see http://docs.couchdb.org/en/latest/api/document/attachments.html#delete--db-docid-attname
    */
   public function deleteAttachment($dbName, $fileName, $path, $docId, $rev) {
@@ -1465,9 +1440,9 @@ final class Couch {
 
   /**
    * @brief Returns basic information about the design document and his views.
-   * @param[in] string $dbName The database name.
-   * @param[in] string $docName The design document's name.
-   * @retval array An associative array
+   * @param string $dbName The database name.
+   * @param string $docName The design document's name.
+   * @return array An associative array
    * @see http://docs.couchdb.org/en/latest/api/ddoc/common.html#get--db-_design-ddoc-_info
    */
   public function getDesignDocInfo($dbName, $docName) {
@@ -1478,67 +1453,6 @@ final class Couch {
     $request = new Request(Request::GET_METHOD, $path);
 
     return $this->send($request)->getBodyAsArray();
-  }
-
-
-  /**
-   * @brief
-   * @details
-   * @see http://docs.couchdb.org/en/latest/api/ddoc/render.html#get--db-_design-ddoc-_show-func
-   * @see http://docs.couchdb.org/en/latest/api/ddoc/render.html#post--db-_design-ddoc-_show-func
-   * @see http://docs.couchdb.org/en/latest/api/ddoc/render.html#get--db-_design-ddoc-_show-func-docid
-   * @see http://docs.couchdb.org/en/latest/api/ddoc/render.html#post--db-_design-ddoc-_show-func-docid
-   * @todo To be implemented and documented.
-   */
-  public function showDoc($dbName, $designDocName, $showName, $docId = NULL) {
-    throw new \BadMethodCallException("The method `showDoc()` is not available.");
-    // Invokes the show handler without a document
-    // /db/_design/design-doc/_show/show-name
-    // Invokes the show handler for the given document
-    // /db/_design/design-doc/_show/show-name/doc
-    // GET /db/_design/examples/_show/posts/somedocid
-    // GET /db/_design/examples/_show/people/otherdocid
-    // GET /db/_design/examples/_show/people/otherdocid?format=xml&details=true
-    // public function showDoc($designDocName, $funcName, $docId, $format, $details = FALSE) {
-  }
-
-
-  /**
-   * @brief
-   * @details
-   * @see http://docs.couchdb.org/en/latest/api/ddoc/render.html#get--db-_design-ddoc-_list-func-view
-   * @see http://docs.couchdb.org/en/latest/api/ddoc/render.html#post--db-_design-ddoc-_list-func-view
-   * @see http://docs.couchdb.org/en/latest/api/ddoc/render.html#get--db-_design-ddoc-_list-func-other-ddoc-view
-   * @see http://docs.couchdb.org/en/latest/api/ddoc/render.html#post--db-_design-ddoc-_list-func-other-ddoc-view
-   * @todo To be implemented and documented.
-   */
-  public function listDocs($dbName, $designDocName, $listName, $docId = NULL) {
-    throw new \BadMethodCallException("The method `listDocs()` is not available.");
-    // Invokes the list handler to translate the given view results
-    // Invokes the list handler to translate the given view results for certain documents
-    // GET /db/_design/examples/_list/index-posts/posts-by-date?descending=true&limit=10
-    // GET /db/_design/examples/_list/index-posts/posts-by-tag?key="howto"
-    // GET /db/_design/examples/_list/browse-people/people-by-name?startkey=["a"]&limit=10
-    // GET /db/_design/examples/_list/index-posts/other_ddoc/posts-by-tag?key="howto"
-    // public function listDocs($designDocName, $funcName, $viewName, $queryArgs, $keys = "") {
-  }
-
-
-  /**
-   * @brief
-   * @details
-   * @see http://docs.couchdb.org/en/latest/api/ddoc/render.html#post--db-_design-ddoc-_update-func
-   * @see http://docs.couchdb.org/en/latest/api/ddoc/render.html#put--db-_design-ddoc-_update-func-docid
-   * @todo To be implemented and documented.
-   */
-  public function callUpdateDocFunc($dbName, $designDocName, $funcName) {
-    throw new \BadMethodCallException("The method `callUpdateDocFunc()` is not available.");
-    // Invokes the update handler without a document
-    // /db/_design/design-doc/_update/update-name
-    // Invokes the update handler for the given document
-    // /db/_design/design-doc/_update/update-name/doc
-    // a PUT request against the handler function with a document id: /<database>/_design/<design>/_update/<function>/<docid>
-    // a POST request against the handler function without a document id: /<database>/_design/<design>/_update/<function>
   }
 
   //!@}

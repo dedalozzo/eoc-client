@@ -51,7 +51,7 @@ class DocOpts extends AbstractOpts {
    * to fetch only the attachments that have changed since a particular revision. You can specify one or more revision IDs.
    * In the last case you must use an array of string. The response will include the content of only those attachments
    * that changed since the given revision(s).
-   * @param[in] string|array $revs The revision(s) identifier(s).
+   * @param string|array $revs The revision(s) identifier(s).
    */
   public function includeAttsSince($revs) {
     $this->options['atts_since'] = json_encode($revs);
@@ -140,7 +140,7 @@ class DocOpts extends AbstractOpts {
    * with an "ok" key pointing to the document, or a "missing" key pointing to the rev string.
    * @details CouchDB will return something like this:
    * [{"missing":"1-fbd8a6da4d669ae4b909fcdb42bb2bfd"},{"ok":{"_id":"test","_rev":"2-5bc3c6319edf62d4c624277fdd0ae191","hello":"foo"}}]
-   * @param[in] string|array $revs The revision(s) identifier(s).
+   * @param string|array $revs The revision(s) identifier(s).
    */
   public function includeOpenRevs($revs = 'all') {
     if (is_array($revs))

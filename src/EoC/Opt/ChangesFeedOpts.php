@@ -78,7 +78,7 @@ class ChangesFeedOpts extends AbstractOpts {
 
   /**
    * @brief Starts the results from the change immediately after the given sequence number.
-   * @param[in] integer $since Sequence number to start results. Allowed values: positive integers | 'now'.
+   * @param integer $since Sequence number to start results. Allowed values: positive integers | 'now'.
    */
   public function setSince($since = 0) {
     if (($since == "now") or (is_int($since) and ($since >= 0)))
@@ -92,7 +92,7 @@ class ChangesFeedOpts extends AbstractOpts {
 
   /**
    * @brief Limits number of result rows to the specified value.
-   * @param[in] integer $limit Maximum number of rows to return. Must be a positive integer.
+   * @param integer $limit Maximum number of rows to return. Must be a positive integer.
    */
   public function setLimit($limit) {
     if (is_int($limit) and ($limit > 0))
@@ -114,7 +114,7 @@ class ChangesFeedOpts extends AbstractOpts {
 
   /**
    * @brief Sets the type of feed.
-   * @param[in] string $type Type of feed.
+   * @param string $type Type of feed.
    */
   public function setFeedType($type) {
     if (array_key_exists($type, self::$supportedTypes))
@@ -127,7 +127,7 @@ class ChangesFeedOpts extends AbstractOpts {
   /**
    * @brief Specifies how many revisions are returned in the changes array. The default, `main_only`, will only
    * return the winning revision; `all_docs` will return all the conflicting revisions.
-   * @param[in] bool $style The feed style.
+   * @param bool $style The feed style.
    */
   public function setStyle($style) {
     if (array_key_exists($style, self::$supportedStyles))
@@ -140,7 +140,7 @@ class ChangesFeedOpts extends AbstractOpts {
   /**
    * @brief Period in milliseconds after which an empty line is sent in the results. Overrides any timeout to keep the
    * feed alive indefinitely.
-   * @param[in] integer $heartbeat Period in milliseconds after which an empty line is sent in the results.
+   * @param integer $heartbeat Period in milliseconds after which an empty line is sent in the results.
    * @warning Only applicable for `longpoll` or `continuous` feeds.
    */
   public function setHeartbeat($heartbeat = self::DEFAULT_HEARTBEAT) {
@@ -157,7 +157,7 @@ class ChangesFeedOpts extends AbstractOpts {
   /**
    * @brief Maximum period in milliseconds to wait for a change before the response is sent, even if there are no results.
    * @details Note that 60000 is also the default maximum timeout to prevent undetected dead connections.
-   * @param[in] integer $timeout Maximum period to wait before the response is sent. Must be a positive integer.
+   * @param integer $timeout Maximum period to wait before the response is sent. Must be a positive integer.
    * @warning Only applicable for `longpoll` or `continuous` feeds.
    */
   public function setTimeout($timeout = self::DEFAULT_TIMEOUT) {
@@ -181,8 +181,8 @@ class ChangesFeedOpts extends AbstractOpts {
 
   /**
    * @brief Sets a filter function.
-   * @param[in] string $designDocName The design document's name.
-   * @param[in] string $filterName Filter function from a design document to get updates.
+   * @param string $designDocName The design document's name.
+   * @param string $filterName Filter function from a design document to get updates.
    * @todo Implement the setFilter() method.
    */
   public function setFilter($designDocName, $filterName) {

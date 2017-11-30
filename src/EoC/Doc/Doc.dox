@@ -9,6 +9,11 @@ class Doc {
   /** @name Properties */
   //!@{
 
+  /**
+   * @brief Document’s update sequence in current database.
+   * @details Available if requested with `local_seq=true` query parameter.
+   */
+  string $localSequence;
 
   //!@}
 

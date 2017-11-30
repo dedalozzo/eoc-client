@@ -19,13 +19,13 @@ namespace EoC;
 class Version {
 
   const MAJOR = '0'; //!< Major release number.
-  const MINOR = '8'; //!< Minor release number.
-  const MAINTENANCE = '2'; //!< Maintenance release number (bug fixes only).
+  const MINOR = '9'; //!< Minor release number.
+  const MAINTENANCE = '0'; //!< Maintenance release number (bug fixes only).
 
 
   /**
    * @brief Returns the version number as string.
-   * @retval string The version number.
+   * @return string The version number.
    */
   public static function getNumber() {
     return static::MAJOR.".".static::MINOR.".".static::MAINTENANCE;

@@ -24,7 +24,7 @@ class QueryResult implements \IteratorAggregate, \Countable, \ArrayAccess {
 
   /**
    * @brief Creates an instance of the class
-   * @param[in] array $result The result of a CouchDB's query converted from JSON to array.
+   * @param array $result The result of a CouchDB's query converted from JSON to array.
    */
   public function __construct($result) {
     $this->result = &$result;
@@ -33,7 +33,7 @@ class QueryResult implements \IteratorAggregate, \Countable, \ArrayAccess {
 
   /**
    * @brief Gets the number of total rows in the view.
-   * @retval integer Number of the view rows.
+   * @return integer Number of the view rows.
    */
   public function getTotalRows() {
     return $this->result['total_rows'];
@@ -42,7 +42,7 @@ class QueryResult implements \IteratorAggregate, \Countable, \ArrayAccess {
 
   /**
    * @brief Returns count or sum in case this is the result of a reduce function.
-   * @retval integer The result of the reduce function.
+   * @return integer The result of the reduce function.
    */
   public function getReducedValue() {
     return empty($this->result['rows']) ? 0 : $this->result['rows'][0]['value'];
@@ -52,7 +52,7 @@ class QueryResult implements \IteratorAggregate, \Countable, \ArrayAccess {
   /**
    * @brief Returns the result as a real array of rows to be used with `array_column()` or other functions operating on
    * arrays.
-   * @retval array An array of rows.
+   * @return array An array of rows.
    */
   public function asArray()  {
     return $this->result['rows'];
@@ -63,7 +63,7 @@ class QueryResult implements \IteratorAggregate, \Countable, \ArrayAccess {
    * @brief Returns `true` in case there aren't rows, `false` otherwise.
    * @details Since the PHP core developers are noobs, `empty()` cannot be used on any class that implements ArrayAccess.
    * @attention This method must be used in place of `empty()`.
-   * @retval bool
+   * @return bool
    */
   public function isEmpty() {
     return empty($this->result['rows']) ? TRUE : FALSE;
@@ -72,7 +72,7 @@ class QueryResult implements \IteratorAggregate, \Countable, \ArrayAccess {
 
   /**
    * @brief Returns an external iterator.
-   * @retval [ArrayIterator](http://php.net/manual/en/class.arrayiterator.php).
+   * @return [ArrayIterator](http://php.net/manual/en/class.arrayiterator.php).
    */
   public function getIterator() {
     return new \ArrayIterator($this->result['rows']);
@@ -81,7 +81,7 @@ class QueryResult implements \IteratorAggregate, \Countable, \ArrayAccess {
 
   /**
    * @brief Returns the number of documents found.
-   * @retval integer Number of documents.
+   * @return integer Number of documents.
    */
   public function count() {
     return count($this->result['rows']);
@@ -91,8 +91,8 @@ class QueryResult implements \IteratorAggregate, \Countable, \ArrayAccess {
   /**
    * @brief Whether or not an offset exists.
    * @details This method is executed when using `isset()` or `empty()` on objects implementing ArrayAccess.
-   * @param[in] integer $offset An offset to check for.
-   * @retval bool Returns `true` on success or `false` on failure.
+   * @param integer $offset An offset to check for.
+   * @return bool Returns `true` on success or `false` on failure.
    */
   public function offsetExists($offset) {
     return isset($this->result['rows'][$offset]);
@@ -102,8 +102,8 @@ class QueryResult implements \IteratorAggregate, \Countable, \ArrayAccess {
   /**
    * @brief Returns the value at specified offset.
    * @details This method is executed when checking if offset is `empty()`.
-   * @param[in] integer $offset The offset to retrieve.
-   * @retval mixed Can return all value types.
+   * @param integer $offset The offset to retrieve.
+   * @return mixed Can return all value types.
    */
   public function offsetGet($offset)  {
     return $this->result['rows'][$offset];

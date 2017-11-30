@@ -33,9 +33,9 @@ final class DesignDoc extends Doc {
 
   /**
    * @brief Creates an instance of DesignDoc class.
-   * @param[in] string $name The design document name.
-   * @param[in] string $language The programming language used by the design document for his handlers.
-   * @retval DesignDoc An instance of the class.
+   * @param string $name The design document name.
+   * @param string $language The programming language used by the design document for his handlers.
+   * @return DesignDoc An instance of the class.
    */
   public static function create($name, $language = "php") {
     $instance = new self();
@@ -82,7 +82,7 @@ final class DesignDoc extends Doc {
 
   /**
    * @brief Gets the document path: `_design/`.
-   * @retval string
+   * @return string
    */
   public function getPath() {
     return "_design/";
@@ -103,8 +103,8 @@ final class DesignDoc extends Doc {
   /**
    * @brief Given a design document section (ex. views, updates, filters, etc.) and an optional handler's name (because
    * the handler couldn't have a name), returns the
-   * @param[in] string $section The section name.
-   * @param[in] string $name (optional) The handler name.
+   * @param string $section The section name.
+   * @param string $name (optional) The handler name.
    */
   public function getHandlerAttributes($section, $name = "") {
     if (empty($name)) { // The handler doesn't have a name.
@@ -127,7 +127,7 @@ final class DesignDoc extends Doc {
    * @details This method checks the existence of the property `$name`, in fact a design document can have sections
    * with multiple handlers, but in some cases there is one and only one handler per section, so that handler doesn't
    * have a name.
-   * @param[in] Handler\IHandler $handler An instance of a subclass of the abstract class DesignIHandler.
+   * @param Handler\IHandler $handler An instance of a subclass of the abstract class DesignIHandler.
    */
   public function addHandler(Handler\IHandler $handler) {
     $section = $handler->getSection();
@@ -158,8 +158,8 @@ final class DesignDoc extends Doc {
    * @details Some handlers belong to a section. For example ViewHandler belongs to the 'views' section. To specify
    * the appropriate section name, you should use the static method `getSection` available for every handler
    * implementation.
-   * @param[in] string $section The section's name (views, updates, shows, filters, etc).
-   * @param[in] string $name (optional) The handler's name.
+   * @param string $section The section's name (views, updates, shows, filters, etc).
+   * @param string $name (optional) The handler's name.
    */
   public function removeHandler($section, $name = "") {
     if (empty($name)) { // The handler doesn't have a name.

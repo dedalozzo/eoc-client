@@ -23,16 +23,7 @@ class Doc extends AbstractDoc {
   const REVS_INFO = "_revs_info";
   const CONFLICTS = "_conflicts";
   const DELETED_CONFLICTS = "_deleted_conflicts";
-
-  //! If the document has attachments, holds a meta-data structure.
-  private $attachments = []; // array of attachments
-
-  //! A list of revisions of the document, and their availability.
-  private $revsInfo = [];
-
-  private $conflicts = [];
-
-  private $deletedConflicts = [];
+  const LOCAL_SEQUENCE = "_local_seq";
 
 
   protected function fixDocId() {}
@@ -62,8 +53,7 @@ class Doc extends AbstractDoc {
 
 
   /**
-   * @brief
-   * @todo To be documented.
+   * @brief Adds an attachment.
    */
   public function addAttachment(Attachment $attachment) {
     $this->meta[self::ATTACHMENTS][$attachment->getName()] = $attachment->asArray();
@@ -71,8 +61,7 @@ class Doc extends AbstractDoc {
 
 
   /**
-   * @brief
-   * @todo To be documented.
+   * @brief Removes an attachment.
    */
   public function removeAttachment($name) {
     if ($this->isMetadataPresent(self::ATTACHMENTS))
@@ -85,21 +74,23 @@ class Doc extends AbstractDoc {
   }
 
 
+  //! @cond HIDDEN_SYMBOLS
+
   /**
-   * @brief
-   * @todo To be documented.
+   * @brief Returns the `_local_seq` number.
    */
   public function getLocalSequence() {
-    return $this->meta['_local_sequence'];
+    return $this->meta[self::LOCAL_SEQUENCE];
   }
 
 
   /**
-   * @brief
-   * @todo To be documented.
+   * @brief Returns `true` is the `_local_sequence` number is present, `false` otherwise.
    */
   public function issetLocalSequence() {
-    return $this->isMetadataPresent('_local_sequence');
+    return $this->isMetadataPresent(self::LOCAL_SEQUENCE);
   }
+
+  //! @endcond
 
 }

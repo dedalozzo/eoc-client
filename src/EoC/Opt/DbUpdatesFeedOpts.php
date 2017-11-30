@@ -60,7 +60,7 @@ class DbUpdatesFeedOpts extends AbstractOpts {
 
   /**
    * @brief Sets the type of feed.
-   * @param[in] string $type Type of feed.
+   * @param string $type Type of feed.
    */
   public function setFeedType($type) {
     if (array_key_exists($type, self::$supportedTypes))
@@ -75,7 +75,7 @@ class DbUpdatesFeedOpts extends AbstractOpts {
   /**
    * @brief Maximum period in seconds to wait for a change before the response is sent, even if there are no results.
    * @details Note that 60 is also the default maximum timeout to prevent undetected dead connections.
-   * @param[in] integer $timeout Maximum period to wait before the response is sent. Must be a positive integer.
+   * @param integer $timeout Maximum period to wait before the response is sent. Must be a positive integer.
    * @warning Only applicable for `continuous` feeds.
    */
   public function setTimeout($timeout = self::DEFAULT_TIMEOUT) {
