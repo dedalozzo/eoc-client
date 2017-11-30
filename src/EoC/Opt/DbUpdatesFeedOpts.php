@@ -82,7 +82,7 @@ class DbUpdatesFeedOpts extends AbstractOpts {
     $feed = $this->options['feed'];
 
     if ($feed == self::CONTINUOUS_TYPE)
-      if (is_int($timeout) and ($timeout > 0))
+      if (is_int($timeout) && ($timeout > 0))
         $this->options["timeout"] = $timeout;
       else
         throw new \InvalidArgumentException("\$timeout must be a positive integer.");

@@ -81,7 +81,7 @@ class ChangesFeedOpts extends AbstractOpts {
    * @param integer $since Sequence number to start results. Allowed values: positive integers | 'now'.
    */
   public function setSince($since = 0) {
-    if (($since == "now") or (is_int($since) and ($since >= 0)))
+    if (($since == "now") || (is_int($since) and ($since >= 0)))
       $this->options["since"] = $since;
     else
       throw new \InvalidArgumentException("\$since must be a non-negative integer or can be 'now'.");
@@ -95,7 +95,7 @@ class ChangesFeedOpts extends AbstractOpts {
    * @param integer $limit Maximum number of rows to return. Must be a positive integer.
    */
   public function setLimit($limit) {
-    if (is_int($limit) and ($limit > 0))
+    if (is_int($limit) && ($limit > 0))
       $this->options["limit"] = $limit;
     else
       throw new \InvalidArgumentException("\$value must be a positive integer.");
@@ -146,8 +146,8 @@ class ChangesFeedOpts extends AbstractOpts {
   public function setHeartbeat($heartbeat = self::DEFAULT_HEARTBEAT) {
     $feed = $this->options['feed'];
 
-    if (($feed == self::CONTINUOUS_TYPE) or ($feed == self::LONGPOLL_TYPE))
-      if (is_int($heartbeat) and ($heartbeat >= 0))
+    if (($feed == self::CONTINUOUS_TYPE) || ($feed == self::LONGPOLL_TYPE))
+      if (is_int($heartbeat) && ($heartbeat >= 0))
         $this->options["heartbeat"] = $heartbeat;
       else
         throw new \InvalidArgumentException("\$heartbeat must be a non-negative integer.");
@@ -163,8 +163,8 @@ class ChangesFeedOpts extends AbstractOpts {
   public function setTimeout($timeout = self::DEFAULT_TIMEOUT) {
     $feed = $this->options['feed'];
 
-    if (($feed == self::CONTINUOUS_TYPE) or ($feed == self::LONGPOLL_TYPE))
-      if (is_int($timeout) and ($timeout > 0))
+    if (($feed == self::CONTINUOUS_TYPE) || ($feed == self::LONGPOLL_TYPE))
+      if (is_int($timeout) && ($timeout > 0))
         $this->options["timeout"] = $timeout;
       else
         throw new \InvalidArgumentException("\$timeout must be a positive integer.");

@@ -49,12 +49,6 @@ final class DesignDoc extends Doc {
 
   // Initializes the handlers' sections.
   private function initSections() {
-    $this->sections[Handler\FilterHandler::getSection()] = NULL;
-    $this->sections[Handler\ListHandler::getSection()] = NULL;
-    $this->sections[Handler\RewriteHandler::getSection()] = NULL;
-    $this->sections[Handler\ShowHandler::getSection()] = NULL;
-    $this->sections[Handler\UpdateHandler::getSection()] = NULL;
-    $this->sections[Handler\ValidateDocUpdateHandler::getSection()] = NULL;
     $this->sections[Handler\ViewHandler::getSection()] = NULL;
   }
 

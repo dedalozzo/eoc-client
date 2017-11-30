@@ -330,7 +330,7 @@ final class Couch extends Surfer {
    * @see http://docs.couchdb.org/en/latest/api/server/common.html#log
    */
   public function getLogTail($bytes = 1000) {
-    if (is_int($bytes) and ($bytes > 0)) {
+    if (is_int($bytes) && ($bytes > 0)) {
       $request = new Request(Request::GET_METHOD, "/_log");
       $request->setQueryParam("bytes", $bytes);
       return $this->send($request)->getBody();
@@ -347,7 +347,7 @@ final class Couch extends Surfer {
    * @see http://docs.couchdb.org/en/latest/api/server/common.html#uuids
    */
   public function getUuids($count = 1) {
-    if (is_int($count) and ($count > 0)) {
+    if (is_int($count) && ($count > 0)) {
       $request = new Request(Request::GET_METHOD, "/_uuids");
       $request->setQueryParam("count", $count);
 
@@ -399,10 +399,10 @@ final class Couch extends Surfer {
    * @see http://docs.couchdb.org/en/latest/api/server/configuration.html#put--_config-section-key
    */
   public function setConfigKey($section, $key, $value) {
-    if (!is_string($section) or empty($section))
+    if (!is_string($section) || empty($section))
       throw new \InvalidArgumentException("\$section must be a not empty string.");
 
-    if (!is_string($key) or empty($key))
+    if (!is_string($key) || empty($key))
       throw new \InvalidArgumentException("\$key must be a not empty string.");
 
     if (is_null($value))
@@ -422,10 +422,10 @@ final class Couch extends Surfer {
    * @see http://docs.couchdb.org/en/latest/api/configuration.html#delete-config-section-key
    */
   public function deleteConfigKey($section, $key) {
-    if (!is_string($section) or empty($section))
+    if (!is_string($section) || empty($section))
       throw new \InvalidArgumentException("\$section must be a not empty string.");
 
-    if (!is_string($key) or empty($key))
+    if (!is_string($key) || empty($key))
       throw new \InvalidArgumentException("\$key must be a not empty string.");
 
     $this->send(new Request(Request::DELETE_METHOD, "/_config/".$section."/".$key));
@@ -453,10 +453,10 @@ final class Couch extends Surfer {
    * @see http://docs.couchdb.org/en/latest/api/server/authn.html#post--_session
    */
   public function setSession($userName, $password) {
-    if (!is_string($userName) or empty($userName))
+    if (!is_string($userName) || empty($userName))
       throw new \InvalidArgumentException("\$userName must be a not empty string.");
 
-    if (!is_string($password) or empty($password))
+    if (!is_string($password) || empty($password))
       throw new \InvalidArgumentException("\$password must be a not empty string.");
 
     $request = new Request(Request::POST_METHOD, "/_session");
@@ -1042,7 +1042,7 @@ final class Couch extends Surfer {
    * @see http://docs.couchdb.org/en/latest/api/database/misc.html#put--db-_revs_limit
    */
   public function setRevsLimit($dbName, $revsLimit = self::REVS_LIMIT) {
-    if (!is_int($revsLimit) or ($revsLimit <= 0))
+    if (!is_int($revsLimit) || ($revsLimit <= 0))
       throw new \InvalidArgumentException("\$revsLimit must be a positive integer.");
 
     $request = new Request(Request::PUT_METHOD, "/".rawurlencode($this->prefix.$dbName)."/_revs_limit");
