@@ -80,27 +80,18 @@ abstract class AbstractDoc extends MetaClass implements IDoc {
   abstract public function getPath();
 
 
-  /**
-   * @copydoc MetaClass::assignJson()
-   */
   public function assignJson($json) {
     parent::assignJson($json);
     $this->fixDocId();
   }
 
 
-  /**
-   * @copydoc MetaClass::assignArray()
-   */
   public function assignArray(array $array) {
     parent::assignArray($array);
     $this->fixDocId();
   }
 
 
-  /**
-   * @copydoc MetaClass::assignObject()
-   */
   public function assignObject(\stdClass $object) {
     parent::assignObject($object);
     $this->fixDocId();

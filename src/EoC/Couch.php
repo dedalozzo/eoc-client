@@ -17,6 +17,8 @@ use Surfer\Message\Request;
 use Surfer\Message\Response;
 use Surfer\Hook\IChunkHook;
 
+use stdClass;
+
 
 /**
  * @brief The CouchDB's client. You need an instance of this class to interact with CouchDB.
@@ -57,10 +59,10 @@ final class Couch extends Surfer {
   /**
    * @brief Returns a CouchDB wild card.
    * @details A standard object is translated to JSON as `{}` same of a JavaScript empty object.
-   * @return [stdClass](http://php.net/manual/en/language.types.object.php)
+   * @return stdClass
    */
   public static function WildCard() {
-    return new \stdClass();
+    return new stdClass();
   }
 
 
@@ -90,7 +92,7 @@ final class Couch extends Surfer {
    * @param array $keys An array containing the keys.
    * @param[out] array $rows An associative array containing the rows.
    */
-  private function addMissingRows($keys, &$rows) {
+  private function addMissingRows(array $keys, &$rows) {
 
     if (!empty($keys) && isset($rows)) {
 
@@ -237,7 +239,7 @@ final class Couch extends Surfer {
    * @brief Returns an object that contains MOTD, server and client and PHP versions.
    * @details The MOTD can be specified in CouchDB configuration files. This function returns more information
    * compared to the CouchDB standard REST call.
-   * @return Info::ServerInfo
+   * @return Info\ServerInfo
    */
   public function getServerInfo() {
     $response = $this->send(new Request(Request::GET_METHOD, "/"));
@@ -248,7 +250,7 @@ final class Couch extends Surfer {
 
   /**
    * @brief Returns information about the Elephant on Couch client.
-   * @return Info::ClientInfo
+   * @return Info\ClientInfo
    */
   public function getClientInfo() {
     return new Info\ClientInfo();
@@ -295,7 +297,7 @@ final class Couch extends Surfer {
   /**
    * @brief Returns a list of all database events in the CouchDB instance.
    * @param DbUpdatesFeedOpts $opts Additional options.
-   * @return Response
+   * @return array An associative array.
    * @attention Requires admin privileges.
    * @see http://docs.couchdb.org/en/latest/api/server/common.html#db-updates
    */
@@ -312,7 +314,7 @@ final class Couch extends Surfer {
   /**
    * @brief Returns a list of running tasks.
    * @attention Requires admin privileges.
-   * @return array An associative array
+   * @return array An associative array.
    * @see http://docs.couchdb.org/en/latest/api/server/common.html#active-tasks
    */
   public function getActiveTasks() {
@@ -562,7 +564,7 @@ final class Couch extends Surfer {
   /**
    * @brief Returns information about the selected database.
    * @param string $name The database name.
-   * @return Info::DbInfo
+   * @return array An associative array.
    * @see http://docs.couchdb.org/en/latest/api/database/common.html#get--db
    */
   public function getDbInfo($name) {
@@ -865,12 +867,12 @@ final class Couch extends Surfer {
    * multi-document-fetch feature.
    * @param ViewQueryOpts $opts (optional) Query options to get additional information, grouping results, include
    * docs, etc.
-   * @param ChunkHook $chunkHook (optional) A class instance that implements the IChunkHook interface.
-   * @return Result::QueryResult The result of the query.
+   * @param IChunkHook $chunkHook (optional) A class instance that implements the IChunkHook interface.
+   * @return Result\QueryResult The result of the query.
    * @see http://docs.couchdb.org/en/latest/api/database/bulk-api.html#get--db-_all_docs
    * @see http://docs.couchdb.org/en/latest/api/database/bulk-api.html#post--db-_all_docs
    */
-  public function queryAllDocs($dbName, array $keys = NULL, Opt\ViewQueryOpts $opts = NULL, Hook\IChunkHook $chunkHook = NULL) {
+  public function queryAllDocs($dbName, array $keys = NULL, Opt\ViewQueryOpts $opts = NULL, IChunkHook $chunkHook = NULL) {
     if (is_null($keys))
       $request = new Request(Request::GET_METHOD, "/".rawurlencode($this->prefix.$dbName)."/_all_docs");
     else {
@@ -898,14 +900,14 @@ final class Couch extends Surfer {
    * @param ViewQueryOpts $opts (optional) Query options to get additional information, grouping results, include
    * docs, etc.
    * @param IChunkHook $chunkHook (optional) A class instance that implements the IChunkHook interface.
-   * @return Result::QueryResult The result of the query.
+   * @return Result\QueryResult The result of the query.
    * @attention Multiple keys request to a reduce function only supports `group=true` (identical to `group-level=exact`,
    * but it doesn't support `group_level` > 0.
    * CouchDB raises "Multi-key fetchs for reduce view must include `group=true`" error, in case you use `group_level`.
    * @see http://docs.couchdb.org/en/latest/api/ddoc/views.html#get--db-_design-ddoc-_view-view
    * @see http://docs.couchdb.org/en/latest/api/ddoc/views.html#post--db-_design-ddoc-_view-view
    */
-  public function queryView($dbName, $designDocName, $viewName, array $keys = NULL, Opt\ViewQueryOpts $opts = NULL, Hook\IChunkHook $chunkHook = NULL) {
+  public function queryView($dbName, $designDocName, $viewName, array $keys = NULL, Opt\ViewQueryOpts $opts = NULL, IChunkHook $chunkHook = NULL) {
     $this->validateAndEncodeDocId($designDocName);
 
     if (empty($viewName))
@@ -951,10 +953,10 @@ final class Couch extends Surfer {
    * docs, etc.
    * @param string $language The language used to implement the map and reduce functions.
    * @param IChunkHook $chunkHook (optional) A class instance that implements the IChunkHook interface.
-   * @return Result::QueryResult The result of the query.
+   * @return Result\QueryResult The result of the query.
    * @see http://docs.couchdb.org/en/latest/api/database/temp-views.html#post--db-_temp_view
    */
-  public function queryTempView($dbName, $mapFn, $reduceFn = "", array $keys = NULL, Opt\ViewQueryOpts $opts = NULL, $language = 'php', Hook\IChunkHook $chunkHook = NULL) {
+  public function queryTempView($dbName, $mapFn, $reduceFn = "", array $keys = NULL, Opt\ViewQueryOpts $opts = NULL, $language = 'php', IChunkHook $chunkHook = NULL) {
     $handler = new Handler\ViewHandler('temp');
     $handler->language = $language;
     $handler->mapFn = $mapFn;
