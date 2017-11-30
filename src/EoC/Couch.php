@@ -41,9 +41,6 @@ final class Couch extends Surfer {
 
   //!@}
 
-  // Socket or cURL HTTP client adapter.
-  private $client;
-
   // A database's name prefix.
   private $prefix = '';
 
